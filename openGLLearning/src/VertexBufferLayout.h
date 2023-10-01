@@ -14,8 +14,10 @@ class VertexBufferLayout
 {
 private:
 	std::vector<VertexBufferElement> m_Elements;
+	unsigned int m_Stride;
 public:
-	VertexBufferLayout();
+	VertexBufferLayout()
+		: m_Stride(0) {}
 
 	template<typename T>
 	void Push(int count)
@@ -26,7 +28,8 @@ public:
 	template<>
 	void Push<float>(int count)
 	{
-		m_Elements.push_back({ GL_FLOAT, count, false });
+		m_Elements.push_back((VertexBufferElement){ GL_FLOAT, count, false });
+		m_Stride += sizeof(GLfloat);
 	}
 	
 	template<>
@@ -40,4 +43,7 @@ public:
 	{
 		m_Elements.push_back({ GL_UNSIGNED_BYTE, count, true });
 	}
+
+	inline const std::vector<VertexBufferElement> GetElements() const { return m_Elements; }
+	inline unsigned int GetStride() const { return m_Stride; }
 };
