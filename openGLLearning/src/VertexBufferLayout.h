@@ -7,7 +7,7 @@ struct VertexBufferElement
 {
 	unsigned int type;
 	unsigned int count;
-	bool normalized; //TODO: guardare in documentazione a cosa serve
+	bool normalized; //TODO: guardare in documentazione a cosa serve, sarebbe il secondo parametro di glVertexAttribPointer
 };
 
 class VertexBufferLayout
@@ -15,33 +15,36 @@ class VertexBufferLayout
 private:
 	std::vector<VertexBufferElement> m_Elements;
 	unsigned int m_Stride;
+
 public:
 	VertexBufferLayout()
 		: m_Stride(0) {}
 
 	template<typename T>
-	void Push(int count)
+	void Push(unsigned int count)
 	{
-		static_assert(false);
+		static_assert(false); // this is type unmatch
 	}
 
 	template<>
-	void Push<float>(int count)
+	void Push<float>(unsigned int count)
 	{
-		m_Elements.push_back((VertexBufferElement){ GL_FLOAT, count, false });
+		m_Elements.push_back({ GL_FLOAT, count, false });
 		m_Stride += sizeof(GLfloat);
 	}
 	
 	template<>
-	void Push<unsigned int>(int count)
+	void Push<unsigned int>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_UNSIGNED_INT, count, false });
+		m_Stride += sizeof(GLuint);
 	}
 	
 	template<>
-	void Push<unsigned char>(int count)
+	void Push<unsigned char>(unsigned int count)
 	{
 		m_Elements.push_back({ GL_UNSIGNED_BYTE, count, true });
+		m_Stride += sizeof(GLbyte);
 	}
 
 	inline const std::vector<VertexBufferElement> GetElements() const { return m_Elements; }

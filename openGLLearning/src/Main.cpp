@@ -61,7 +61,7 @@ static unsigned int CompileShader(unsigned int type, const std::string& source)
     {
         int length;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)alloca(length * sizeof(char));
+        char* message = (char*)alloca(length * sizeof(char)); // because I want to allocate on the stack and lenght is not a costant
         glGetShaderInfoLog(id, length, &length, message);
         std::cout << "Failed to compile " << (type == GL_VERTEX_SHADER ? "vertex" : "fragment") << "shader!" << std::endl;
         std::cout << message << std::endl;
@@ -125,7 +125,7 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    { // thit scope is here in order to call the distructor of vb and ib before the operglcontex is destroyd, in this way there is no infinite loop with GLCall that check for the errors. In this way the app close automatically.
+    { // thit scope is here in order to call the distructor of vb and ib before the openglcontex is destroyd, in this way there is no infinite loop with GLCall that check for the errors. In this way the app close automatically.
         float positions[] = {
             -0.5f, -0.5f,
              0.5f, -0.5f,
