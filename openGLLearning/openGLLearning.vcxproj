@@ -126,7 +126,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\glew-2.1.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/vendor/imgui-1.90.1;src/vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\glew-2.1.0\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,7 +143,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>src/vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\glew-2.1.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src/vendor/imgui-1.90.1;src/vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\glew-2.1.0\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,6 +161,13 @@
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
+    <ClCompile Include="src\vendor\imgui-1.90.1\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\vendor\imgui-1.90.1\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\vendor\imgui-1.90.1\imgui.cpp" />
+    <ClCompile Include="src\vendor\imgui-1.90.1\imgui_demo.cpp" />
+    <ClCompile Include="src\vendor\imgui-1.90.1\imgui_draw.cpp" />
+    <ClCompile Include="src\vendor\imgui-1.90.1\imgui_tables.cpp" />
+    <ClCompile Include="src\vendor\imgui-1.90.1\imgui_widgets.cpp" />
     <ClCompile Include="src\vendor\stb_image\stb_image.cpp" />
     <ClCompile Include="src\VertexArray.cpp" />
     <ClCompile Include="src\VertexBuffer.cpp" />
@@ -452,6 +459,14 @@
     <ClInclude Include="src\vendor\glm\vec3.hpp" />
     <ClInclude Include="src\vendor\glm\vec4.hpp" />
     <ClInclude Include="src\vendor\glm\vector_relational.hpp" />
+    <ClInclude Include="src\vendor\imgui-1.90.1\backends\imgui_impl_glfw.h" />
+    <ClInclude Include="src\vendor\imgui-1.90.1\backends\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\vendor\imgui-1.90.1\imconfig.h" />
+    <ClInclude Include="src\vendor\imgui-1.90.1\imgui.h" />
+    <ClInclude Include="src\vendor\imgui-1.90.1\imgui_internal.h" />
+    <ClInclude Include="src\vendor\imgui-1.90.1\imstb_rectpack.h" />
+    <ClInclude Include="src\vendor\imgui-1.90.1\imstb_textedit.h" />
+    <ClInclude Include="src\vendor\imgui-1.90.1\imstb_truetype.h" />
     <ClInclude Include="src\vendor\stb_image\stb_image.h" />
     <ClInclude Include="src\VertexArray.h" />
     <ClInclude Include="src\VertexBuffer.h" />

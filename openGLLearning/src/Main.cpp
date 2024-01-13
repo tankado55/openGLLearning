@@ -18,6 +18,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "imgui-1.90.1/imgui.h"
+#include "imgui-1.90.1/backends/imgui_impl_opengl3.h"
+#include "imgui-1.90.1/backends/imgui_impl_glfw.h"
+
 int main(void)
 {
     GLFWwindow* window;
@@ -55,10 +59,10 @@ int main(void)
 
     { // thit scope is here in order to call the distructor of vb and ib before the openglcontex is destroyd, in this way there is no infinite loop with GLCall that check for the errors. In this way the app close automatically.
         float positions[] = {
-            -0.5f, -0.5f, 0.0f, 0.0f,
-             0.5f, -0.5f, 1.0f, 0.0f,
-             0.5f,  0.5f, 1.0f, 1.0f,
-            -0.5f,  0.5f, 0.0f, 1.0f
+            100.5f, 100.5f, 0.0f, 0.0f,
+            200.5f, 100.5f, 1.0f, 0.0f,
+            200.5f,  200.5f, 1.0f, 1.0f,
+            100.5f,  200.5f, 0.0f, 1.0f
         };
 
         unsigned int indices[] = {
@@ -79,12 +83,13 @@ int main(void)
 
         IndexBuffer ib(indices, 6);
 
-        glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f, -1.0f, 1.0f);
+        glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+        glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
+
 
         Shader shader("res/shaders/Basic.shader");
         shader.Bind();
         shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
-        shader.SetUniformMat4f("u_MVP", proj);
 
         Texture texture("res/textures/logo.png");
         texture.Bind(); // di default in slot 0
@@ -97,6 +102,20 @@ int main(void)
 
         Renderer renderer;
 
+        const char* glsl_version = "#version 130";
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO(); (void)io;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+        ImGui::StyleColorsDark();
+        ImGui_ImplGlfw_InitForOpenGL(window, true);
+#ifdef __EMSCRIPTEN__
+        ImGui_ImplGlfw_InstallEmscriptenCanvasResizeCallback("#canvas");
+#endif
+        ImGui_ImplOpenGL3_Init(glsl_version);
+
+        glm::vec3 translation(200, 200, 0);
+
         float r = 0.0f;
         float increment = 0.05f;
         /* Loop until the user closes the window */
@@ -105,8 +124,18 @@ int main(void)
             /* Render here */
             renderer.Clear();
 
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), translation);
+            glm::mat4 mvp = proj * view * model;
+
             shader.Bind();
             shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
+            shader.SetUniformMat4f("u_MVP", mvp);
+
             renderer.Draw(va, ib, shader);
 
             if (r > 1.0f)
@@ -116,6 +145,14 @@ int main(void)
 
             r += increment;
 
+            {
+                ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);
+
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+            }
+
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             /* Swap front and back buffers */
             glfwSwapBuffers(window);
 
@@ -125,6 +162,9 @@ int main(void)
         }
     }
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }
