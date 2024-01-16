@@ -53,20 +53,17 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    glfwSwapInterval(1);
+    glfwSwapInterval(1); //vsync
 
     if (glewInit() != GLEW_OK)
         std::cout << "glew ERROR!!!" << std::endl;
 
     std::cout << glGetString(GL_VERSION) << std::endl;
-
+    // end of glfw related things
     { // thit scope is here in order to call the distructor of vb and ib before the openglcontex is destroyd, in this way there is no infinite loop with GLCall that check for the errors. In this way the app close automatically.
         
-
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)); // it defines how opengl blend alpha pixels
-
-        
 
         Renderer renderer;
 
@@ -129,7 +126,6 @@ int main(void)
             delete testMenu;
         }
     }
-
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
