@@ -23,6 +23,7 @@
 #include "imgui-1.90.1/backends/imgui_impl_glfw.h"
 
 #include "tests/TestClearColor.h"
+#include "tests/TestTexture2D.h"
 
 int main(void)
 {
@@ -86,6 +87,7 @@ int main(void)
         currentTest = testMenu;
 
         testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
+        testMenu->RegisterTest<Test::TestTexture2D>("2D Texture");
 
 
 

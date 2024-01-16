@@ -2,6 +2,7 @@
 #include "imgui.h"
 
 namespace Test {
+
 	TestMenu::TestMenu(Test*& currentTestpointer)
 		: m_CurrentTest(currentTestpointer)
 	{
