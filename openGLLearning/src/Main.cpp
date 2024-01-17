@@ -86,8 +86,6 @@ int main(void)
         testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
         testMenu->RegisterTest<Test::TestTexture2D>("2D Texture");
 
-
-
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
