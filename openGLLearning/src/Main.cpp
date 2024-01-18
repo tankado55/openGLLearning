@@ -24,6 +24,7 @@
 
 #include "tests/TestClearColor.h"
 #include "tests/TestTexture2D.h"
+#include "tests/TestFirst3D.h"
 
 int main(void)
 {
@@ -85,6 +86,7 @@ int main(void)
 
         testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
         testMenu->RegisterTest<Test::TestTexture2D>("2D Texture");
+        testMenu->RegisterTest<Test::TestFirst3D>("3D First");
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
