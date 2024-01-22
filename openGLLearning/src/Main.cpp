@@ -68,6 +68,8 @@ int main(void)
         
         GLCall(glEnable(GL_BLEND));
         GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)); // it defines how opengl blend alpha pixels
+        GLCall(glEnable(GL_DEPTH_TEST));
+
 
         Renderer renderer;
 

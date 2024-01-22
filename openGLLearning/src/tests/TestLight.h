@@ -31,6 +31,6 @@ namespace Test {
 
 		glm::mat4 m_Proj, m_View;
 		glm::vec3 m_TranslationA;
-		glm::vec3 m_TranslationB;
+		glm::vec3 m_LightPos;
 	};
 }
