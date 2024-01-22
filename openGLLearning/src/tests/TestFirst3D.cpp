@@ -45,14 +45,20 @@ namespace Test {
 
         m_Texture = std::make_unique<Texture>("res/textures/logo.png");
         m_Shader->SetUniform1i("u_Texture", 0); // slot of the texture
+
+        m_Camera = std::make_unique<Camera>();
+
     }
 
     TestFirst3D::~TestFirst3D()
     {
     }
 
-    void TestFirst3D::OnUpdate(float deltaTime)
+    void TestFirst3D::OnUpdate(float deltaTime, GLFWwindow*& window)
     {
+        m_Camera->ProcessKeyboardInput(deltaTime, window);
+        //m_Camera->ProcessMouseInput();
+        m_View = m_Camera->GetView();
     }
 
     void TestFirst3D::OnRenderer()
@@ -63,8 +69,6 @@ namespace Test {
         Renderer renderer; //that's ok because Rendered does not have internal state
 
         m_Texture->Bind(); // di default in slot 0
-
-
 
         {
             glm::mat4 model = glm::mat4(1.0f);
@@ -94,4 +98,6 @@ namespace Test {
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     }
 }
+
+
 

@@ -10,7 +10,7 @@ namespace Test {
 		TestClearColor();
 		~TestClearColor();
 
-		void OnUpdate(float deltaTime) override;
+		void OnUpdate(float deltaTime, GLFWwindow*& window) override;
 		void OnRenderer() override;
 		void OnImGuiRenderer() override;
 

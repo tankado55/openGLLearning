@@ -4,6 +4,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 
 namespace Test {
 
@@ -13,7 +16,7 @@ namespace Test {
 		Test() {}
 		virtual ~Test() {}
 
-		virtual void OnUpdate(float deltaTime) {}
+		virtual void OnUpdate(float deltaTime, GLFWwindow*& window) {}
 		virtual void OnRenderer() {}
 		virtual void OnImGuiRenderer() {}
 	};
@@ -33,7 +36,7 @@ namespace Test {
 		}
 
 	private:
-		Test*& m_CurrentTest;	
+		Test*& m_CurrentTest;
 		std::vector <std::pair<std::string, std::function<Test*()>>> m_Tests;
 	};
 }

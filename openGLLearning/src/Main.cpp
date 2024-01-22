@@ -22,9 +22,12 @@
 #include "imgui-1.90.1/backends/imgui_impl_opengl3.h"
 #include "imgui-1.90.1/backends/imgui_impl_glfw.h"
 
+#include "InputManager.h"
+
 #include "tests/TestClearColor.h"
 #include "tests/TestTexture2D.h"
 #include "tests/TestFirst3D.h"
+#include "tests/TestLight.h"
 
 int main(void)
 {
@@ -87,10 +90,21 @@ int main(void)
         testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
         testMenu->RegisterTest<Test::TestTexture2D>("2D Texture");
         testMenu->RegisterTest<Test::TestFirst3D>("3D First");
+        testMenu->RegisterTest<Test::TestLight>("Light Test");
+
+        float deltaTime = 0.0f;	// Time between current frame and last frame
+        float lastFrame = 0.0f; // Time of last frame
+
+        //InputManager::GetInstance()->Start(window);
+        InputManager::GetInstance()->SetWindow(window);
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
+            float currentFrame = glfwGetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
             /* Render here */
             GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
             renderer.Clear();
@@ -101,7 +115,7 @@ int main(void)
             ImGui::NewFrame();
             if (currentTest)
             {
-                currentTest->OnUpdate(0.0f);
+                currentTest->OnUpdate(deltaTime, window);
                 currentTest->OnRenderer();
                 ImGui::Begin("Test");
                 if (currentTest != testMenu && ImGui::Button("<-"))

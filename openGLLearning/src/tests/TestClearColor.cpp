@@ -13,7 +13,7 @@ namespace Test {
 	{
 	}
 
-	void TestClearColor::OnUpdate(float deltaTime)
+	void TestClearColor::OnUpdate(float deltaTime, GLFWwindow*& window)
 	{
 	}
 
