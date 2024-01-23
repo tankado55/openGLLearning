@@ -21,6 +21,13 @@ void main()
 #shader fragment
 #version 330 core
 
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+
 layout(location = 0) out vec4 color;
 
 in vec3 v_Normal;
@@ -30,28 +37,26 @@ uniform vec4 u_Color;
 uniform vec3 u_LightColor;
 uniform vec3 u_LightPos;
 uniform vec3 u_ViewPosition;
+uniform Material u_Material;
 
 
 void main()
 {
     // Ambient
-    float ambientStrength = 0.1;
-    vec3 ambient = ambientStrength * u_LightColor;
+    vec3 ambient = u_Material.ambient * u_LightColor;
     
     // Diffusive
     vec3 lightDir = normalize(u_LightPos - vec3(v_Pos));
     float diffusiveScalar = max(dot(v_Normal, lightDir), 0.0);
-    vec3 diffuse = diffusiveScalar * u_LightColor;
+    vec3 diffuse = (diffusiveScalar * u_Material.diffuse) * u_LightColor;
 
     // Specular
-    float specularStrength = 0.5;
     vec3 viewDir = normalize(u_ViewPosition - vec3(v_Pos));
     vec3 reflectDir = reflect(-lightDir, v_Normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32); // This 32 value is the shininess value of the highlight.
-    vec3 specular = specularStrength * spec * u_LightColor;
-
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
+    vec3 specular = (spec * u_Material.specular) * u_LightColor;
 
     // Result
-    vec3 result = (ambient + diffuse + specular) * vec3(u_Color);
-    color = vec4(result, u_Color.w);
+    vec3 result = ambient + diffuse + specular;
+    color = vec4(result, 1.0);
 };
