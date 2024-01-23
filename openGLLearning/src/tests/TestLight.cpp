@@ -118,6 +118,7 @@ void Test::TestLight::OnRenderer()
         m_Shader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_Shader->SetUniformMat4f("u_Model", model);
         m_Shader->SetUniformMat4f("u_MVP", mvp);
+        m_Shader->SetUniformVec3f("u_ViewPosition", m_Camera->GetPos());
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
     }

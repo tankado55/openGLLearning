@@ -30,6 +30,7 @@ public:
 	void ProcessKeyboardInput(float deltaTime, GLFWwindow* window);
 	void ProcessMouseInput(float xoffset, float yoffset, GLboolean constrainPitch = true);
 	glm::mat4 GetView() const;
+	glm::vec3 GetPos() const;
 
 private:
 	void updateCameraVectors();
