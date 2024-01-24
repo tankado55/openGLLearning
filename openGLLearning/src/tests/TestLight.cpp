@@ -78,9 +78,10 @@ Test::TestLight::TestLight():
 
     m_Shader = std::make_unique<Shader>("res/shaders/Basic.hlsl");
     m_Shader->Bind();
-    m_Shader->SetUniform4f("u_Color", 1.0f, 0.5f, 0.31f, 1.0f);
-    m_Shader->SetUniform3f("u_LightColor", 1.0f, 1.0f, 1.0f);
-    m_Shader->SetUniform3f("u_LightPos", m_LightPos.x, m_LightPos.y, m_LightPos.z);
+    m_Shader->SetUniform3f("u_Light.position", m_LightPos.x, m_LightPos.y, m_LightPos.z);
+    m_Shader->SetUniform3f("u_Light.ambient", 0.2f, 0.2f, 0.2f);
+    m_Shader->SetUniform3f("u_Light.diffuse", 0.5f, 0.5f, 0.5f);
+    m_Shader->SetUniform3f("u_Light.specular", 1.0f, 1.0f, 1.0f);
     m_Shader->SetUniform3f("u_Material.ambient", 1.0f, 0.5f, 0.31f);
     m_Shader->SetUniform3f("u_Material.diffuse", 1.0f, 0.5f, 0.31f);
     m_Shader->SetUniform3f("u_Material.specular", 0.5f, 0.5f, 0.5f);
