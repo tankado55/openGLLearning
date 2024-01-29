@@ -7,6 +7,10 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "InputManager.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 Test::TestLight::TestLight():
     m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)),
     m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -100.0))),
