@@ -28,6 +28,7 @@
 #include "tests/TestTexture2D.h"
 #include "tests/TestFirst3D.h"
 #include "tests/TestLight.h"
+#include "tests/TestModels.h"
 
 int main(void)
 {
@@ -93,6 +94,7 @@ int main(void)
         testMenu->RegisterTest<Test::TestTexture2D>("2D Texture");
         testMenu->RegisterTest<Test::TestFirst3D>("3D First");
         testMenu->RegisterTest<Test::TestLight>("Light Test");
+        testMenu->RegisterTest<Test::TestModels>("Models Test");
 
         float deltaTime = 0.0f;	// Time between current frame and last frame
         float lastFrame = 0.0f; // Time of last frame

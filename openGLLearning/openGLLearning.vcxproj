@@ -166,6 +166,7 @@
     <ClCompile Include="src\tests\TestClearColor.cpp" />
     <ClCompile Include="src\tests\TestFirst3D.cpp" />
     <ClCompile Include="src\tests\TestLight.cpp" />
+    <ClCompile Include="src\tests\TestModels.cpp" />
     <ClCompile Include="src\tests\TestTexture2D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="src\tests\TestClearColor.h" />
     <ClInclude Include="src\tests\TestFirst3D.h" />
     <ClInclude Include="src\tests\TestLight.h" />
+    <ClInclude Include="src\tests\TestModels.h" />
     <ClInclude Include="src\tests\TestTexture2D.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
