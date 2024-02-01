@@ -9,11 +9,12 @@ out vec2 TexCoords;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 u_MVP;
 
 void main()
 {
     TexCoords = aTexCoords;
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
+    gl_Position = u_MVP * vec4(aPos, 1.0);
 }
 
 #shader fragment

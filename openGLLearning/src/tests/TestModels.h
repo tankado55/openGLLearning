@@ -5,6 +5,7 @@
 #include "VertexBufferLayout.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "Model.h"
 
 #include <memory>
 
@@ -26,6 +27,9 @@ namespace Test {
 		std::unique_ptr<Shader> m_Shader;
 		std::unique_ptr<Shader> m_LightShader;
 		std::unique_ptr<Texture> m_Texture;
+		std::unique_ptr<Model> m_Backpack;
+		std::unique_ptr<Shader> m_BackpackShader;
+
 
 		std::unique_ptr<Camera> m_Camera;
 

@@ -21,6 +21,12 @@ Model::Model(std::string path)
     processNode(scene->mRootNode, scene);
 }
 
+void Model::Draw(Shader& shader)
+{
+    for (unsigned int i = 0; i < meshes.size(); i++)
+        meshes[i].Draw(shader);
+}
+
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process each mesh located at the current node
@@ -96,6 +102,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         for (unsigned int j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
+
     // process materials
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
     // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
@@ -155,6 +162,7 @@ std::vector<TextureStruct> Model::loadMaterialTextures(aiMaterial* mat, aiTextur
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma)
 {
+    stbi_set_flip_vertically_on_load(true);
     std::string filename = std::string(path);
     filename = directory + '/' + filename;
 
