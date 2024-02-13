@@ -100,7 +100,7 @@ Test::TestModels::TestModels():
     InputManager::GetInstance()->Start(m_Camera.get());
 
 
-    m_Backpack = std::make_unique<Model>("res/models/backpack/backpack.obj");
+    m_Soldier = std::make_unique<Model>("res/models/backpack/backpack.obj");
     m_BackpackShader = std::make_unique<Shader>("res/shaders/ModelGuitarTest.hlsl");
 }
 
@@ -149,7 +149,7 @@ void Test::TestModels::OnRenderer()
         glm::mat4 mvp = m_Proj * m_View * model;
         m_BackpackShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_BackpackShader->SetUniformMat4f("u_MVP", mvp);
-        m_Backpack->Draw(*m_BackpackShader);
+        m_Soldier->Draw(*m_BackpackShader);
     }
     
 }

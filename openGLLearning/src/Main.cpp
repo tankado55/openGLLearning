@@ -29,6 +29,8 @@
 #include "tests/TestFirst3D.h"
 #include "tests/TestLight.h"
 #include "tests/TestModels.h"
+#include "tests/TestBatch.h"
+#include "tests/TestMorph.h"
 
 int main(void)
 {
@@ -95,6 +97,8 @@ int main(void)
         testMenu->RegisterTest<Test::TestFirst3D>("3D First");
         testMenu->RegisterTest<Test::TestLight>("Light Test");
         testMenu->RegisterTest<Test::TestModels>("Models Test");
+        testMenu->RegisterTest<Test::TestBatch>("Batch Test");
+        testMenu->RegisterTest<Test::TestMorph>("Morph Test");
 
         float deltaTime = 0.0f;	// Time between current frame and last frame
         float lastFrame = 0.0f; // Time of last frame

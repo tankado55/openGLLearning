@@ -27,7 +27,7 @@ namespace Test {
 		std::unique_ptr<Shader> m_Shader;
 		std::unique_ptr<Shader> m_LightShader;
 		std::unique_ptr<Texture> m_Texture;
-		std::unique_ptr<Model> m_Backpack;
+		std::unique_ptr<Model> m_Soldier;
 		std::unique_ptr<Shader> m_BackpackShader;
 
 

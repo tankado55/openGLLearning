@@ -10,11 +10,18 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 u_MVP;
+uniform float u_Interpolation;
 
 void main()
 {
     TexCoords = aTexCoords;
-    gl_Position = u_MVP * vec4(aPos, 1.0);
+    //gl_Position = u_MVP * vec4(aPos, 1.0);
+    //gl_Position = u_MVP * vec4(aTexCoords.x, aTexCoords.y, 0.0, 1.0);
+
+    vec3 fromTo = vec3(vec3(aTexCoords, 0.0) - aPos);
+
+    gl_Position = u_MVP * vec4(aPos + (u_Interpolation * fromTo), 1.0);
+
 }
 
 #shader fragment

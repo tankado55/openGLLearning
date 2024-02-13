@@ -27,6 +27,12 @@ void Model::Draw(Shader& shader)
         meshes[i].Draw(shader);
 }
 
+void Model::DrawInstanced(Shader& shader, int instanceCount)
+{
+    for (unsigned int i = 0; i < meshes.size(); i++)
+        meshes[i].DrawInstanced(shader, instanceCount);
+}
+
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process each mesh located at the current node
