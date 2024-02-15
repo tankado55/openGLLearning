@@ -13,9 +13,9 @@ Test::TestBatch::TestBatch() :
     m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -100.0))),
     m_TranslationA(glm::vec3(0, 0, 0)),
     m_LightPos(glm::vec3(1.2f, 1.0f, 2.0f)),
-    m_RowCount(10),
-    m_ColCount(10),
-    m_Distance(1.0f)
+    m_RowCount(4),
+    m_ColCount(4),
+    m_Distance(2.0f)
 {
     float positions[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -156,7 +156,7 @@ void Test::TestBatch::OnRenderer()
         m_WhiteShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_WhiteShader->SetUniformMat4f("u_MVP", mvp);
         
-        m_Soldier->Draw(*m_WhiteShader, 100);
+        m_Soldier->DrawInstanced(*m_WhiteShader, m_RowCount * m_ColCount);
     }
     
 }

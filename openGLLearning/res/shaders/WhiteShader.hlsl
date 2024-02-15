@@ -18,9 +18,9 @@ void main()
 {
     TexCoords = aTexCoords;
     float xPos = (gl_InstanceID % u_ColCount) * u_Distance;
-    float zPos = int(gl_InstanceID / u_ColCount);
-    gl_Position = u_MVP * vec4(aPos, 1.0);
-    //gl_Position = u_MVP * vec4(aTexCoords.x, aTexCoords.y, 0.0, 1.0);
+    float zPos = int(gl_InstanceID / u_ColCount) * u_Distance;
+    vec4 offset = vec4(xPos, 0.0, zPos, 1.0);
+    gl_Position = u_MVP * (vec4(aPos, 1.0) + offset);
 
 }
 
