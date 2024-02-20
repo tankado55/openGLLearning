@@ -67,6 +67,11 @@ glm::vec3 Camera::GetPos() const
 	return m_CameraPos;
 }
 
+glm::vec3 Camera::GetFront() const
+{
+	return m_CameraFront;
+}
+
 void Camera::updateCameraVectors()
 {
 	// calculate the new Front vector

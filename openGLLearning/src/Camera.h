@@ -31,6 +31,7 @@ public:
 	void ProcessMouseInput(float xoffset, float yoffset, GLboolean constrainPitch = true);
 	glm::mat4 GetView() const;
 	glm::vec3 GetPos() const;
+	glm::vec3 GetFront() const;
 
 private:
 	void updateCameraVectors();

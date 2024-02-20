@@ -169,6 +169,7 @@
     <ClCompile Include="src\tests\TestLight.cpp" />
     <ClCompile Include="src\tests\TestModels.cpp" />
     <ClCompile Include="src\tests\TestMorph.cpp" />
+    <ClCompile Include="src\tests\TestSmoke.cpp" />
     <ClCompile Include="src\tests\TestTexture2D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="src\tests\TestLight.h" />
     <ClInclude Include="src\tests\TestModels.h" />
     <ClInclude Include="src\tests\TestMorph.h" />
+    <ClInclude Include="src\tests\TestSmoke.h" />
     <ClInclude Include="src\tests\TestTexture2D.h" />
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />

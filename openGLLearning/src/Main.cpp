@@ -31,6 +31,7 @@
 #include "tests/TestModels.h"
 #include "tests/TestBatch.h"
 #include "tests/TestMorph.h"
+#include "tests/TestSmoke.h"
 
 int main(void)
 {
@@ -99,6 +100,7 @@ int main(void)
         testMenu->RegisterTest<Test::TestModels>("Models Test");
         testMenu->RegisterTest<Test::TestBatch>("Batch Test");
         testMenu->RegisterTest<Test::TestMorph>("Morph Test");
+        testMenu->RegisterTest<Test::TestSmoke>("Smoke Test");
 
         float deltaTime = 0.0f;	// Time between current frame and last frame
         float lastFrame = 0.0f; // Time of last frame
