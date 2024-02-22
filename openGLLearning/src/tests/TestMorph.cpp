@@ -98,7 +98,7 @@ Test::TestMorph::TestMorph() :
     //m_Shader->SetUniform1i("u_Texture", 0); // slot of the texture
 
     m_Camera = std::make_unique<Camera>();
-    InputManager::GetInstance()->Start(m_Camera.get());
+    //InputManager::GetInstance()->Start(m_Camera.get());
 
 
     m_Backpack = std::make_unique<Model>("res/models/backpack/backpack.obj");
@@ -122,7 +122,7 @@ void Test::TestMorph::OnRenderer()
     Renderer renderer; //that's ok because Rendered does not have internal state
 
     //m_Texture->Bind(); // di default in slot 0
-
+    /*
     {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, m_TranslationA);
@@ -145,6 +145,8 @@ void Test::TestMorph::OnRenderer()
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_Shader);
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_LightShader);
     }
+    */
+    
     {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.0, 0, 0));

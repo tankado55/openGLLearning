@@ -14,6 +14,7 @@ public:
     Model(std::string path);
     void Draw(Shader& shader);
     void DrawInstanced(Shader& shader, int instanceCount);
+    float GetUVScale();
 
 private:
     // model data

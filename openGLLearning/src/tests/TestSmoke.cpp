@@ -6,14 +6,25 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "InputManager.h"
+#include <cmath>
 
 glm::vec3 findIntersection(glm::vec3 planeNormal, glm::vec3 pointOnPlane, glm::vec3 cameraPosition, glm::vec3 directionVector) {
-    float t = -(planeNormal.x * pointOnPlane.x + planeNormal.y * pointOnPlane.y + planeNormal.z * pointOnPlane.z) /
-        (planeNormal.x * directionVector.x + planeNormal.y * directionVector.y + planeNormal.z * directionVector.z);
+    float denom = directionVector.x * planeNormal.x + directionVector.y * planeNormal.y + directionVector.z * planeNormal.z;
+
+    float t = 0;
+    if (fabs(denom) > 1e-6) {
+        float t = -(cameraPosition.x * planeNormal.x + cameraPosition.y * planeNormal.y + cameraPosition.z * planeNormal.z) / denom;
+    }
+    else
+        return glm::vec3(0.0, 0.0, 0.0);
+
+    //float t = -(planeNormal.x * pointOnPlane.x + planeNormal.y * pointOnPlane.y + planeNormal.z * pointOnPlane.z) /
+    //    (planeNormal.x * directionVector.x + planeNormal.y * directionVector.y + planeNormal.z * directionVector.z);
+
     glm::vec3 intersectionPoint;
-    intersectionPoint.x = cameraPosition.x + t * directionVector.x;
-    intersectionPoint.y = cameraPosition.y + t * directionVector.y;
-    intersectionPoint.z = cameraPosition.z + t * directionVector.z;
+    intersectionPoint.x = cameraPosition.x + (t * directionVector.x);
+    intersectionPoint.y = cameraPosition.y + (t * directionVector.y);
+    intersectionPoint.z = cameraPosition.z + (t * directionVector.z);
     return intersectionPoint;
 }
 
@@ -127,24 +138,24 @@ void Test::TestSmoke::OnRenderer()
     glm::vec3 cameraFront = m_Camera->GetFront();
     glm::vec3 cameraPosition = m_Camera->GetPos();
 
-
     glm::vec3 intersectInPlane = findIntersection(planeNormal, pointOnPlane, cameraPosition, cameraFront);
 
     
      {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, intersectInPlane);
-        model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+        //model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
         glm::mat4 mvp = m_Proj * m_View * model;
         m_WhiteShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_WhiteShader->SetUniformMat4f("u_View", m_View);
+        m_WhiteShader->SetUniformMat4f("u_Projection", m_Proj);
         m_WhiteShader->SetUniformMat4f("u_MVP", mvp);
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_WhiteShader);
     }
     
-   
-
-    {
+ 
+    { // cube in the origin
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, m_TranslationA);
         glm::mat4 mvp = m_Proj * m_View * model;

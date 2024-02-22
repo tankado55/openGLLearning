@@ -33,6 +33,27 @@ void Model::DrawInstanced(Shader& shader, int instanceCount)
         meshes[i].DrawInstanced(shader, instanceCount);
 }
 
+float Model::GetUVScale()
+{
+    Mesh* mesh = &meshes[0];
+    float areaMesh;
+    float areaUV;
+
+    float l1 = glm::length(mesh->vertices[0].Position - mesh->vertices[1].Position);
+    float l2 = glm::length(mesh->vertices[1].Position - mesh->vertices[2].Position);
+    float l3 = glm::length(mesh->vertices[2].Position - mesh->vertices[3].Position);
+    float s = (l1 + l2 + l3) / 2;
+    areaMesh = sqrt(s * (s - l1) * (s - l2) * (s - l3));
+
+    l1 = glm::length(mesh->vertices[0].TexCoords - mesh->vertices[1].TexCoords);
+    l2 = glm::length(mesh->vertices[1].TexCoords - mesh->vertices[2].TexCoords);
+    l3 = glm::length(mesh->vertices[2].TexCoords - mesh->vertices[3].TexCoords);
+    s = (l1 + l2 + l3) / 2;
+    areaUV = sqrt(s * (s - l1) * (s - l2) * (s - l3));
+    
+    return areaMesh / areaUV;
+}
+
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process each mesh located at the current node
