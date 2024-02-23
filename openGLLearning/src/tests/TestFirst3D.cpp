@@ -11,7 +11,7 @@ namespace Test {
     TestFirst3D::TestFirst3D() :
         m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)),
         m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -100.0))),
-        m_TranslationA(glm::vec3(200, 200, 0)),
+        m_TextureColorMode(glm::vec3(200, 200, 0)),
         m_TranslationB(glm::vec3(400, 200, 0))
     {
         float positions[] = {
@@ -73,7 +73,7 @@ namespace Test {
         {
             glm::mat4 model = glm::mat4(1.0f);
             model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::translate(model, m_TranslationA);
+            model = glm::translate(model, m_TextureColorMode);
             glm::mat4 mvp = m_Proj * m_View * model;
             m_Shader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
             m_Shader->SetUniformMat4f("u_MVP", mvp);
@@ -93,7 +93,7 @@ namespace Test {
 
     void TestFirst3D::OnImGuiRenderer()
     {
-        ImGui::SliderFloat3("Translation A", &m_TranslationA.x, 0.0f, 960.0f);
+        ImGui::SliderFloat3("Translation A", &m_TextureColorMode.x, 0.0f, 960.0f);
         ImGui::SliderFloat3("Translation B", &m_TranslationB.x, 0.0f, 960.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     }

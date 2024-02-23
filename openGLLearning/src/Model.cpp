@@ -34,6 +34,26 @@ void Model::DrawInstanced(Shader& shader, int instanceCount)
         meshes[i].DrawInstanced(shader, instanceCount);
 }
 
+glm::vec3 Model::GetAverageNormal()
+{
+    glm::vec3 sum(0.0f, 0.0f, 0.0f);
+    int sumCount = 0;
+    
+    for (unsigned int i = 0; i < meshes.size(); i++)
+    {
+        Mesh* mesh = &meshes[i];
+
+        for (unsigned j = 0; j < mesh->vertices.size(); j++)
+        {
+            //sum = sum + mesh->vertices[j];
+            sumCount++;
+        }
+    }
+    
+
+    return glm::vec3(sum.x / sumCount, sum.y / sumCount, sum.z / sumCount);
+}
+
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process each mesh located at the current node

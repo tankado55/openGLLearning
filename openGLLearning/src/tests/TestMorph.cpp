@@ -4,14 +4,15 @@
 #include "imgui.h"
 
 #include "glm/glm.hpp"
+#include "glm/geometric.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "InputManager.h"
 
 Test::TestMorph::TestMorph() :
     m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)),
     m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -100.0))),
-    m_TranslationA(glm::vec3(0, 0, 0)),
-    m_LightPos(glm::vec3(1.2f, 1.0f, 2.0f)),
+    m_TextureColorMode(1),
+    m_TextureGridMode(0),
     m_Interpolation(1.0),
     m_InterpolationSpeed(0.5)
 {
@@ -80,7 +81,7 @@ Test::TestMorph::TestMorph() :
 
     m_Shader = std::make_unique<Shader>("res/shaders/Basic.hlsl");
     m_Shader->Bind();
-    m_Shader->SetUniform3f("u_Light.position", m_LightPos.x, m_LightPos.y, m_LightPos.z);
+    
     m_Shader->SetUniform3f("u_Light.ambient", 0.2f, 0.2f, 0.2f);
     m_Shader->SetUniform3f("u_Light.diffuse", 0.5f, 0.5f, 0.5f);
     m_Shader->SetUniform3f("u_Light.specular", 1.0f, 1.0f, 1.0f);
@@ -98,11 +99,19 @@ Test::TestMorph::TestMorph() :
     //m_Shader->SetUniform1i("u_Texture", 0); // slot of the texture
 
     m_Camera = std::make_unique<Camera>();
-    InputManager::GetInstance()->Start(m_Camera.get());
+    //InputManager::GetInstance()->Start(m_Camera.get());
 
 
-    m_Backpack = std::make_unique<Model>("res/models/backpack/backpack.obj");
+    m_Backpack = std::make_unique<Model>("res/models/alien-soldier/Alien_Lizard_Mid_Poly.obj");
     m_BackpackShader = std::make_unique<Shader>("res/shaders/ModelGuitarTest.hlsl");
+    //glm::vec3 averageDirection = m_Backpack->GetAverageNormal();
+    //float angleRad = glm::acos(glm::dot(averageDirection, glm::vec3(1, 0, 0)));
+    //glm::mat4 averageRotation = glm::mat4(1.0f);
+    //averageRotation = glm::rotate(averageRotation, angleRad, glm::vec3(0, 1, 0));
+
+    //m_BackpackShader->Bind();
+    //m_BackpackShader->SetUniformMat4f("u_AvgRotation", averageRotation);
+
 }
 
 Test::TestMorph::~TestMorph()
@@ -152,6 +161,8 @@ void Test::TestMorph::OnRenderer()
         model = glm::translate(model, glm::vec3(-2.0, 0, 0));
         glm::mat4 mvp = m_Proj * m_View * model;
         m_BackpackShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_BackpackShader->SetUniform1f("u_TextureGridMode", m_TextureGridMode);
+        m_BackpackShader->SetUniform1f("u_TextureColorMode", m_TextureColorMode);
         m_BackpackShader->SetUniformMat4f("u_MVP", mvp);
         m_BackpackShader->SetUniformMat4f("model", model);
         m_BackpackShader->SetUniformMat4f("view", m_View);
@@ -164,8 +175,8 @@ void Test::TestMorph::OnRenderer()
 
 void Test::TestMorph::OnImGuiRenderer()
 {
-    ImGui::SliderFloat3("Translation A", &m_TranslationA.x, -960.0f/2.0f, 960.0f/2.0f);
-    ImGui::SliderFloat3("Translation B", &m_LightPos.x, -10.0f, 10.0f);
+    ImGui::SliderFloat("Texture Color", &m_TextureColorMode, 0, 1.0f);
+    ImGui::SliderFloat("Texture Grid", &m_TextureGridMode, 0, 1.0f);
     ImGui::SliderFloat("Interpolation", &m_Interpolation, 0.0f, 1.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }

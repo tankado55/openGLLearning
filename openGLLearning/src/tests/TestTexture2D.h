@@ -28,7 +28,7 @@ namespace Test {
 		std::unique_ptr<Texture> m_Texture;
 
 		glm::mat4 m_Proj, m_View;
-		glm::vec3 m_TranslationA;
+		glm::vec3 m_TextureColor;
 		glm::vec3 m_TranslationB;
 
 	};

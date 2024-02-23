@@ -32,8 +32,8 @@ glm::vec3 findIntersection(glm::vec3 planeNormal, glm::vec3 pointOnPlane, glm::v
 Test::TestSmoke::TestSmoke() :
     m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)),
     m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -100.0))),
-    m_TranslationA(glm::vec3(0, 0, 0)),
-    m_LightPos(glm::vec3(1.2f, 1.0f, 2.0f)),
+    m_TextureColorMode(glm::vec3(0, 0, 0)),
+    m_TextureGridMode(glm::vec3(1.2f, 1.0f, 2.0f)),
     m_XCount(30),
     m_YCount(10),
     m_ZCount(30),
@@ -157,7 +157,7 @@ void Test::TestSmoke::OnRenderer()
  
     { // cube in the origin
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_TranslationA);
+        model = glm::translate(model, m_TextureColorMode);
         glm::mat4 mvp = m_Proj * m_View * model;
         m_WhiteShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_WhiteShader->SetUniformMat4f("u_MVP", mvp);
@@ -182,7 +182,7 @@ void Test::TestSmoke::OnRenderer()
 
 void Test::TestSmoke::OnImGuiRenderer()
 {
-    ImGui::SliderFloat3("Translation A", &m_TranslationA.x, -960.0f/2.0f, 960.0f/2.0f);
-    ImGui::SliderFloat3("Translation B", &m_LightPos.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("Translation A", &m_TextureColorMode.x, -960.0f/2.0f, 960.0f/2.0f);
+    ImGui::SliderFloat3("Translation B", &m_TextureGridMode.x, -10.0f, 10.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }

@@ -11,8 +11,8 @@
 Test::TestModels::TestModels():
     m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)),
     m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -100.0))),
-    m_TranslationA(glm::vec3(0, 0, 0)),
-    m_LightPos(glm::vec3(1.2f, 1.0f, 2.0f))
+    m_TextureColorMode(glm::vec3(0, 0, 0)),
+    m_TextureGridMode(glm::vec3(1.2f, 1.0f, 2.0f))
 {
     float positions[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -79,7 +79,7 @@ Test::TestModels::TestModels():
 
     m_Shader = std::make_unique<Shader>("res/shaders/Basic.hlsl");
     m_Shader->Bind();
-    m_Shader->SetUniform3f("u_Light.position", m_LightPos.x, m_LightPos.y, m_LightPos.z);
+    m_Shader->SetUniform3f("u_Light.position", m_TextureGridMode.x, m_TextureGridMode.y, m_TextureGridMode.z);
     m_Shader->SetUniform3f("u_Light.ambient", 0.2f, 0.2f, 0.2f);
     m_Shader->SetUniform3f("u_Light.diffuse", 0.5f, 0.5f, 0.5f);
     m_Shader->SetUniform3f("u_Light.specular", 1.0f, 1.0f, 1.0f);
@@ -123,7 +123,7 @@ void Test::TestModels::OnRenderer()
 
     {
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_TranslationA);
+        model = glm::translate(model, m_TextureColorMode);
         glm::mat4 mvp = m_Proj * m_View * model;
         m_Shader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_Shader->SetUniformMat4f("u_Model", model);
@@ -134,7 +134,7 @@ void Test::TestModels::OnRenderer()
     }
     {
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_LightPos);
+        model = glm::translate(model, m_TextureGridMode);
         model = glm::scale(model, glm::vec3(0.2f));
         glm::mat4 mvp = m_Proj * m_View * model;
         m_LightShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
@@ -156,7 +156,7 @@ void Test::TestModels::OnRenderer()
 
 void Test::TestModels::OnImGuiRenderer()
 {
-    ImGui::SliderFloat3("Translation A", &m_TranslationA.x, -960.0f/2.0f, 960.0f/2.0f);
-    ImGui::SliderFloat3("Translation B", &m_LightPos.x, -10.0f, 10.0f);
+    ImGui::SliderFloat3("Translation A", &m_TextureColorMode.x, -960.0f/2.0f, 960.0f/2.0f);
+    ImGui::SliderFloat3("Translation B", &m_TextureGridMode.x, -10.0f, 10.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }

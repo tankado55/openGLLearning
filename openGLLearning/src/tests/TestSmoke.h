@@ -34,8 +34,8 @@ namespace Test {
 		std::unique_ptr<Camera> m_Camera;
 
 		glm::mat4 m_Proj, m_View;
-		glm::vec3 m_TranslationA;
-		glm::vec3 m_LightPos;
+		glm::vec3 m_TextureColorMode;
+		glm::vec3 m_TextureGridMode;
 
 		int m_XCount;
 		int m_YCount;
