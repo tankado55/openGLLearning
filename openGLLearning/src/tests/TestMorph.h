@@ -38,6 +38,6 @@ namespace Test {
 		glm::vec3 m_TranslationA;
 		glm::vec3 m_LightPos;
 		float m_Interpolation;
-		float u_InterpolationSpeed;
+		float m_InterpolationSpeed;
 	};
 }

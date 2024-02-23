@@ -13,7 +13,7 @@ Test::TestMorph::TestMorph() :
     m_TranslationA(glm::vec3(0, 0, 0)),
     m_LightPos(glm::vec3(1.2f, 1.0f, 2.0f)),
     m_Interpolation(1.0),
-    u_InterpolationSpeed(0.1)
+    m_InterpolationSpeed(0.5)
 {
     float positions[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -98,7 +98,7 @@ Test::TestMorph::TestMorph() :
     //m_Shader->SetUniform1i("u_Texture", 0); // slot of the texture
 
     m_Camera = std::make_unique<Camera>();
-    //InputManager::GetInstance()->Start(m_Camera.get());
+    InputManager::GetInstance()->Start(m_Camera.get());
 
 
     m_Backpack = std::make_unique<Model>("res/models/backpack/backpack.obj");
@@ -153,6 +153,9 @@ void Test::TestMorph::OnRenderer()
         glm::mat4 mvp = m_Proj * m_View * model;
         m_BackpackShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_BackpackShader->SetUniformMat4f("u_MVP", mvp);
+        m_BackpackShader->SetUniformMat4f("model", model);
+        m_BackpackShader->SetUniformMat4f("view", m_View);
+        m_BackpackShader->SetUniformMat4f("projection", m_Proj);
         m_BackpackShader->SetUniform1f("u_Interpolation", m_Interpolation);
         m_Backpack->Draw(*m_BackpackShader);
     }
@@ -169,7 +172,7 @@ void Test::TestMorph::OnImGuiRenderer()
 
 void Test::TestMorph::ProcessKeyboardInput(float deltaTime, GLFWwindow* window)
 {
-    float speed = u_InterpolationSpeed * deltaTime;
+    float speed = m_InterpolationSpeed * deltaTime;
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
         m_Interpolation -= speed;
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)

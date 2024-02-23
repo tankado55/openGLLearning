@@ -3,6 +3,7 @@
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoords;
+layout(location = 7) in float aScaleUV;
 
 out vec2 TexCoords;
 
@@ -18,9 +19,9 @@ void main()
     //gl_Position = u_MVP * vec4(aPos, 1.0);
     //gl_Position = u_MVP * vec4(aTexCoords.x, aTexCoords.y, 0.0, 1.0);
 
-    vec3 fromTo = vec3(vec3(aTexCoords, 0.0) - aPos);
-
-    gl_Position = u_MVP * vec4(aPos + (u_Interpolation * fromTo), 1.0);
+    vec3 fromTo = vec3(vec3(aTexCoords, 0.0) * aScaleUV - aPos);
+    mat4 mvp = projection * view * model;
+    gl_Position = mvp * vec4(aPos + (u_Interpolation * fromTo), 1.0);
 
 }
 

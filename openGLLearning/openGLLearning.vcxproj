@@ -172,6 +172,7 @@
     <ClCompile Include="src\tests\TestSmoke.cpp" />
     <ClCompile Include="src\tests\TestTexture2D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
     <ClCompile Include="src\vendor\imgui-1.90.1\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="src\vendor\imgui-1.90.1\backends\imgui_impl_opengl3.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="src\tests\TestSmoke.h" />
     <ClInclude Include="src\tests\TestTexture2D.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_vector_relational.hpp" />

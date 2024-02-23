@@ -1,6 +1,7 @@
 #include "Model.h"
 #include <iostream>
 #include <stb_image/stb_image.h>
+#include "Utils.h"
 
 
 Model::Model(std::string path)
@@ -31,27 +32,6 @@ void Model::DrawInstanced(Shader& shader, int instanceCount)
 {
     for (unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].DrawInstanced(shader, instanceCount);
-}
-
-float Model::GetUVScale()
-{
-    Mesh* mesh = &meshes[0];
-    float areaMesh;
-    float areaUV;
-
-    float l1 = glm::length(mesh->vertices[0].Position - mesh->vertices[1].Position);
-    float l2 = glm::length(mesh->vertices[1].Position - mesh->vertices[2].Position);
-    float l3 = glm::length(mesh->vertices[2].Position - mesh->vertices[3].Position);
-    float s = (l1 + l2 + l3) / 2;
-    areaMesh = sqrt(s * (s - l1) * (s - l2) * (s - l3));
-
-    l1 = glm::length(mesh->vertices[0].TexCoords - mesh->vertices[1].TexCoords);
-    l2 = glm::length(mesh->vertices[1].TexCoords - mesh->vertices[2].TexCoords);
-    l3 = glm::length(mesh->vertices[2].TexCoords - mesh->vertices[3].TexCoords);
-    s = (l1 + l2 + l3) / 2;
-    areaUV = sqrt(s * (s - l1) * (s - l2) * (s - l3));
-    
-    return areaMesh / areaUV;
 }
 
 void Model::processNode(aiNode* node, const aiScene* scene)
@@ -121,10 +101,33 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
         vertices.push_back(vertex);
     }
+
     // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
+
+        // calculate UV scale factor
+        if (face.mNumIndices == 3) {
+            glm::vec3 v1 = vertices[face.mIndices[0]].Position;
+            glm::vec3 v2 = vertices[face.mIndices[1]].Position;
+            glm::vec3 v3 = vertices[face.mIndices[2]].Position;
+
+            float areaMesh = Utils::ComputeArea(v1, v2, v3);
+
+            v1 = glm::vec3(vertices[face.mIndices[0]].TexCoords, 0.0f);
+            v2 = glm::vec3(vertices[face.mIndices[1]].TexCoords, 0.0f);
+            v3 = glm::vec3(vertices[face.mIndices[2]].TexCoords, 0.0f);
+
+            float areaUV = Utils::ComputeArea(v1, v2, v3);
+
+            vertices[face.mIndices[0]].m_ScaleUV = sqrt(areaMesh / areaUV);
+            vertices[face.mIndices[1]].m_ScaleUV = sqrt(areaMesh / areaUV);
+            vertices[face.mIndices[2]].m_ScaleUV = sqrt(areaMesh / areaUV);
+        }
+        else {
+            std::cout << "WARNING: faces does not have 3 vertices" << std::endl;
+        }
         // retrieve all indices of the face and store them in the indices vector
         for (unsigned int j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
