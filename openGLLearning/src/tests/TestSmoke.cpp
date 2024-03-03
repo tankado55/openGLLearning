@@ -8,23 +8,23 @@
 #include "InputManager.h"
 #include <cmath>
 
-glm::vec3 findIntersection(glm::vec3 planeNormal, glm::vec3 pointOnPlane, glm::vec3 cameraPosition, glm::vec3 directionVector) {
-    float denom = directionVector.x * planeNormal.x + directionVector.y * planeNormal.y + directionVector.z * planeNormal.z;
+glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 planePoint, glm::vec3 planeNormal) {
+    float denominator = glm::dot(planeNormal, rayDirection);
 
-    float t = 0;
-    if (fabs(denom) > 1e-6) {
-        float t = -(cameraPosition.x * planeNormal.x + cameraPosition.y * planeNormal.y + cameraPosition.z * planeNormal.z) / denom;
+    if (denominator == 0) {
+        // Ray is parallel to the plane
+        return { 0, 0, 0 };
     }
-    else
-        return glm::vec3(0.0, 0.0, 0.0);
 
-    //float t = -(planeNormal.x * pointOnPlane.x + planeNormal.y * pointOnPlane.y + planeNormal.z * pointOnPlane.z) /
-    //    (planeNormal.x * directionVector.x + planeNormal.y * directionVector.y + planeNormal.z * directionVector.z);
+    float t = ((planePoint.x - rayOrigin.x) * planeNormal.x +
+        (planePoint.y - rayOrigin.y) * planeNormal.y +
+        (planePoint.z - rayOrigin.z) * planeNormal.z) / denominator;
 
     glm::vec3 intersectionPoint;
-    intersectionPoint.x = cameraPosition.x + (t * directionVector.x);
-    intersectionPoint.y = cameraPosition.y + (t * directionVector.y);
-    intersectionPoint.z = cameraPosition.z + (t * directionVector.z);
+    intersectionPoint.x = rayOrigin.x + t * rayDirection.x;
+    intersectionPoint.y = rayOrigin.y + t * rayDirection.y;
+    intersectionPoint.z = rayOrigin.z + t * rayDirection.z;
+
     return intersectionPoint;
 }
 
@@ -32,7 +32,7 @@ glm::vec3 findIntersection(glm::vec3 planeNormal, glm::vec3 pointOnPlane, glm::v
 Test::TestSmoke::TestSmoke() :
     m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)),
     m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -100.0))),
-    m_TextureColorMode(glm::vec3(0, 0, 0)),
+    m_TranslationA(glm::vec3(0, 0, 0)),
     m_TextureGridMode(glm::vec3(1.2f, 1.0f, 2.0f)),
     m_XCount(30),
     m_YCount(10),
@@ -102,13 +102,13 @@ Test::TestSmoke::TestSmoke() :
 
     m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 36);
 
-    m_Shader = std::make_unique<Shader>("res/shaders/SmokeShader.hlsl");
-    m_Shader->Bind();
+    m_SmokeShader = std::make_unique<Shader>("res/shaders/SmokeShader.hlsl");
+    m_SmokeShader->Bind();
 
-    m_Shader->SetUniform1i("u_XCount", m_XCount);
-    m_Shader->SetUniform1i("u_YCount", m_YCount);
-    m_Shader->SetUniform1i("u_ZCount", m_ZCount);
-    m_Shader->SetUniform1f("u_Distance", m_Distance);
+    m_SmokeShader->SetUniform1i("u_XCount", m_XCount);
+    m_SmokeShader->SetUniform1i("u_YCount", m_YCount);
+    m_SmokeShader->SetUniform1i("u_ZCount", m_ZCount);
+    m_SmokeShader->SetUniform1f("u_VoxelSize", m_Distance);
 
     m_WhiteShader = std::make_unique<Shader>("res/shaders/WhiteSingleShader.hlsl");
 
@@ -131,25 +131,21 @@ void Test::TestSmoke::OnRenderer()
 {
     Renderer renderer; //that's ok because Rendered does not have internal state
 
-    //m_Texture->Bind(); // di default in slot 0
-
     glm::vec3 planeNormal = { 0, 1, 0 };
     glm::vec3 pointOnPlane = { 1, 0, 1 };
     glm::vec3 cameraFront = m_Camera->GetFront();
     glm::vec3 cameraPosition = m_Camera->GetPos();
 
-    glm::vec3 intersectInPlane = findIntersection(planeNormal, pointOnPlane, cameraPosition, cameraFront);
+    glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
 
-    
      {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, intersectInPlane);
         //model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
-        glm::mat4 mvp = m_Proj * m_View * model;
         m_WhiteShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_WhiteShader->SetUniformMat4f("u_View", m_View);
         m_WhiteShader->SetUniformMat4f("u_Projection", m_Proj);
-        m_WhiteShader->SetUniformMat4f("u_MVP", mvp);
+        m_WhiteShader->SetUniformMat4f("u_Model", model);
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_WhiteShader);
     }
@@ -157,32 +153,32 @@ void Test::TestSmoke::OnRenderer()
  
     { // cube in the origin
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_TextureColorMode);
-        glm::mat4 mvp = m_Proj * m_View * model;
+        model = glm::translate(model, m_TranslationA);
         m_WhiteShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
-        m_WhiteShader->SetUniformMat4f("u_MVP", mvp);
+        m_WhiteShader->SetUniformMat4f("u_View", m_View);
+        m_WhiteShader->SetUniformMat4f("u_Projection", m_Proj);
+        m_WhiteShader->SetUniformMat4f("u_Model", model);
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_WhiteShader);
     }
-    /* in
+    
     {
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, m_TranslationA);
         model = glm::scale(model, glm::vec3(0.5,0.5,0.5));
         glm::mat4 mvp = m_Proj * m_View * model;
-        m_Shader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
-        m_Shader->SetUniformMat4f("u_Model", model);
-        m_Shader->SetUniformMat4f("u_MVP", mvp);
+        m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_SmokeShader->SetUniformMat4f("u_MVP", mvp);
 
-        renderer.DrawInstanced(*m_VAO, *m_IndexBuffer, *m_Shader, m_XCount * m_YCount * m_ZCount);
+        renderer.DrawInstanced(*m_VAO, *m_IndexBuffer, *m_SmokeShader, m_XCount * m_YCount * m_ZCount);
     }
-    */
+    
     
 }
 
 void Test::TestSmoke::OnImGuiRenderer()
 {
-    ImGui::SliderFloat3("Translation A", &m_TextureColorMode.x, -960.0f/2.0f, 960.0f/2.0f);
+    ImGui::SliderFloat3("Translation A", &m_TranslationA.x, -960.0f/2.0f, 960.0f/2.0f);
     ImGui::SliderFloat3("Translation B", &m_TextureGridMode.x, -10.0f, 10.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }

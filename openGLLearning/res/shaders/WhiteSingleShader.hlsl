@@ -8,12 +8,14 @@ out vec2 TexCoords;
 
 uniform mat4 u_View;
 uniform mat4 u_Projection;
-uniform mat4 u_MVP;
+uniform mat4 u_Model;
+
 
 void main()
 {
     TexCoords = aTexCoords;
-    gl_Position = u_MVP * vec4(aPos, 1.0);
+    mat4 mvp = u_Projection * u_View * u_Model;
+    gl_Position = mvp * vec4(aPos, 1.0);
 }
 
 #shader fragment
