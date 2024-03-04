@@ -37,7 +37,7 @@ Test::TestSmoke::TestSmoke() :
     m_XCount(30),
     m_YCount(10),
     m_ZCount(30),
-    m_Distance(1.0f)
+    m_Distance(0.5f)
 {
     float positions[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -162,10 +162,10 @@ void Test::TestSmoke::OnRenderer()
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_WhiteShader);
     }
     
-    {
+    { //batch
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, m_TranslationA);
-        model = glm::scale(model, glm::vec3(0.5,0.5,0.5));
+        //model = glm::scale(model, glm::vec3(0.5,0.5,0.5));
         glm::mat4 mvp = m_Proj * m_View * model;
         m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_SmokeShader->SetUniformMat4f("u_MVP", mvp);
