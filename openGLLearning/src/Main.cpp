@@ -105,7 +105,6 @@ int main(void)
         float deltaTime = 0.0f;	// Time between current frame and last frame
         float lastFrame = 0.0f; // Time of last frame
 
-        //InputManager::GetInstance()->Start(window);
         InputManager::GetInstance()->SetWindow(window);
 
         /* Loop until the user closes the window */
@@ -136,7 +135,6 @@ int main(void)
                 currentTest->OnImGuiRenderer();
                 ImGui::End();
             }
-
             
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
