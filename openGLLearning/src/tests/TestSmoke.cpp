@@ -1,12 +1,12 @@
 #include "TestSmoke.h"
-
 #include "Renderer.h"
 #include "imgui.h"
-
 #include "glm/glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 #include "InputManager.h"
+
+#include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
+
 
 glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 planePoint, glm::vec3 planeNormal) {
     float denominator = glm::dot(planeNormal, rayDirection);
@@ -31,7 +31,7 @@ glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm:
 
 Test::TestSmoke::TestSmoke() :
     m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)),
-    m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, -100.0))),
+    m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.0))),
     m_TranslationA(glm::vec3(0, 0, 0)),
     m_TextureGridMode(glm::vec3(1.2f, 1.0f, 2.0f)),
     m_XCount(30),

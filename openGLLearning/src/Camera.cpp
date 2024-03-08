@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera() :
-	m_CameraPos(glm::vec3(0.0f, 0.0f, 10.0f)),
+	m_CameraPos(glm::vec3(0.0f, 0.0f, 40.0f)),
 	m_CameraTarget(glm::vec3(0.0f, 0.0f, 0.0f)),
 	m_CameraFront(glm::normalize(m_CameraTarget - m_CameraPos)),
 	m_CameraUp(glm::vec3(0.0f, 1.0f, 0.0f)),
