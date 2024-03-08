@@ -105,10 +105,11 @@ Test::TestSmoke::TestSmoke() :
     m_SmokeShader = std::make_unique<Shader>("res/shaders/SmokeShader.hlsl");
     m_SmokeShader->Bind();
 
-    m_SmokeShader->SetUniform1i("u_XCount", m_XCount);
-    m_SmokeShader->SetUniform1i("u_YCount", m_YCount);
-    m_SmokeShader->SetUniform1i("u_ZCount", m_ZCount);
-    m_SmokeShader->SetUniform1f("u_VoxelSize", m_Distance);
+    m_VoxelGrid = std::make_unique<VoxelGrid>();
+    m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->size.x);
+    m_SmokeShader->SetUniform1i("u_YCount", m_VoxelGrid->size.y);
+    m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->size.z);
+    m_SmokeShader->SetUniform1f("u_VoxelSize", m_VoxelGrid->resolution);
 
     m_WhiteShader = std::make_unique<Shader>("res/shaders/WhiteSingleShader.hlsl");
 
@@ -163,14 +164,20 @@ void Test::TestSmoke::OnRenderer()
     }
     
     { //batch
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_TranslationA);
-        //model = glm::scale(model, glm::vec3(0.5,0.5,0.5));
+        //glm::mat4 model = glm::mat4(1.0f);
+        //model = glm::translate(model, m_TranslationA);
+        glm::mat4 model = m_VoxelGrid->model;
+        model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution, m_VoxelGrid->resolution, m_VoxelGrid->resolution));
         glm::mat4 mvp = m_Proj * m_View * model;
         m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_SmokeShader->SetUniformMat4f("u_MVP", mvp);
 
-        renderer.DrawInstanced(*m_VAO, *m_IndexBuffer, *m_SmokeShader, m_XCount * m_YCount * m_ZCount);
+        renderer.DrawInstanced(
+            *m_VAO,
+            *m_IndexBuffer,
+            *m_SmokeShader,
+            m_VoxelGrid->voxelCount
+        );
     }
     
     

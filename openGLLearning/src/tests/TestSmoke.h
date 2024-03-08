@@ -6,6 +6,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "Model.h"
+#include "VoxelGrid.h"
 
 #include <memory>
 
@@ -29,6 +30,7 @@ namespace Test {
 		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Model> m_Soldier;
 		std::unique_ptr<Shader> m_WhiteShader;
+		std::unique_ptr<VoxelGrid> m_VoxelGrid;
 
 
 		std::unique_ptr<Camera> m_Camera;

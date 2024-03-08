@@ -15,9 +15,9 @@ uniform vec3 u_Ellipsoid;
 
 void main()
 {
-    float xPos = (gl_InstanceID % u_ZCount) * u_VoxelSize;
-    float yPos = (int((gl_InstanceID / u_XCount)) % u_YCount) * u_VoxelSize;
-    float zPos = int(gl_InstanceID / (u_XCount * u_YCount)) * u_VoxelSize;
+    float xPos = gl_InstanceID % u_ZCount;
+    float yPos = (int((gl_InstanceID / u_XCount)) % u_YCount);
+    float zPos = int(gl_InstanceID / (u_XCount * u_YCount));
     vec3 offset = vec3(xPos, yPos, zPos);
     gl_Position = u_MVP * vec4(aPos + offset, 1.0);
     voxelCoord = uvec3(offset);
