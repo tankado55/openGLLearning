@@ -109,12 +109,12 @@ Test::TestSmoke::TestSmoke() :
     m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->size.x);
     m_SmokeShader->SetUniform1i("u_YCount", m_VoxelGrid->size.y);
     m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->size.z);
-    m_SmokeShader->SetUniform1f("u_VoxelSize", m_VoxelGrid->resolution);
 
     m_WhiteShader = std::make_unique<Shader>("res/shaders/WhiteSingleShader.hlsl");
 
     m_Camera = std::make_unique<Camera>();
     InputManager::GetInstance()->Start(m_Camera.get());
+    //glEnable(GL_CULL_FACE);
 }
 
 Test::TestSmoke::~TestSmoke()
@@ -139,7 +139,7 @@ void Test::TestSmoke::OnRenderer()
 
     glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
 
-     {
+     { // intersection cube
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, intersectInPlane);
         //model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
@@ -165,12 +165,16 @@ void Test::TestSmoke::OnRenderer()
     
     { //batch
         //glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::translate(model, m_TranslationA);
         glm::mat4 model = m_VoxelGrid->model;
         model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution, m_VoxelGrid->resolution, m_VoxelGrid->resolution));
         glm::mat4 mvp = m_Proj * m_View * model;
         m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_SmokeShader->SetUniformMat4f("u_Model", model);
+        m_SmokeShader->SetUniformMat4f("u_View", m_View);
+        m_SmokeShader->SetUniformMat4f("u_Projection", m_Proj);
         m_SmokeShader->SetUniformMat4f("u_MVP", mvp);
+        m_SmokeShader->SetUniformVec3f("explosionPos", intersectInPlane);
+        m_SmokeShader->SetUniformVec3f("u_Ellipsoid", glm::vec3(2.0, 1.0, 2.0));
 
         renderer.DrawInstanced(
             *m_VAO,
