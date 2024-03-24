@@ -30,7 +30,10 @@ namespace Test {
 		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Model> m_Soldier;
 		std::unique_ptr<Shader> m_WhiteShader;
+		std::unique_ptr<Shader> m_PlaneShader;
 		std::unique_ptr<VoxelGrid> m_VoxelGrid;
+		std::unique_ptr<Model> m_Plane;
+		std::unique_ptr<Texture> m_PrototypeTexture;
 
 
 		std::unique_ptr<Camera> m_Camera;

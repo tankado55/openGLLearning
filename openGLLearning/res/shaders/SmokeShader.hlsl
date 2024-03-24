@@ -58,11 +58,11 @@ in vec4 color;
 void main()
 {
     if (distance < 1.0) {
-    FragColor = color;
+        FragColor = color;
     }
     else {
-        FragColor = vec4(1.0,0.0,0.0, 0.1);
+        //FragColor = vec4(1.0,0.0,0.0, 0.1);
+        discard;
     }
-    FragColor = color;
 }
 

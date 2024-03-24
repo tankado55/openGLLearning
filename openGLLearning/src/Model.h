@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Shader.h"
-#include "Mesh.h"
 #include <vector>
-
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include "Shader.h"
+#include "Mesh.h"
+#include "Texture.h"
+
 
 class Model
 {
@@ -15,6 +16,7 @@ public:
     void Draw(Shader& shader);
     void DrawInstanced(Shader& shader, int instanceCount);
     glm::vec3 GetAverageNormal();
+    void AddTexture(Texture& texture, std::string type, int meshIndex);
 
 private:
     // model data

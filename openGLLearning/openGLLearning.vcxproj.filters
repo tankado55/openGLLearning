@@ -105,6 +105,9 @@
     <ClCompile Include="src\VoxelGrid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SmokeGrenade.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1044,6 +1047,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\VoxelGrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SmokeGrenade.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

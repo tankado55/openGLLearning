@@ -54,6 +54,16 @@ glm::vec3 Model::GetAverageNormal()
     return glm::vec3(sum.x / sumCount, sum.y / sumCount, sum.z / sumCount);
 }
 
+void Model::AddTexture(Texture& texture, std::string type, int meshIndex)
+{
+    TextureStruct texStruct;
+    texStruct.id = texture.GetId();
+    texStruct.path = texture.GetPath();
+    texStruct.type = type;
+
+    meshes[meshIndex].textures.push_back(texStruct);
+}
+
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process each mesh located at the current node

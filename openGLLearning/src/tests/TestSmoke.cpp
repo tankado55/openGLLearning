@@ -39,13 +39,17 @@ Test::TestSmoke::TestSmoke() :
     m_ZCount(30),
     m_Distance(0.5f)
 {
+    m_Plane = std::make_unique<Model>("res/models/plane/plane.obj");
+    m_PrototypeTexture = std::make_unique<Texture>("res/textures/tex_3.png");
+    m_Plane->AddTexture(*m_PrototypeTexture, "texture_diffuse", 0);
+
     float positions[] = {
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-     0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
     -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
      0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
@@ -62,11 +66,11 @@ Test::TestSmoke::TestSmoke() :
     -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
      0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
      0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
      0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
      0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
     -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
      0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
@@ -76,11 +80,11 @@ Test::TestSmoke::TestSmoke() :
     -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
     -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
      0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
      0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-     0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f
     };
 
     unsigned int indices[36];
@@ -103,6 +107,7 @@ Test::TestSmoke::TestSmoke() :
     m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 36);
 
     m_SmokeShader = std::make_unique<Shader>("res/shaders/SmokeShader.hlsl");
+    m_PlaneShader = std::make_unique<Shader>("res/shaders/BasicPlaneShader.hlsl");
     m_SmokeShader->Bind();
 
     m_VoxelGrid = std::make_unique<VoxelGrid>();
@@ -139,7 +144,17 @@ void Test::TestSmoke::OnRenderer()
 
     glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
 
-     { // intersection cube
+    { // Plane
+        glm::mat4 model = glm::mat4(1.0f);
+        m_PlaneShader->Bind();
+        m_PlaneShader->SetUniformMat4f("u_View", m_View);
+        m_PlaneShader->SetUniformMat4f("u_Projection", m_Proj);
+        m_PlaneShader->SetUniformMat4f("u_Model", model);
+
+        m_Plane->Draw(*m_PlaneShader);
+    }
+
+    { // intersection cube
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, intersectInPlane);
         //model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
@@ -174,7 +189,7 @@ void Test::TestSmoke::OnRenderer()
         m_SmokeShader->SetUniformMat4f("u_Projection", m_Proj);
         m_SmokeShader->SetUniformMat4f("u_MVP", mvp);
         m_SmokeShader->SetUniformVec3f("explosionPos", intersectInPlane);
-        m_SmokeShader->SetUniformVec3f("u_Ellipsoid", glm::vec3(2.0, 1.0, 2.0));
+        m_SmokeShader->SetUniformVec3f("u_Ellipsoid", glm::vec3(3.0, 2.0, 3.0));
 
         renderer.DrawInstanced(
             *m_VAO,
