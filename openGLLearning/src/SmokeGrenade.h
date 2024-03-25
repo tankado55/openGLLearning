@@ -8,5 +8,5 @@ private:
 
 public:
 	void UpdateTimer(float deltaTime);
-	float GetTimer() const { return m_Timer };
+	float GetTimer() const { return m_Timer; };
 };
