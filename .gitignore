@@ -74,7 +74,7 @@ StyleCopReport.xml
 *_h.h
 *.ilk
 *.meta
-*.obj
+openGLLearning\bin\intermediates\x64\*.obj
 *.iobj
 *.pch
 *.pdb

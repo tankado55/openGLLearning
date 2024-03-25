@@ -7,6 +7,7 @@ private:
 	float m_Timer;
 
 public:
+	SmokeGrenade();
 	void UpdateTimer(float deltaTime);
 	float GetTimer() const { return m_Timer; };
 };
