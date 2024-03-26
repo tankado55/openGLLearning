@@ -39,7 +39,7 @@ void InputManager::Start(Camera* camera)
     }
     glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(m_Window, mouse_callback);
-    glfwSetMouseButtonCallback(m_Window, mouse_button_callback);
+    
 }
 
 
@@ -70,10 +70,3 @@ void InputManager::mouse_callback(GLFWwindow* window, double xposIn, double ypos
     im->ProcessCamera(xOffset, yOffset);
 }
 
-void InputManager::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-    {
-        // trigger event
-    }
-}

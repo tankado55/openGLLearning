@@ -7,6 +7,7 @@
 #include "Camera.h"
 #include "Model.h"
 #include "VoxelGrid.h"
+#include "SmokeGrenade.h"
 
 #include <memory>
 
@@ -19,6 +20,7 @@ namespace Test {
 		void OnUpdate(float deltaTime, GLFWwindow*& window) override;
 		void OnRenderer() override;
 		void OnImGuiRenderer() override;
+		void mouse_button_callback(GLFWwindow* window, int button, int action, int mods); //TODO: refactor
 
 	private:
 
@@ -34,6 +36,7 @@ namespace Test {
 		std::unique_ptr<VoxelGrid> m_VoxelGrid;
 		std::unique_ptr<Model> m_Plane;
 		std::unique_ptr<Texture> m_PrototypeTexture;
+		std::unique_ptr<SmokeGrenade> m_Smoke;
 
 
 		std::unique_ptr<Camera> m_Camera;

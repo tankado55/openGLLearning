@@ -28,8 +28,9 @@ public:
     void Start(Camera* camera);
     void SetWindow(GLFWwindow*& window);
     static void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
-    static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
     void ProcessCamera(float xOff, float yOff);
+
+    GLFWwindow* GetWindow() { return m_Window; }
 
 private:
     // mouse

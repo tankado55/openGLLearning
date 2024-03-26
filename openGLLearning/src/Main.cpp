@@ -32,6 +32,8 @@
 #include "tests/TestBatch.h"
 #include "tests/TestMorph.h"
 #include "tests/TestSmoke.h"
+#include "TimeUpdater.h"
+
 
 int main(void)
 {
@@ -110,6 +112,7 @@ int main(void)
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window))
         {
+            Timem::TimeUpdater::UpdateDeltaTime();
             float currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;

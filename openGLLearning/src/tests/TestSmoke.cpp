@@ -3,9 +3,13 @@
 #include "imgui.h"
 #include "glm/glm.hpp"
 #include "InputManager.h"
+#include "TimeUpdater.h"
+
+
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <cmath>
+
 
 
 glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 planePoint, glm::vec3 planeNormal) {
@@ -27,6 +31,7 @@ glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm:
 
     return intersectionPoint;
 }
+
 
 
 Test::TestSmoke::TestSmoke() :
@@ -119,6 +124,8 @@ Test::TestSmoke::TestSmoke() :
 
     m_Camera = std::make_unique<Camera>();
     InputManager::GetInstance()->Start(m_Camera.get());
+    m_Smoke = std::make_unique<SmokeGrenade>();
+
     //glEnable(GL_CULL_FACE);
 }
 
@@ -179,7 +186,9 @@ void Test::TestSmoke::OnRenderer()
     }
     
     { //batch
-        //glm::mat4 model = glm::mat4(1.0f);
+        double toPass = Timem::deltaTime;
+        m_Smoke->Update(toPass, 55);
+        m_Smoke->Draw(*m_SmokeShader);
         glm::mat4 model = m_VoxelGrid->model;
         model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution, m_VoxelGrid->resolution, m_VoxelGrid->resolution));
         glm::mat4 mvp = m_Proj * m_View * model;
@@ -189,7 +198,7 @@ void Test::TestSmoke::OnRenderer()
         m_SmokeShader->SetUniformMat4f("u_Projection", m_Proj);
         m_SmokeShader->SetUniformMat4f("u_MVP", mvp);
         m_SmokeShader->SetUniformVec3f("explosionPos", intersectInPlane);
-        m_SmokeShader->SetUniformVec3f("u_Ellipsoid", glm::vec3(3.0, 2.0, 3.0));
+        
 
         renderer.DrawInstanced(
             *m_VAO,
