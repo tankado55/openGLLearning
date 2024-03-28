@@ -48,7 +48,12 @@ Test::TestSmoke::TestSmoke() :
     m_PrototypeTexture = std::make_unique<Texture>("res/textures/tex_3.png");
     m_Plane->AddTexture(*m_PrototypeTexture, "texture_diffuse", 0);
 
+    m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
+    m_ObstacleTexture = std::make_unique<Texture>("res/textures/tex_6.png");
+    m_Obstacle->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+
     float positions[] = {
+        // pos, norma, uv
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
      0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
@@ -183,6 +188,23 @@ void Test::TestSmoke::OnRenderer()
         m_WhiteShader->SetUniformMat4f("u_Model", model);
 
         renderer.Draw(*m_VAO, *m_IndexBuffer, *m_WhiteShader);
+    }
+
+    { // obstacles
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, m_TranslationA + glm::vec3(1.0, 0.0, 1.0));
+        model = glm::scale(model, glm::vec3(1.0, 3.0, 3.0));
+        m_PlaneShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_PlaneShader->SetUniformMat4f("u_View", m_View);
+        m_PlaneShader->SetUniformMat4f("u_Projection", m_Proj);
+        m_PlaneShader->SetUniformMat4f("u_Model", model);
+        m_Obstacle->Draw(*m_PlaneShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, m_TranslationA + glm::vec3(4.0, 0.0, 1.0));
+        model = glm::scale(model, glm::vec3(1.0, 3.0, 3.0));
+        m_PlaneShader->SetUniformMat4f("u_Model", model);
+        m_Obstacle->Draw(*m_PlaneShader);
     }
     
     { //batch

@@ -1468,5 +1468,6 @@
     <None Include="src\vendor\glm\gtx\wrap.inl">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="src\vendor\eigen-3.4.0\Eigen\Dense" />
   </ItemGroup>
 </Project>

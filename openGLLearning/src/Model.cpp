@@ -4,8 +4,10 @@
 #include "Utils.h"
 
 
-Model::Model(std::string path)
+Model::Model(std::string path) :
+    modelMatrix(glm::mat4(1.0))
 {
+    this->path = path;
     // read file via ASSIMP
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);

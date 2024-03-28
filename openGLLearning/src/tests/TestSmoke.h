@@ -35,7 +35,9 @@ namespace Test {
 		std::unique_ptr<Shader> m_PlaneShader;
 		std::unique_ptr<VoxelGrid> m_VoxelGrid;
 		std::unique_ptr<Model> m_Plane;
+		std::unique_ptr<Model> m_Obstacle;
 		std::unique_ptr<Texture> m_PrototypeTexture;
+		std::unique_ptr<Texture> m_ObstacleTexture;
 		std::unique_ptr<SmokeGrenade> m_Smoke;
 
 
