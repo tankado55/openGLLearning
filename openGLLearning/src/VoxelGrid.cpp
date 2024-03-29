@@ -1,11 +1,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <Eigen/Dense>
+#include <igl/read_triangle_mesh.h>
+#include <igl/embree/EmbreeIntersector.h>
+#include <igl/copyleft/cgal/mesh_boolean.h>
+#include <igl/MeshBooleanType.h>
 #include "VoxelGrid.h"
 
-static Eigen::MatrixXd glmToEigen(const glm::mat3& glmMatrix) {
-	Eigen::MatrixXd eigenMatrix(3, 3);
-	for (int i = 0; i < 3; ++i) {
-		for (int j = 0; j < 3; ++j) {
+static Eigen::MatrixXd glmToEigen(const glm::mat4& glmMatrix) {
+	Eigen::MatrixXd eigenMatrix(4, 4);
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
 			eigenMatrix(i, j) = glmMatrix[i][j];
 		}
 	}
@@ -50,9 +54,6 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 	Eigen::MatrixXd V1; // Vertices voxel
 	Eigen::MatrixXi F1; // Faces voxel
 	igl::read_triangle_mesh("res/models/cube/cube.obj", V1, F1);
-	// Construct BVHs
-	igl::embree::EmbreeIntersector embree;
-	embree.init(V1, F1);
 
 	for (int i = 0; i < objects.size(); i++)
 	{
@@ -63,20 +64,30 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 		Eigen::MatrixXi F2; // Faces
 		igl::read_triangle_mesh(path, V2, F2);
 		// to world
-		
-		embree.init(V2, F2);
+		glm::mat4 toWorld = model->GetModelMatrix();
+		Eigen::MatrixXd toWorldEig = glmToEigen(toWorld);
+		transformToWorldSpace(V2, toWorldEig);
 
 		for (int j = 0; j < voxelCount; j++)
 		{
 			// to world
+			float xPos = j % (int)size.z;
+			float yPos = (j / (int)size.x) % (int)size.y;
+			float zPos = int(j / ((int)size.x * (int)size.y));
+			glm::vec3 offset = vec3(xPos, yPos, zPos);
+			glm::mat4 toWorld = glm::mat4(1.0);
+			toWorld = glm::translate(toWorld, offset);
+			toWorld = glm::scale(toWorld, glm::vec3(resolution));
+			Eigen::MatrixXd toWorldEig = glmToEigen(toWorld);
+			transformToWorldSpace(V1, toWorldEig);
 
 			// Check for collisions
-			Eigen::MatrixXd C; // Collision points
-			Eigen::MatrixXi CI; // Indices of intersected triangles
-			embree_triangle_mesh_intersection(V1, F1, V2, F2, C, CI);
+			Eigen::MatrixXd VC; // Collision points
+			Eigen::MatrixXi FC; // Indices of intersected triangles
+			igl::copyleft::cgal::mesh_boolean(V1, F1, V2, F2, igl::MESH_BOOLEAN_TYPE_INTERSECT, VC, FC);
 
 			// Check if there are collisions
-			if (C.rows() > 0) {
+			if (VC.rows() > 0) {
 				std::cout << "Collision detected!" << std::endl;
 				// Process collision data if needed
 			}

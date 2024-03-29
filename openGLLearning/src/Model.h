@@ -20,6 +20,7 @@ public:
     int GetMeshCount() const { return meshes.size(); }
     const Mesh& GetMesh(int i) const { return meshes[i]; }
     std::string getPath() const { return path; };
+    glm::mat4 GetModelMatrix() const { return modelMatrix; }
 
 private:
     // model data
