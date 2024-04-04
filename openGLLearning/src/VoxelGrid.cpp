@@ -1,9 +1,9 @@
+#define NOMINMAX
 #include <glm/gtc/matrix_transform.hpp>
 #include <Eigen/Dense>
 #include <igl/read_triangle_mesh.h>
-#include <igl/embree/EmbreeIntersector.h>
 #include <igl/copyleft/cgal/mesh_boolean.h>
-#include <igl/MeshBooleanType.h>
+//#include <igl/MeshBooleanType.h>
 #include "VoxelGrid.h"
 
 static Eigen::MatrixXd glmToEigen(const glm::mat4& glmMatrix) {
@@ -74,7 +74,7 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 			float xPos = j % (int)size.z;
 			float yPos = (j / (int)size.x) % (int)size.y;
 			float zPos = int(j / ((int)size.x * (int)size.y));
-			glm::vec3 offset = vec3(xPos, yPos, zPos);
+			glm::vec3 offset = glm::vec3(xPos, yPos, zPos);
 			glm::mat4 toWorld = glm::mat4(1.0);
 			toWorld = glm::translate(toWorld, offset);
 			toWorld = glm::scale(toWorld, glm::vec3(resolution));

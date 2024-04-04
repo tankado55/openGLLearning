@@ -51,6 +51,8 @@ Test::TestSmoke::TestSmoke() :
     m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
     m_ObstacleTexture = std::make_unique<Texture>("res/textures/tex_6.png");
     m_Obstacle->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+    std::vector<Model*> sceneModels;
+    sceneModels.push_back(m_Obstacle.get());
 
     float positions[] = {
         // pos, norma, uv
@@ -124,6 +126,7 @@ Test::TestSmoke::TestSmoke() :
     m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->size.x);
     m_SmokeShader->SetUniform1i("u_YCount", m_VoxelGrid->size.y);
     m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->size.z);
+    m_VoxelGrid->Bake(sceneModels);
 
     m_WhiteShader = std::make_unique<Shader>("res/shaders/WhiteSingleShader.hlsl");
 

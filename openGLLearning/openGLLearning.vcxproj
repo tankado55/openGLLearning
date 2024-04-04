@@ -126,14 +126,15 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\assimp-5.3.1\include;src;src/vendor/imgui-1.90.1;src/vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\glew-2.1.0\include;src/vendor/eigen-3.4.0;src/vendor/libigl-2.5.0/include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\assimp-5.3.1\include;src;src/vendor/imgui-1.90.1;src/vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\glew-2.1.0\include;src/vendor/eigen-3.4.0;src/vendor/libigl-2.5.0/include;src/vendor/boost_1_84_0;src/vendor\cgal-5.6.1\include;src/vendor\gmp/include;src\vendor\CGAL-5.6.1-library\CGAL-5.6.1\include;src\vendor\CGAL-5.6.1-win64-auxiliary-libraries-gmp-mpfr\auxiliary\gmp\include;D:\dev\my_libs\libigl-2.5.0\include;D:\dev\my_libs\libigl-2.5.0\build\_deps\gmp-src\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib-vc2022;$(SolutionDir)Dependencies\assimp-5.3.1\lib\Debug;$(SolutionDir)Dependencies\glew-2.1.0\lib\Release\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib-vc2022;$(SolutionDir)Dependencies\assimp-5.3.1\lib\Debug;$(SolutionDir)Dependencies\glew-2.1.0\lib\Release\x64;src\vendor\gmp\lib;D:\dev\my_libs\libigl-2.5.0\build\_deps\gmp-src\lib;D:\dev\my_libs\libigl-2.5.0\build\_deps\*</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;Glu32.lib;glew32s.lib;assimp-vc143-mtd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -143,16 +144,17 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\assimp-5.3.1\include;src;src/vendor/imgui-1.90.1;src/vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\glew-2.1.0\include;src/vendor/eigen-3.4.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\assimp-5.3.1\include;src;src/vendor/imgui-1.90.1;src/vendor;$(SolutionDir)Dependencies\GLFW\include;$(SolutionDir)Dependencies\glew-2.1.0\include;src/vendor/eigen-3.4.0;src/vendor/libigl-2.5.0/include;src/vendor/boost_1_84_0;src/vendor\cgal-5.6.1\include;src/vendor\gmp/include;src\vendor\CGAL-5.6.1-library\CGAL-5.6.1\include;src\vendor\CGAL-5.6.1-win64-auxiliary-libraries-gmp-mpfr\auxiliary\gmp\include;D:\dev\my_libs\libigl-2.5.0\include;D:\dev\my_libs\libigl-2.5.0\build\_deps\gmp-src\include</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib-vc2022;$(SolutionDir)Dependencies\assimp-5.3.1\lib\Debug;$(SolutionDir)Dependencies\glew-2.1.0\lib\Release\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib-vc2022;$(SolutionDir)Dependencies\assimp-5.3.1\lib\Debug;$(SolutionDir)Dependencies\glew-2.1.0\lib\Release\x64;src\vendor\gmp\lib;D:\dev\my_libs\libigl-2.5.0\build\_deps\gmp-src\lib;D:\dev\my_libs\libigl-2.5.0\build\_deps\*</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;Glu32.lib;glew32s.lib;assimp-vc143-mtd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -211,6 +213,204 @@
     <ClInclude Include="src\Texture.h" />
     <ClInclude Include="src\TimeUpdater.h" />
     <ClInclude Include="src\Utils.h" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\align.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\aligned_storage.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\any.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\array.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\asio.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\assert.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\assign.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\atomic.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\beast.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\bimap.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\bind.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\blank.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\blank_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\callable_traits.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\call_traits.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\cast.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\cerrno.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\checked_delete.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\chrono.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\circular_buffer.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\circular_buffer_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\cobalt.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\compressed_pair.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\compute.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\concept_archetype.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\concept_check.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\config.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\contract.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\contract_macro.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\convert.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\crc.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\cregex.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\cstdfloat.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\cstdint.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\cstdlib.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\current_function.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\cxx11_char_types.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\date_time.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\describe.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\dll.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\dynamic_bitset.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\dynamic_bitset_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\enable_shared_from_this.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\endian.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\exception_ptr.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\filesystem.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\flyweight.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\foreach.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\foreach_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\format.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\function.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\functional.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\function_equal.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\function_output_iterator.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\generator_iterator.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\geometry.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\get_pointer.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\gil.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\hana.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\histogram.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\hof.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\implicit_cast.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\indirect_reference.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\integer.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\integer_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\integer_traits.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\intrusive_ptr.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\io_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\is_placeholder.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\iterator.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\iterator_adaptors.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\json.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\lambda2.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\leaf.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\lexical_cast.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\limits.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\locale.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\local_function.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\make_default.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\make_shared.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\make_unique.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\math_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\memory_order.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\mem_fn.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\metaparse.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\mp11.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\mpi.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\complex128.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\complex_adaptor.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_bin_float.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_complex.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_dec_float.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\add.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\add_unsigned.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\bitwise.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\checked.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\comparison.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\cpp_int_config.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\divide.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\import_export.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\intel_intrinsics.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\limits.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\literals.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\misc.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\multiply.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\serialize.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\cpp_int\value_pack.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\debug_adaptor.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\eigen.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\float128.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\gmp.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\integer.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\logged_adaptor.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\miller_rabin.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\mpc.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\mpfi.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\mpfr.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\number.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\random.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\rational_adaptor.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multiprecision\tommath.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multi_array.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multi_index_container.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\multi_index_container_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\mysql.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\next_prior.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\noncopyable.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\nondet_random.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\none.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\none_t.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\non_type.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\operators.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\operators_v1.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\optional.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\outcome.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\parameter.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\pfr.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\phoenix.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\pointee.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\pointer_cast.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\pointer_to_other.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\polymorphic_cast.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\polymorphic_pointer_cast.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\predef.h" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\preprocessor.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\process.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\program_options.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\progress.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\python.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\qvm.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\qvm_lite.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\random.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\range.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\ratio.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\rational.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\redis.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\ref.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\regex.h" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\regex.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\regex_fwd.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\scoped_array.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\scoped_ptr.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\scope_exit.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\shared_array.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\shared_container_iterator.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\shared_ptr.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\signals2.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\smart_ptr.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\spirit.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\stacktrace.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\static_assert.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\static_string.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\swap.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\system.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\thread.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\throw_exception.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\timer.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\tokenizer.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\token_functions.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\token_iterator.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\type.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\type_index.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\type_traits.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\unordered_map.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\unordered_set.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\url.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\utility.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\variant.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\variant2.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\version.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\visit_each.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\wave.hpp" />
+    <ClInclude Include="src\vendor\boost_1_84_0\boost\weak_ptr.hpp" />
+    <ClInclude Include="src\vendor\CGAL-5.6.1-library\CGAL-5.6.1\auxiliary\gmp\include\gmp.h" />
+    <ClInclude Include="src\vendor\CGAL-5.6.1-library\CGAL-5.6.1\auxiliary\gmp\include\mpf2mpfr.h" />
+    <ClInclude Include="src\vendor\CGAL-5.6.1-library\CGAL-5.6.1\auxiliary\gmp\include\mpfr.h" />
     <ClInclude Include="src\vendor\glm\common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="src\vendor\glm\detail\compute_vector_relational.hpp" />
@@ -493,6 +693,9 @@
     <ClInclude Include="src\vendor\glm\vec3.hpp" />
     <ClInclude Include="src\vendor\glm\vec4.hpp" />
     <ClInclude Include="src\vendor\glm\vector_relational.hpp" />
+    <ClInclude Include="src\vendor\gmp\include\gmp.h" />
+    <ClInclude Include="src\vendor\gmp\include\mpf2mpfr.h" />
+    <ClInclude Include="src\vendor\gmp\include\mpfr.h" />
     <ClInclude Include="src\vendor\imgui-1.90.1\backends\imgui_impl_glfw.h" />
     <ClInclude Include="src\vendor\imgui-1.90.1\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="src\vendor\imgui-1.90.1\imconfig.h" />
@@ -502,7 +705,6 @@
     <ClInclude Include="src\vendor\imgui-1.90.1\imstb_textedit.h" />
     <ClInclude Include="src\vendor\imgui-1.90.1\imstb_truetype.h" />
     <ClInclude Include="src\vendor\libigl-2.5.0\include\igl\copyleft\cgal\mesh_boolean.h" />
-    <ClInclude Include="src\vendor\libigl-2.5.0\include\igl\embree\EmbreeIntersector.h" />
     <ClInclude Include="src\vendor\libigl-2.5.0\include\igl\MeshBooleanType.h" />
     <ClInclude Include="src\vendor\libigl-2.5.0\include\igl\read_triangle_mesh.h" />
     <ClInclude Include="src\vendor\stb_image\stb_image.h" />
