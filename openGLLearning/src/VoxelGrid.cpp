@@ -1,10 +1,19 @@
 #define NOMINMAX
 #include <glm/gtc/matrix_transform.hpp>
 #include <Eigen/Dense>
-#include <igl/read_triangle_mesh.h>
-#include <igl/copyleft/cgal/mesh_boolean.h>
+//#include <igl/read_triangle_mesh.h>
+//#include <igl/copyleft/cgal/mesh_boolean.h>
 //#include <igl/MeshBooleanType.h>
 #include "VoxelGrid.h"
+
+VoxelGrid::VoxelGrid() :
+	size(30, 5, 30),
+	resolution(0.5),
+	modelMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(-((size.x - 1.0) * resolution), 0.0, -((size.z - 1.0) * resolution)) / 2.0f)),
+	voxelCount(size.x* size.y* size.z),
+	status(voxelCount, 0)
+{
+}
 
 static Eigen::MatrixXd glmToEigen(const glm::mat4& glmMatrix) {
 	Eigen::MatrixXd eigenMatrix(4, 4);
@@ -38,35 +47,17 @@ static void transformToWorldSpace(Eigen::MatrixXd& V, const Eigen::Matrix4d& M) 
 	V = V_homogeneous.leftCols<3>(); // Discard the last column (homogeneous coordinates)
 }
 
-
-VoxelGrid::VoxelGrid():
-	size(30, 5, 30),
-	resolution(0.5),
-	model(glm::translate(glm::mat4(1.0f), glm::vec3(-((size.x - 1.0) * resolution), 0.0, -((size.z - 1.0) * resolution)) / 2.0f)),
-	voxelCount(size.x* size.y* size.z),
-	status(voxelCount, 0)
-{
-
+bool CheckAABBCollision(const glm::vec3& minA, const glm::vec3& maxA, const glm::vec3& minB, const glm::vec3& maxB) {
+	return glm::all(glm::lessThanEqual(minA, maxB)) && glm::all(glm::lessThanEqual(minB, maxA));
 }
 
 void VoxelGrid::Bake(const std::vector<Model*>& objects)
 {
-	Eigen::MatrixXd V1; // Vertices voxel
-	Eigen::MatrixXi F1; // Faces voxel
-	igl::read_triangle_mesh("res/models/cube/cube.obj", V1, F1);
 
 	for (int i = 0; i < objects.size(); i++)
 	{
 		Model* model = objects[i];
-		std::string path = model->getPath();
-		
-		Eigen::MatrixXd V2; // Vertices
-		Eigen::MatrixXi F2; // Faces
-		igl::read_triangle_mesh(path, V2, F2);
-		// to world
-		glm::mat4 toWorld = model->GetModelMatrix();
-		Eigen::MatrixXd toWorldEig = glmToEigen(toWorld);
-		transformToWorldSpace(V2, toWorldEig);
+		AABB aabbModel = model->GetAABB();
 
 		for (int j = 0; j < voxelCount; j++)
 		{
@@ -78,22 +69,32 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 			glm::mat4 toWorld = glm::mat4(1.0);
 			toWorld = glm::translate(toWorld, offset);
 			toWorld = glm::scale(toWorld, glm::vec3(resolution));
-			Eigen::MatrixXd toWorldEig = glmToEigen(toWorld);
-			transformToWorldSpace(V1, toWorldEig);
+			toWorld = modelMatrix * toWorld;
 
+			AABB aabbVoxel;
+			aabbVoxel.min = toWorld * glm::vec4(-0.5, -0.5, -0.5, 1);
+			aabbVoxel.max = toWorld * glm::vec4( 0.5,  0.5,  0.5, 1);
 			// Check for collisions
-			Eigen::MatrixXd VC; // Collision points
-			Eigen::MatrixXi FC; // Indices of intersected triangles
-			igl::copyleft::cgal::mesh_boolean(V1, F1, V2, F2, igl::MESH_BOOLEAN_TYPE_INTERSECT, VC, FC);
 
-			// Check if there are collisions
-			if (VC.rows() > 0) {
-				std::cout << "Collision detected!" << std::endl;
-				// Process collision data if needed
-			}
-			else {
-				std::cout << "No collision detected." << std::endl;
+			if (CheckAABBCollision(aabbModel.min, aabbModel.max, aabbVoxel.min, aabbVoxel.max))
+			{
+				status[j] = true;	
 			}
 		}
 	}
+
+	// GLBuffers
+	glBindBuffer(GL_TEXTURE_BUFFER, tboID);
+	glBufferData(GL_TEXTURE_BUFFER, sizeof(unsigned) * voxelCount, &status[0], GL_STATIC_DRAW);
+	glBindTexture(GL_TEXTURE_BUFFER, textureID);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, tboID);
+}
+
+void VoxelGrid::Draw(Shader& shader)
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_BUFFER, textureID);
+
+	shader.Bind();
+	shader.SetUniform1i("voxelBuffer", 0);
 }

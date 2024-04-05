@@ -36,6 +36,11 @@ struct TextureStruct {
     std::string path;
 };
 
+struct AABB {
+    glm::vec3 min;
+    glm::vec3 max;
+};
+
 class Mesh {
 public:
     // mesh Data

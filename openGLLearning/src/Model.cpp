@@ -66,6 +66,28 @@ void Model::AddTexture(Texture& texture, std::string type, int meshIndex)
     meshes[meshIndex].textures.push_back(texStruct);
 }
 
+AABB Model::GetAABB() const
+{
+    AABB aabb;
+    for (int i = 0; i < meshes.size(); i++)
+    {
+        const Mesh& mesh = meshes[i];
+        for (int j = 0; j < mesh.indices.size(); j++)
+        {
+            int index = mesh.indices[j];
+            glm::vec3 vertexPos = modelMatrix * glm::vec4(mesh.vertices[index].Position, 1);
+            aabb.min.x = std::min(aabb.min.x, vertexPos.x);
+            aabb.min.y = std::min(aabb.min.y, vertexPos.y);
+            aabb.min.z = std::min(aabb.min.z, vertexPos.z);
+            aabb.max.x = std::max(aabb.max.x, vertexPos.x);
+            aabb.max.y = std::max(aabb.max.y, vertexPos.y);
+            aabb.max.z = std::max(aabb.max.z, vertexPos.z);
+        }
+    }
+
+    return aabb;
+}
+
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process each mesh located at the current node

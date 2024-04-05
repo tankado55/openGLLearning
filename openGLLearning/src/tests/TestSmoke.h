@@ -28,6 +28,7 @@ namespace Test {
 		std::unique_ptr<VertexBuffer> m_VertexBuffer;
 		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 		std::unique_ptr<Shader> m_SmokeShader;
+		std::unique_ptr<Shader> m_VoxelDebugShader;
 		std::unique_ptr<Shader> m_LightShader;
 		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Model> m_Soldier;

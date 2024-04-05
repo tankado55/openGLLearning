@@ -21,6 +21,7 @@ public:
     const Mesh& GetMesh(int i) const { return meshes[i]; }
     std::string getPath() const { return path; };
     glm::mat4 GetModelMatrix() const { return modelMatrix; }
+    AABB GetAABB() const;
 
 private:
     // model data

@@ -13,7 +13,7 @@ SmokeGrenade::SmokeGrenade() :
 
 }
 
-void SmokeGrenade::Update(const double& deltaTime, int itest)
+void SmokeGrenade::Update(const double& deltaTime)
 {
 	if (m_IsDetoned)
 		m_Timer += deltaTime;

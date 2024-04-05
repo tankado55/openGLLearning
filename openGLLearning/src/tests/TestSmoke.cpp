@@ -118,11 +118,17 @@ Test::TestSmoke::TestSmoke() :
 
     m_IndexBuffer = std::make_unique<IndexBuffer>(indices, 36);
 
+    m_VoxelGrid = std::make_unique<VoxelGrid>();
+
     m_SmokeShader = std::make_unique<Shader>("res/shaders/SmokeShader.hlsl");
+    m_VoxelDebugShader = std::make_unique<Shader>("res/shaders/voxelDebugShader.hlsl");
+    m_VoxelDebugShader->Bind();
+    m_VoxelDebugShader->SetUniform1i("u_XCount", m_VoxelGrid->size.x);
+    m_VoxelDebugShader->SetUniform1i("u_YCount", m_VoxelGrid->size.y);
+    m_VoxelDebugShader->SetUniform1i("u_ZCount", m_VoxelGrid->size.z);
     m_PlaneShader = std::make_unique<Shader>("res/shaders/BasicPlaneShader.hlsl");
     m_SmokeShader->Bind();
 
-    m_VoxelGrid = std::make_unique<VoxelGrid>();
     m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->size.x);
     m_SmokeShader->SetUniform1i("u_YCount", m_VoxelGrid->size.y);
     m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->size.z);
@@ -212,9 +218,9 @@ void Test::TestSmoke::OnRenderer()
     
     { //batch
         double toPass = Timem::deltaTime;
-        m_Smoke->Update(toPass, 55);
-        m_Smoke->Draw(*m_SmokeShader);
-        glm::mat4 model = m_VoxelGrid->model;
+        m_Smoke->Update(toPass);
+        m_Smoke->Draw(*m_SmokeShader); // it only set the uniforms
+        glm::mat4 model = m_VoxelGrid->modelMatrix;
         model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution, m_VoxelGrid->resolution, m_VoxelGrid->resolution));
         glm::mat4 mvp = m_Proj * m_View * model;
         m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
@@ -229,6 +235,23 @@ void Test::TestSmoke::OnRenderer()
             *m_VAO,
             *m_IndexBuffer,
             *m_SmokeShader,
+            m_VoxelGrid->voxelCount
+        );
+    }
+
+    { //voxel debugging
+        m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
+        glm::mat4 model = m_VoxelGrid->modelMatrix;
+        model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution, m_VoxelGrid->resolution, m_VoxelGrid->resolution));
+        m_VoxelDebugShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_VoxelDebugShader->SetUniformMat4f("u_Model", model);
+        m_VoxelDebugShader->SetUniformMat4f("u_View", m_View);
+        m_VoxelDebugShader->SetUniformMat4f("u_Projection", m_Proj);
+
+        renderer.DrawInstanced(
+            *m_VAO,
+            *m_IndexBuffer,
+            *m_VoxelDebugShader,
             m_VoxelGrid->voxelCount
         );
     }

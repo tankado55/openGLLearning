@@ -15,7 +15,7 @@ private:
 
 public:
 	SmokeGrenade();
-	void Update(const double& deltaTime, int itest);
+	void Update(const double& deltaTime);
 	void Draw(Shader& shader);
 	float GetTimer() const { return m_Timer; };
 };
