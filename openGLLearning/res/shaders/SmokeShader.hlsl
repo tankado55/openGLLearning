@@ -6,7 +6,6 @@ layout(location = 1) in vec3 aNormal;
 uniform mat4 u_Model;
 uniform mat4 u_View;
 uniform mat4 u_Projection;
-uniform mat4 u_MVP;
 uniform int u_XCount;
 uniform int u_YCount;
 uniform int u_ZCount;

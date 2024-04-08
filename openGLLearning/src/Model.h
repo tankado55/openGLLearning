@@ -30,6 +30,7 @@ private:
     std::string directory;
     std::string path;
     bool gammaCorrection;
+public:
     glm::mat4 modelMatrix;
 
 private:

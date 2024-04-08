@@ -9,7 +9,7 @@
 VoxelGrid::VoxelGrid() :
 	size(30, 5, 30),
 	resolution(0.5),
-	modelMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(-((size.x - 1.0) * resolution), 0.0, -((size.z - 1.0) * resolution)) / 2.0f)),
+	modelMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(-((size.x - 1.0)), 0.0, -((size.z - 1.0))) / 2.0f)),
 	voxelCount(size.x* size.y* size.z),
 	status(voxelCount, 0)
 {
@@ -67,34 +67,40 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 			float zPos = int(j / ((int)size.x * (int)size.y));
 			glm::vec3 offset = glm::vec3(xPos, yPos, zPos);
 			glm::mat4 toWorld = glm::mat4(1.0);
-			toWorld = glm::translate(toWorld, offset);
 			toWorld = glm::scale(toWorld, glm::vec3(resolution));
-			toWorld = modelMatrix * toWorld;
 
 			AABB aabbVoxel;
-			aabbVoxel.min = toWorld * glm::vec4(-0.5, -0.5, -0.5, 1);
-			aabbVoxel.max = toWorld * glm::vec4( 0.5,  0.5,  0.5, 1);
+			aabbVoxel.min = toWorld * modelMatrix * (glm::vec4(-0.5, -0.5, -0.5, 1) + glm::vec4(offset, 0.0));
+			aabbVoxel.max = toWorld * modelMatrix * (glm::vec4( 0.5,  0.5,  0.5, 1) + glm::vec4(offset, 0.0));
 			// Check for collisions
 
 			if (CheckAABBCollision(aabbModel.min, aabbModel.max, aabbVoxel.min, aabbVoxel.max))
 			{
-				status[j] = true;	
+				status[j] = 1.0f;	
+			}
+			if (j == 0) {
+				status[j] = 1.0f;
+			}
+			if (j == voxelCount-1) {
+				status[j] = 1.0f;
 			}
 		}
 	}
 
 	// GLBuffers
+	glGenBuffers(1, &tboID);
 	glBindBuffer(GL_TEXTURE_BUFFER, tboID);
-	glBufferData(GL_TEXTURE_BUFFER, sizeof(unsigned) * voxelCount, &status[0], GL_STATIC_DRAW);
+	glBufferData(GL_TEXTURE_BUFFER, sizeof(float) * voxelCount, &status[0], GL_STATIC_DRAW);
+
+	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_BUFFER, textureID);
 	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, tboID);
 }
 
 void VoxelGrid::Draw(Shader& shader)
 {
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_BUFFER, textureID);
-
 	shader.Bind();
 	shader.SetUniform1i("voxelBuffer", 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_BUFFER, textureID);
 }

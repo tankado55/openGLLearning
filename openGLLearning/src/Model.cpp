@@ -69,6 +69,8 @@ void Model::AddTexture(Texture& texture, std::string type, int meshIndex)
 AABB Model::GetAABB() const
 {
     AABB aabb;
+    aabb.min = glm::vec3(std::numeric_limits<float>::max());
+    aabb.max = glm::vec3(std::numeric_limits<float>::min());
     for (int i = 0; i < meshes.size(); i++)
     {
         const Mesh& mesh = meshes[i];

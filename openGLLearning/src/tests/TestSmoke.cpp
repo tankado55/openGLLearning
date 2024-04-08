@@ -51,6 +51,8 @@ Test::TestSmoke::TestSmoke() :
     m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
     m_ObstacleTexture = std::make_unique<Texture>("res/textures/tex_6.png");
     m_Obstacle->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+    m_Obstacle->modelMatrix = glm::translate(m_Obstacle->modelMatrix, glm::vec3(0.0, 0.0, 5.0));
+    m_Obstacle->modelMatrix = glm::scale(m_Obstacle->modelMatrix, glm::vec3(0.99, 0.99, 1.99));
     std::vector<Model*> sceneModels;
     sceneModels.push_back(m_Obstacle.get());
 
@@ -200,15 +202,13 @@ void Test::TestSmoke::OnRenderer()
     }
 
     { // obstacles
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_TranslationA + glm::vec3(1.0, 0.0, 1.0));
-        model = glm::scale(model, glm::vec3(1.0, 3.0, 3.0));
         m_PlaneShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_PlaneShader->SetUniformMat4f("u_View", m_View);
         m_PlaneShader->SetUniformMat4f("u_Projection", m_Proj);
-        m_PlaneShader->SetUniformMat4f("u_Model", model);
+        m_PlaneShader->SetUniformMat4f("u_Model", m_Obstacle->GetModelMatrix());
         m_Obstacle->Draw(*m_PlaneShader);
 
+        glm::mat4 model = glm::mat4(1.0f);
         model = glm::mat4(1.0f);
         model = glm::translate(model, m_TranslationA + glm::vec3(4.0, 0.0, 1.0));
         model = glm::scale(model, glm::vec3(1.0, 3.0, 3.0));
@@ -216,18 +216,17 @@ void Test::TestSmoke::OnRenderer()
         m_Obstacle->Draw(*m_PlaneShader);
     }
     
-    { //batch
+    { //smoke
         double toPass = Timem::deltaTime;
         m_Smoke->Update(toPass);
         m_Smoke->Draw(*m_SmokeShader); // it only set the uniforms
-        glm::mat4 model = m_VoxelGrid->modelMatrix;
+        glm::mat4 model = glm::mat4(1.0);
         model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution, m_VoxelGrid->resolution, m_VoxelGrid->resolution));
-        glm::mat4 mvp = m_Proj * m_View * model;
+        model = model * m_VoxelGrid->modelMatrix;
         m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_SmokeShader->SetUniformMat4f("u_Model", model);
         m_SmokeShader->SetUniformMat4f("u_View", m_View);
         m_SmokeShader->SetUniformMat4f("u_Projection", m_Proj);
-        m_SmokeShader->SetUniformMat4f("u_MVP", mvp);
         m_SmokeShader->SetUniformVec3f("explosionPos", intersectInPlane);
         
 
@@ -241,8 +240,9 @@ void Test::TestSmoke::OnRenderer()
 
     { //voxel debugging
         m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
-        glm::mat4 model = m_VoxelGrid->modelMatrix;
-        model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution, m_VoxelGrid->resolution, m_VoxelGrid->resolution));
+        glm::mat4 model = glm::mat4(1.0);
+        model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution));
+        model = model * m_VoxelGrid->modelMatrix;
         m_VoxelDebugShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_VoxelDebugShader->SetUniformMat4f("u_Model", model);
         m_VoxelDebugShader->SetUniformMat4f("u_View", m_View);
