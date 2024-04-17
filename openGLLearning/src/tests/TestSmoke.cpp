@@ -51,8 +51,8 @@ Test::TestSmoke::TestSmoke() :
     m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
     m_ObstacleTexture = std::make_unique<Texture>("res/textures/tex_6.png");
     m_Obstacle->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
-    m_Obstacle->modelMatrix = glm::translate(m_Obstacle->modelMatrix, glm::vec3(0.0, 0.0, 5.0));
-    m_Obstacle->modelMatrix = glm::scale(m_Obstacle->modelMatrix, glm::vec3(0.99, 0.99, 1.99));
+    m_Obstacle->modelMatrix = glm::translate(m_Obstacle->modelMatrix, glm::vec3(0.0, 0.0, 0.0));
+    m_Obstacle->modelMatrix = glm::scale(m_Obstacle->modelMatrix, glm::vec3(0.99, 0.99, 0.99));
     std::vector<Model*> sceneModels;
     sceneModels.push_back(m_Obstacle.get());
 
@@ -125,15 +125,15 @@ Test::TestSmoke::TestSmoke() :
     m_SmokeShader = std::make_unique<Shader>("res/shaders/SmokeShader.hlsl");
     m_VoxelDebugShader = std::make_unique<Shader>("res/shaders/voxelDebugShader.hlsl");
     m_VoxelDebugShader->Bind();
-    m_VoxelDebugShader->SetUniform1i("u_XCount", m_VoxelGrid->size.x);
-    m_VoxelDebugShader->SetUniform1i("u_YCount", m_VoxelGrid->size.y);
-    m_VoxelDebugShader->SetUniform1i("u_ZCount", m_VoxelGrid->size.z);
+    m_VoxelDebugShader->SetUniform1i("u_XCount", m_VoxelGrid->resolution.x);
+    m_VoxelDebugShader->SetUniform1i("u_YCount", m_VoxelGrid->resolution.y);
+    m_VoxelDebugShader->SetUniform1i("u_ZCount", m_VoxelGrid->resolution.z);
     m_PlaneShader = std::make_unique<Shader>("res/shaders/BasicPlaneShader.hlsl");
     m_SmokeShader->Bind();
 
-    m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->size.x);
-    m_SmokeShader->SetUniform1i("u_YCount", m_VoxelGrid->size.y);
-    m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->size.z);
+    m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->resolution.x);
+    m_SmokeShader->SetUniform1i("u_YCount", m_VoxelGrid->resolution.y);
+    m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->resolution.z);
     m_VoxelGrid->Bake(sceneModels);
 
     m_WhiteShader = std::make_unique<Shader>("res/shaders/WhiteSingleShader.hlsl");
@@ -159,6 +159,8 @@ void Test::TestSmoke::OnUpdate(float deltaTime, GLFWwindow*& window)
 void Test::TestSmoke::OnRenderer()
 {
     Renderer renderer; //that's ok because Rendered does not have internal state
+
+    UpdateInputs(Timem::deltaTime);
 
     glm::vec3 planeNormal = { 0, 1, 0 };
     glm::vec3 pointOnPlane = { 1, 0, 1 };
@@ -221,7 +223,7 @@ void Test::TestSmoke::OnRenderer()
         m_Smoke->Update(toPass);
         m_Smoke->Draw(*m_SmokeShader); // it only set the uniforms
         glm::mat4 model = glm::mat4(1.0);
-        model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution, m_VoxelGrid->resolution, m_VoxelGrid->resolution));
+        model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize, m_VoxelGrid->voxelSize, m_VoxelGrid->voxelSize));
         model = model * m_VoxelGrid->modelMatrix;
         m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_SmokeShader->SetUniformMat4f("u_Model", model);
@@ -241,7 +243,7 @@ void Test::TestSmoke::OnRenderer()
     { //voxel debugging
         m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
         glm::mat4 model = glm::mat4(1.0);
-        model = glm::scale(model, glm::vec3(m_VoxelGrid->resolution));
+        model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize));
         model = model * m_VoxelGrid->modelMatrix;
         m_VoxelDebugShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_VoxelDebugShader->SetUniformMat4f("u_Model", model);
@@ -264,4 +266,31 @@ void Test::TestSmoke::OnImGuiRenderer()
     ImGui::SliderFloat3("Translation A", &m_TranslationA.x, -960.0f/2.0f, 960.0f/2.0f);
     ImGui::SliderFloat3("Translation B", &m_TextureGridMode.x, -10.0f, 10.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+}
+
+void Test::TestSmoke::UpdateInputs(const double& deltaTime)
+{
+    GLFWwindow* window = InputManager::GetInstance()->GetWindow();
+
+    int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+    if (state == GLFW_PRESS)
+    {
+        m_PrevLeftButtonState = m_LeftButtonState;
+        m_LeftButtonState = true;
+        if (m_PrevLeftButtonState == false && m_LeftButtonState == true)
+        {
+            glm::vec3 planeNormal = { 0, 1, 0 };
+            glm::vec3 pointOnPlane = { 1, 0, 1 };
+            glm::vec3 cameraFront = m_Camera->GetFront();
+            glm::vec3 cameraPosition = m_Camera->GetPos();
+
+            glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
+            m_VoxelGrid->Flood(intersectInPlane, 6.0);
+        }
+    }
+    else
+    {
+        m_PrevLeftButtonState = m_LeftButtonState;
+        m_LeftButtonState = false;
+    }
 }

@@ -4,13 +4,14 @@
 //#include <igl/read_triangle_mesh.h>
 //#include <igl/copyleft/cgal/mesh_boolean.h>
 //#include <igl/MeshBooleanType.h>
+#include <iostream>
 #include "VoxelGrid.h"
 
 VoxelGrid::VoxelGrid() :
-	size(30, 5, 30),
-	resolution(0.5),
-	modelMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(-((size.x - 1.0)), 0.0, -((size.z - 1.0))) / 2.0f)),
-	voxelCount(size.x* size.y* size.z),
+	resolution(30, 5, 30),
+	voxelSize(0.5),
+	modelMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(-((resolution.x - 1.0)), 0.0, -((resolution.z - 1.0))) / 2.0f)),
+	voxelCount(resolution.x* resolution.y* resolution.z),
 	status(voxelCount, 0)
 {
 }
@@ -53,7 +54,8 @@ bool CheckAABBCollision(const glm::vec3& minA, const glm::vec3& maxA, const glm:
 
 void VoxelGrid::Bake(const std::vector<Model*>& objects)
 {
-
+	// 1.0f obstacle
+	// 2.0f smoke
 	for (int i = 0; i < objects.size(); i++)
 	{
 		Model* model = objects[i];
@@ -62,12 +64,12 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 		for (int j = 0; j < voxelCount; j++)
 		{
 			// to world
-			float xPos = j % (int)size.z;
-			float yPos = (j / (int)size.x) % (int)size.y;
-			float zPos = int(j / ((int)size.x * (int)size.y));
+			float xPos = j % (int)resolution.z;
+			float yPos = (j / (int)resolution.x) % (int)resolution.y;
+			float zPos = int(j / ((int)resolution.x * (int)resolution.y));
 			glm::vec3 offset = glm::vec3(xPos, yPos, zPos);
 			glm::mat4 toWorld = glm::mat4(1.0);
-			toWorld = glm::scale(toWorld, glm::vec3(resolution));
+			toWorld = glm::scale(toWorld, glm::vec3(voxelSize));
 
 			AABB aabbVoxel;
 			aabbVoxel.min = toWorld * modelMatrix * (glm::vec4(-0.5, -0.5, -0.5, 1) + glm::vec4(offset, 0.0));
@@ -105,6 +107,31 @@ void VoxelGrid::Draw(Shader& shader)
 	glBindTexture(GL_TEXTURE_BUFFER, textureID);
 }
 
-void VoxelGrid::Flood(glm::vec3 origin)
+glm::vec3 VoxelGrid::IndexToWorld(int j)
 {
+	// to world
+	float xPos = j % (int)resolution.z;
+	float yPos = (j / (int)resolution.x) % (int)resolution.y;
+	float zPos = int(j / ((int)resolution.x * (int)resolution.y));
+	glm::vec3 offset = glm::vec3(xPos, yPos, zPos);
+	glm::mat4 toWorld = glm::mat4(1.0);
+	toWorld = glm::scale(toWorld, glm::vec3(voxelSize));
+
+	glm::vec3 result;
+	result = toWorld * modelMatrix * (glm::vec4(offset, 1.0));
+	return result;
 }
+
+void VoxelGrid::Flood(glm::vec3 origin, int gas)
+{
+	// I need the index
+	// from world to local
+	glm::mat4 toLocal = glm::mat4(1.0);
+	toLocal = glm::scale(toLocal, glm::vec3(1.0/voxelSize));
+	glm::vec3 localOrigin = glm::inverse(modelMatrix) * toLocal * glm::vec4(origin, 1.0);
+	int index1D = int(localOrigin.x) + (int(localOrigin.y) * resolution.x) + (int(localOrigin.z) * resolution.x * resolution.y);
+	glm::vec3 inverseTest = IndexToWorld(index1D);
+	std::cout << index1D << std::endl;
+}
+
+

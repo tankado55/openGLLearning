@@ -20,6 +20,7 @@ namespace Test {
 		void OnUpdate(float deltaTime, GLFWwindow*& window) override;
 		void OnRenderer() override;
 		void OnImGuiRenderer() override;
+		void UpdateInputs(const double& deltaTime);
 		void mouse_button_callback(GLFWwindow* window, int button, int action, int mods); //TODO: refactor
 
 	private:
@@ -52,5 +53,8 @@ namespace Test {
 		int m_YCount;
 		int m_ZCount;
 		float m_Distance;
+
+		bool m_PrevLeftButtonState = false;
+		bool m_LeftButtonState = false;
 	};
 }
