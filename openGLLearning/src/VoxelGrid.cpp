@@ -104,3 +104,7 @@ void VoxelGrid::Draw(Shader& shader)
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_BUFFER, textureID);
 }
+
+void VoxelGrid::Flood(glm::vec3 origin)
+{
+}
