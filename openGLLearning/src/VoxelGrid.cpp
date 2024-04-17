@@ -124,7 +124,7 @@ glm::vec3 VoxelGrid::IndexToWorld(int j)
 
 void VoxelGrid::Flood(glm::vec3 origin, int gas)
 {
-	// I need the index
+	// I need the index vc 
 	// from world to local
 	glm::mat4 toLocal = glm::mat4(1.0);
 	toLocal = glm::scale(toLocal, glm::vec3(1.0/voxelSize));
