@@ -13,7 +13,7 @@ uniform int u_ZCount;
 uniform vec3 u_Ellipsoid;
 uniform samplerBuffer voxelBuffer;
 
-out float isFull;
+out float texelStatus;
 out vec4 color;
 
 const uint k = 1103515245U;  // GLIB C
@@ -36,21 +36,17 @@ void main()
     gl_Position = u_Projection * u_View * u_Model * vec4(aPos + offset, 1.0);
 
     color = vec4(hash(uvec3(offset)), 1.0);
-    if (gl_InstanceID == 1058)
-    {
-        color = vec4(1.0, 0.0, 0.0, 0.5);
-    }
-    else
-    {
-        color = vec4(0.0, 0.0, 1.0, 0.1);
-    }
+    
+    
+    color = vec4(0.0, 0.0, 1.0, 0.1);
+    
     if (gl_InstanceID == 0)
     {
         color = vec4(0.0, 1.0, 0.0, 0.5);
     }
 
     float data = texelFetch(voxelBuffer, gl_InstanceID).r;
-    isFull = data;
+    texelStatus = data;
 }
 
 
@@ -58,15 +54,19 @@ void main()
 #version 330 core
 out vec4 FragColor;
 
-in float isFull;
+in float texelStatus;
 in vec4 color;
 
 
 void main()
 {
-    if (isFull > 0.99 && isFull < 1.01) {
+    if (texelStatus > 1.1) {
         FragColor = color;
         //FragColor = vec4(0.2, 1.0, 0.2, 1.0);
+    }
+    else if (texelStatus == 1.00)
+    {
+        FragColor = vec4(1.0, 0.0, 0.0, 0.1);
     }
     else {
         //FragColor = vec4(1.0,0.0,0.0, 0.1);

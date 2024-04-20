@@ -10,9 +10,10 @@
 VoxelGrid::VoxelGrid() :
 	resolution(30, 5, 30),
 	voxelSize(0.5),
-	modelMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(-((resolution.x - 1.0)), 0.0, -((resolution.z - 1.0))) / 2.0f)),
+	modelMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(-(resolution.x - 1.0), 1.0, -(resolution.z - 1.0)) / 2.0f)),
 	voxelCount(resolution.x* resolution.y* resolution.z),
-	status(voxelCount, 0)
+	status(voxelCount, 0),
+	bakedStatus(voxelCount)
 {
 }
 
@@ -78,16 +79,17 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 
 			if (CheckAABBCollision(aabbModel.min, aabbModel.max, aabbVoxel.min, aabbVoxel.max))
 			{
-				status[j] = 1.0f;	
+				bakedStatus[j] = -1.0f;	
 			}
 			if (j == 0) {
-				status[j] = 1.0f;
+				bakedStatus[j] = 1.0f;
 			}
 			if (j == voxelCount-1) {
-				status[j] = 1.0f;
+				bakedStatus[j] = 1.0f;
 			}
 		}
 	}
+	status = bakedStatus;
 
 	// GLBuffers
 	glGenBuffers(1, &tboID);
@@ -101,10 +103,13 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 
 void VoxelGrid::Draw(Shader& shader)
 {
+	glBindBuffer(GL_TEXTURE_BUFFER, tboID);
+	glBufferData(GL_TEXTURE_BUFFER, sizeof(float) * voxelCount, &status[0], GL_STATIC_DRAW);
 	shader.Bind();
 	shader.SetUniform1i("voxelBuffer", 0);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_BUFFER, textureID);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, tboID);
 }
 
 glm::vec3 VoxelGrid::IndexToWorld(int j)
@@ -122,6 +127,65 @@ glm::vec3 VoxelGrid::IndexToWorld(int j)
 	return result;
 }
 
+bool VoxelGrid::indexIsValid(int i) {
+	return (i >= 0 && i < status.size());
+}
+
+std::vector<int> VoxelGrid::GetNeighbors(int i)
+{
+	std::vector<int> neighbors;
+
+	float x = i % (int)resolution.z;
+	float y = (i / (int)resolution.x) % (int)resolution.y;
+	float z = int(i / ((int)resolution.x * (int)resolution.y));
+
+	// Define 26 possible directions in 3D space
+	int dx[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //27
+	int dy[] = { -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+	int dz[] = { -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+
+	for (int i = 0; i < 27; i++) {
+		int newX = x + dx[i];
+		int newY = y + dy[i];
+		int newZ = z + dz[i];
+
+		if (newX >= 0 && newX < resolution.x && newY >= 0 && newY < resolution.y && newZ >= 0 && newZ < resolution.z) {
+			int newIndex = newX + (newY * resolution.x) + (newZ * resolution.x * resolution.y);
+			neighbors.push_back(newIndex);
+		}
+	}
+
+	return neighbors;
+}
+
+void VoxelGrid::Flood(int i)
+{
+	if (!indexIsValid(i)) return;
+	if (status[i] == -1.0) return;
+
+	float maxNeigh = 0.0;
+	std::vector<int> neighbors = GetNeighbors(i);
+	for (auto neigh : neighbors)
+	{
+		maxNeigh = std::max(maxNeigh, status[neigh]);
+	}
+
+	status[i] = maxNeigh - 1.0f;
+
+
+	for (auto neigh : neighbors)
+	{
+		if (status[neigh] < status[i] - 1.0)
+		{
+			Flood(neigh);
+		}
+	}
+
+
+
+
+}
+
 void VoxelGrid::Flood(glm::vec3 origin, int gas)
 {
 	// I need the index vc 
@@ -130,8 +194,26 @@ void VoxelGrid::Flood(glm::vec3 origin, int gas)
 	toLocal = glm::scale(toLocal, glm::vec3(1.0/voxelSize));
 	glm::vec3 localOrigin = glm::inverse(modelMatrix) * toLocal * glm::vec4(origin, 1.0);
 	int index1D = int(localOrigin.x) + (int(localOrigin.y) * resolution.x) + (int(localOrigin.z) * resolution.x * resolution.y);
-	glm::vec3 inverseTest = IndexToWorld(index1D);
+	glm::vec3 inverseTest = IndexToWorld(index1D); // debug
 	std::cout << index1D << std::endl;
+	if (status[index1D] == -1.0f)
+	{
+		std::cout << "smoke inside wall" << std::endl;
+		return;
+	}
+
+	status[index1D] = gas;
+
+	std::vector<int> neighbors = GetNeighbors(index1D);
+	for (auto neigh : neighbors)
+	{
+		Flood(neigh);
+	}
+}
+
+void VoxelGrid::ClearStatus()
+{
+	status = bakedStatus;
 }
 
 

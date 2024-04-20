@@ -48,13 +48,21 @@ Test::TestSmoke::TestSmoke() :
     m_PrototypeTexture = std::make_unique<Texture>("res/textures/tex_3.png");
     m_Plane->AddTexture(*m_PrototypeTexture, "texture_diffuse", 0);
 
+    // Obstacle1
     m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
     m_ObstacleTexture = std::make_unique<Texture>("res/textures/tex_6.png");
     m_Obstacle->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
-    m_Obstacle->modelMatrix = glm::translate(m_Obstacle->modelMatrix, glm::vec3(0.0, 0.0, 0.0));
-    m_Obstacle->modelMatrix = glm::scale(m_Obstacle->modelMatrix, glm::vec3(0.99, 0.99, 0.99));
+    m_Obstacle->modelMatrix = glm::translate(m_Obstacle->modelMatrix, glm::vec3(0.0, 0.5, 0.0));
+    m_Obstacle->modelMatrix = glm::scale(m_Obstacle->modelMatrix, glm::vec3(5.99, 2.99, 0.99));
+    // Obstacle2
+    m_Obstacle2 = std::make_unique<Model>("res/models/cube/cube.obj");
+    m_Obstacle2->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+    m_Obstacle2->modelMatrix = glm::translate(m_Obstacle2->modelMatrix, glm::vec3(0.0, 0.5, 3.0));
+    m_Obstacle2->modelMatrix = glm::scale(m_Obstacle2->modelMatrix, glm::vec3(5.99, 0.99, 0.99));
+
     std::vector<Model*> sceneModels;
     sceneModels.push_back(m_Obstacle.get());
+    sceneModels.push_back(m_Obstacle2.get());
 
     float positions[] = {
         // pos, norma, uv
@@ -209,36 +217,32 @@ void Test::TestSmoke::OnRenderer()
         m_PlaneShader->SetUniformMat4f("u_Projection", m_Proj);
         m_PlaneShader->SetUniformMat4f("u_Model", m_Obstacle->GetModelMatrix());
         m_Obstacle->Draw(*m_PlaneShader);
-
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, m_TranslationA + glm::vec3(4.0, 0.0, 1.0));
-        model = glm::scale(model, glm::vec3(1.0, 3.0, 3.0));
-        m_PlaneShader->SetUniformMat4f("u_Model", model);
-        m_Obstacle->Draw(*m_PlaneShader);
+        m_PlaneShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
+        m_Obstacle2->Draw(*m_PlaneShader);
+        
     }
     
-    { //smoke
-        double toPass = Timem::deltaTime;
-        m_Smoke->Update(toPass);
-        m_Smoke->Draw(*m_SmokeShader); // it only set the uniforms
-        glm::mat4 model = glm::mat4(1.0);
-        model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize, m_VoxelGrid->voxelSize, m_VoxelGrid->voxelSize));
-        model = model * m_VoxelGrid->modelMatrix;
-        m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
-        m_SmokeShader->SetUniformMat4f("u_Model", model);
-        m_SmokeShader->SetUniformMat4f("u_View", m_View);
-        m_SmokeShader->SetUniformMat4f("u_Projection", m_Proj);
-        m_SmokeShader->SetUniformVec3f("explosionPos", intersectInPlane);
-        
-
-        renderer.DrawInstanced(
-            *m_VAO,
-            *m_IndexBuffer,
-            *m_SmokeShader,
-            m_VoxelGrid->voxelCount
-        );
-    }
+    //{ //smoke
+    //    double toPass = Timem::deltaTime;
+    //    m_Smoke->Update(toPass);
+    //    m_Smoke->Draw(*m_SmokeShader); // it only set the uniforms
+    //    glm::mat4 model = glm::mat4(1.0);
+    //    model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize, m_VoxelGrid->voxelSize, m_VoxelGrid->voxelSize));
+    //    model = model * m_VoxelGrid->modelMatrix;
+    //    m_SmokeShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+    //    m_SmokeShader->SetUniformMat4f("u_Model", model);
+    //    m_SmokeShader->SetUniformMat4f("u_View", m_View);
+    //    m_SmokeShader->SetUniformMat4f("u_Projection", m_Proj);
+    //    m_SmokeShader->SetUniformVec3f("explosionPos", intersectInPlane);
+    //    
+    //
+    //    renderer.DrawInstanced(
+    //        *m_VAO,
+    //        *m_IndexBuffer,
+    //        *m_SmokeShader,
+    //        m_VoxelGrid->voxelCount
+    //    );
+    //}
 
     { //voxel debugging
         m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
@@ -285,7 +289,8 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
             glm::vec3 cameraPosition = m_Camera->GetPos();
 
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
-            m_VoxelGrid->Flood(intersectInPlane, 6.0);
+            m_VoxelGrid->ClearStatus();
+            m_VoxelGrid->Flood(intersectInPlane, 5.0);
         }
     }
     else

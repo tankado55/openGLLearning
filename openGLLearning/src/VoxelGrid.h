@@ -13,6 +13,7 @@ public:
 	glm::mat4 modelMatrix;
 	unsigned voxelCount;
 	std::vector<float> status;
+	std::vector<float> bakedStatus;
 	GLuint tboID;
 	GLuint textureID;
 
@@ -21,5 +22,9 @@ public:
 	void Bake(const std::vector<Model*>& objects);
 	void Draw(Shader& shader);
 	glm::vec3 IndexToWorld(int j);
+	bool indexIsValid(int i);
+	std::vector<int> GetNeighbors(int i);
+	void Flood(int i);
 	void Flood(glm::vec3 origin, int gas);
+	void ClearStatus();
 };
