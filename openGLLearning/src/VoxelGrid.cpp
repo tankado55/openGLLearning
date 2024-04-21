@@ -8,7 +8,7 @@
 #include "VoxelGrid.h"
 
 VoxelGrid::VoxelGrid() :
-	resolution(30, 5, 30),
+	resolution(60, 10, 60),
 	voxelSize(0.5),
 	modelMatrix(glm::translate(glm::mat4(1.0f), glm::vec3(-(resolution.x - 1.0), 1.0, -(resolution.z - 1.0)) / 2.0f)),
 	voxelCount(resolution.x* resolution.y* resolution.z),
@@ -195,7 +195,11 @@ void VoxelGrid::Flood(glm::vec3 origin, int gas)
 	glm::vec3 localOrigin = glm::inverse(modelMatrix) * toLocal * glm::vec4(origin, 1.0);
 	int index1D = int(localOrigin.x) + (int(localOrigin.y) * resolution.x) + (int(localOrigin.z) * resolution.x * resolution.y);
 	glm::vec3 inverseTest = IndexToWorld(index1D); // debug
-	std::cout << index1D << std::endl;
+	if (!indexIsValid(index1D))
+	{
+		std::cout << "Smoke origin index is out of the scene" << std::endl;
+		return;
+	}
 	if (status[index1D] == -1.0f)
 	{
 		std::cout << "smoke inside wall" << std::endl;

@@ -38,15 +38,24 @@ void main()
     color = vec4(hash(uvec3(offset)), 1.0);
     
     
-    color = vec4(0.0, 0.0, 1.0, 0.1);
+    float texelData = texelFetch(voxelBuffer, gl_InstanceID).r;
+    texelStatus = texelData;
     
     if (gl_InstanceID == 0)
     {
-        color = vec4(0.0, 1.0, 0.0, 0.5);
+        color = vec4(0.0, 1.0, 0.0, 1.0);
     }
-
-    float data = texelFetch(voxelBuffer, gl_InstanceID).r;
-    texelStatus = data;
+    else
+    {
+        if (texelStatus > 1.1)
+        {
+            color = vec4(0.0, 0.0, 1.0, 0.1);
+        }
+        else if (texelStatus == 1.00)
+        {
+            color = vec4(1.0, 0.0, 0.0, 0.1);
+        }
+    }
 }
 
 
@@ -60,13 +69,9 @@ in vec4 color;
 
 void main()
 {
-    if (texelStatus > 1.1) {
-        FragColor = color;
-        //FragColor = vec4(0.2, 1.0, 0.2, 1.0);
-    }
-    else if (texelStatus == 1.00)
+    if (texelStatus >= 1.0)
     {
-        FragColor = vec4(1.0, 0.0, 0.0, 0.1);
+        FragColor = color;
     }
     else {
         //FragColor = vec4(1.0,0.0,0.0, 0.1);
