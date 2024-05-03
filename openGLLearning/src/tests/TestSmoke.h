@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "VoxelGrid.h"
 #include "SmokeGrenade.h"
+#include "Quad.h"
 
 #include <memory>
 
@@ -31,6 +32,7 @@ namespace Test {
 		std::unique_ptr<Shader> m_SmokeShader;
 		std::unique_ptr<Shader> m_VoxelDebugShader;
 		std::unique_ptr<Shader> m_LightShader;
+		std::unique_ptr<Shader> m_QuadShader;
 		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Model> m_Soldier;
 		std::unique_ptr<Shader> m_WhiteShader;
@@ -42,6 +44,7 @@ namespace Test {
 		std::unique_ptr<Texture> m_PrototypeTexture;
 		std::unique_ptr<Texture> m_ObstacleTexture;
 		std::unique_ptr<SmokeGrenade> m_Smoke;
+		std::unique_ptr<Quad> m_Quad;
 
 
 		std::unique_ptr<Camera> m_Camera;

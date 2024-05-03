@@ -112,6 +112,17 @@ void VoxelGrid::Draw(Shader& shader)
 	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, tboID);
 }
 
+void VoxelGrid::BindBufferToTexture(Shader& shader)
+{
+	glBindBuffer(GL_TEXTURE_BUFFER, tboID);
+	glBufferData(GL_TEXTURE_BUFFER, sizeof(float) * voxelCount, &status[0], GL_STATIC_DRAW);
+	shader.Bind();
+	shader.SetUniform1i("voxelBuffer", 0);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_BUFFER, textureID);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, tboID);
+}
+
 glm::vec3 VoxelGrid::IndexToWorld(int j)
 {
 	// to world
@@ -218,6 +229,14 @@ void VoxelGrid::Flood(glm::vec3 origin, int gas)
 void VoxelGrid::ClearStatus()
 {
 	status = bakedStatus;
+}
+
+glm::mat4 VoxelGrid::GetToVoxelLocal()
+{
+	glm::mat4 toLocal = glm::mat4(1.0);
+	toLocal = glm::scale(toLocal, glm::vec3(1.0 / voxelSize));
+	glm::mat4 result = glm::inverse(modelMatrix) * toLocal;
+	return result;
 }
 
 

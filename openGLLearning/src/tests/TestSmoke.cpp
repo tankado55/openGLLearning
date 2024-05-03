@@ -11,7 +11,6 @@
 #include <cmath>
 
 
-
 glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 planePoint, glm::vec3 planeNormal) {
     float denominator = glm::dot(planeNormal, rayDirection);
 
@@ -47,6 +46,9 @@ Test::TestSmoke::TestSmoke() :
     m_Plane = std::make_unique<Model>("res/models/plane/plane.obj");
     m_PrototypeTexture = std::make_unique<Texture>("res/textures/tex_3.png");
     m_Plane->AddTexture(*m_PrototypeTexture, "texture_diffuse", 0);
+    
+    m_QuadShader = std::make_unique<Shader>("res/shaders/QuadShader.hlsl");
+    m_Quad = std::make_unique<Quad>();
 
     // Obstacle1
     m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
@@ -261,6 +263,22 @@ void Test::TestSmoke::OnRenderer()
             m_VoxelGrid->voxelCount
         );
     }
+
+    //glDepthMask(GL_FALSE);
+    //glDisable(GL_DEPTH_TEST);
+    {
+        m_QuadShader->Bind();
+        m_QuadShader->SetUniformMat4f("u_Projection", m_Proj);
+        m_QuadShader->SetUniformMat4f("u_View", m_View);
+        m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);
+        m_VoxelGrid->BindBufferToTexture(*m_QuadShader);
+        m_QuadShader->SetUniformMat4f("toVoxelLocal", m_VoxelGrid->GetToVoxelLocal());
+        m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
+        m_Quad->Draw(*m_QuadShader);
+    }
+    
+    //glEnable(GL_DEPTH_TEST);
+    //glDepthMask(GL_TRUE);
     
     
 }
