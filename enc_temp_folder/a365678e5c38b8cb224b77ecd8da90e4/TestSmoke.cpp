@@ -289,7 +289,7 @@ void Test::TestSmoke::OnRenderer()
     }
 
     //glDepthMask(GL_FALSE);
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
     {
         m_QuadShader->Bind();
         m_QuadShader->SetUniformMat4f("u_Projection", m_Proj);
@@ -301,7 +301,7 @@ void Test::TestSmoke::OnRenderer()
         m_Quad->Draw(*m_QuadShader);
     }
     
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     //glDepthMask(GL_TRUE);
     
     

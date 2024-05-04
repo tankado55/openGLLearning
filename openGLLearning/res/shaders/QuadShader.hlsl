@@ -41,23 +41,36 @@ float LinearizeDepth(float depth)
     return (2.0 * near * far) / (far + near - z * (far - near));
 }
 
-float stepSize = 0.1;
+float stepSize = 0.05;
 
 float calcFogFactor() {
     float fogFactor = 0.0;
     float cameraToPixelDist = length(worldPos - u_CameraWorldPos);
-    vec3 rayDir = vec3(normalize(worldPos - u_CameraWorldPos));
+    //vec3 rayDir = vec3(normalize(worldPos - u_CameraWorldPos));
+    vec3 rayDir = vec3(normalize(worldPos));
 
-    for (int i = 0; i * stepSize < cameraToPixelDist; i++)
+    float maxDistance = 100.0;
+    for (int i = 0; i * stepSize < maxDistance; i++)
     {
         vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * stepSize);
-        vec4 localOrigin = toVoxelLocal * vec4(worldPointToCheck, 1.0);
-        int index1D = int(int(localOrigin.x) + (int(localOrigin.y) * resolution.x) + (int(localOrigin.z) * resolution.x * resolution.y));
-
-        float texelData = texelFetch(voxelBuffer, index1D).r;
-        if (texelData >= 0.99)
+        vec4 localPoint = toVoxelLocal * vec4(worldPointToCheck, 1.0);
+        if (localPoint.x <= 0 || localPoint.y <= 0 || localPoint.z <= 0)
         {
-            return 1.00;
+            continue;
+        }
+        if (localPoint.x >= resolution.x || localPoint.y >= resolution.y || localPoint.z >= resolution.z)
+        {
+            continue;
+        }
+        int index1D = int(int(localPoint.x) + (int(localPoint.y) * resolution.x) + (int(localPoint.z) * resolution.x * resolution.y));
+
+        if (index1D < (resolution.x * resolution.y * resolution.z))
+        {
+            float texelData = texelFetch(voxelBuffer, index1D).r;
+            if (texelData >= 0.99)
+            {
+                return 1.00;
+            }
         }
     }
     return 0.00;
