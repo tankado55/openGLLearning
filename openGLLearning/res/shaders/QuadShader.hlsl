@@ -35,8 +35,7 @@ out vec4 color;
 
 
 
-vec4 smokeColor = vec4(0.33, 0.34, 0.33, 1.0);
-float stepSize = 0.4;
+vec3 smokeColor = vec3(0.33, 0.34, 0.33);
 float maxDistance = 100.0;
 
 int getVoxelIndex(vec3 pos)
@@ -58,11 +57,18 @@ int getVoxelIndex(vec3 pos)
     return -1;
 }
 
-float calcFogFactor() {
-    float fogFactor = 0.0;
-    float cameraToPixelDist = length(worldPos - u_CameraWorldPos);
+
+float densityDefaultSample = 0.1;
+float stepSize = 0.2;
+float extinctionCoefficient = 1.0;
+
+float calcFogFactor()
+{
     vec3 rayDir = vec3(normalize(worldPos));
 
+    float alpha = 1.0f;
+    float accumDensity = 0.0f;
+    float thickness = 0.0;
     for (int i = 0; i * stepSize < maxDistance; i++)
     {
         vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * stepSize);
@@ -73,15 +79,21 @@ float calcFogFactor() {
             float texelData = texelFetch(voxelBuffer, index1D).r;
             if (texelData < 0.00)
             {
-                return 0.00;
+                break;
             }
+
+            //sample the point and get a density based on trilinear and noise
+            //accumDensity += getDensity(samplePos) * _VolumeDensity;
             if (texelData >= 0.99)
             {
-                return 1.00;
+                float sampledDensity = densityDefaultSample;
+                accumDensity += sampledDensity;
+                thickness += stepSize * sampledDensity;
+                alpha = exp(-thickness * accumDensity * extinctionCoefficient);
             }
         }
     }
-    return 0.00;
+    return accumDensity;
 
 }
 
@@ -99,9 +111,9 @@ void main()
     //}
 
     float fogFactor = calcFogFactor();
-    if (fogFactor >= 0.99)
+    if (fogFactor >= densityDefaultSample)
     {
-        color = vec4(0.0, 1.0, 0.0, 1.0);
+        color = vec4(smokeColor, fogFactor);
     }
     else
     {

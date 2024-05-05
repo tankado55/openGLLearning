@@ -270,23 +270,23 @@ void Test::TestSmoke::OnRenderer()
     //    );
     //}
 
-    { //voxel debugging
-        m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
-        glm::mat4 model = glm::mat4(1.0);
-        model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize));
-        model = model * m_VoxelGrid->modelMatrix;
-        m_VoxelDebugShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
-        m_VoxelDebugShader->SetUniformMat4f("u_Model", model);
-        m_VoxelDebugShader->SetUniformMat4f("u_View", m_View);
-        m_VoxelDebugShader->SetUniformMat4f("u_Projection", m_Proj);
-
-        renderer.DrawInstanced(
-            *m_VAO,
-            *m_IndexBuffer,
-            *m_VoxelDebugShader,
-            m_VoxelGrid->voxelCount
-        );
-    }
+    //{ //voxel debugging
+    //    m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
+    //    glm::mat4 model = glm::mat4(1.0);
+    //    model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize));
+    //    model = model * m_VoxelGrid->modelMatrix;
+    //    m_VoxelDebugShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+    //    m_VoxelDebugShader->SetUniformMat4f("u_Model", model);
+    //    m_VoxelDebugShader->SetUniformMat4f("u_View", m_View);
+    //    m_VoxelDebugShader->SetUniformMat4f("u_Projection", m_Proj);
+    //
+    //    renderer.DrawInstanced(
+    //        *m_VAO,
+    //        *m_IndexBuffer,
+    //        *m_VoxelDebugShader,
+    //        m_VoxelGrid->voxelCount
+    //    );
+    //}
 
     //glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
