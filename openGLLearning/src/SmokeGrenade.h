@@ -12,10 +12,12 @@ private:
 	bool m_IsDetoned;
 	glm::vec3 m_Ellipsoid;
 	float m_MaxDistance;
+	glm::vec3 m_DetonationPos;
 
 public:
 	SmokeGrenade();
 	void Update(const double& deltaTime);
 	void Draw(Shader& shader);
 	float GetTimer() const { return m_Timer; };
+	void Detonate(glm::vec3 pos);
 };

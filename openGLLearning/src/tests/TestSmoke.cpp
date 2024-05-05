@@ -292,6 +292,9 @@ void Test::TestSmoke::OnRenderer()
     glDisable(GL_DEPTH_TEST);
     {
         m_QuadShader->Bind();
+        double time = Timem::deltaTime;
+        m_Smoke->Update(time);
+        m_Smoke->Draw(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("u_Projection", m_Proj);
         m_QuadShader->SetUniformMat4f("u_View", m_View);
         m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);
@@ -300,7 +303,6 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
         m_Quad->Draw(*m_QuadShader);
     }
-    
     glEnable(GL_DEPTH_TEST);
     //glDepthMask(GL_TRUE);
     
@@ -333,6 +335,7 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
             m_VoxelGrid->ClearStatus();
             m_VoxelGrid->Flood(intersectInPlane, 5.0);
+            m_Smoke->Detonate(intersectInPlane);
         }
     }
     else

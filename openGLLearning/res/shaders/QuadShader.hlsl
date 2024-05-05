@@ -30,6 +30,9 @@ uniform samplerBuffer voxelBuffer;
 uniform mat4 toVoxelLocal;
 uniform vec3 resolution;
 
+uniform vec3 u_Ellipsoid;
+uniform vec3 explosionPos;
+
 in vec4 worldPos;
 out vec4 color;
 
@@ -72,9 +75,16 @@ float calcFogFactor()
     for (int i = 0; i * stepSize < maxDistance; i++)
     {
         vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * stepSize);
+        // check ellipsoid
+        vec3 distanceVectorFromExplosion = vec3(worldPointToCheck - explosionPos);
+        float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
+        if (distanceFromExplosion > 1.0) {
+            continue;
+        }
+
         int index1D = getVoxelIndex(worldPointToCheck);
 
-        if (index1D != -1)
+        if (index1D != -1) // check if the index is valid
         {
             float texelData = texelFetch(voxelBuffer, index1D).r;
             if (texelData < 0.00)
