@@ -24,8 +24,6 @@ void main()
 #shader fragment
 #version 330 core
 
-float near = 0.1;
-float far = 100.0;
 
 uniform vec4 u_CameraWorldPos;
 uniform samplerBuffer voxelBuffer;
@@ -35,36 +33,42 @@ uniform vec3 resolution;
 in vec4 worldPos;
 out vec4 color;
 
-float LinearizeDepth(float depth)
-{
-    float z = depth * 2.0 - 1.0; // back to NDC 
-    return (2.0 * near * far) / (far + near - z * (far - near));
-}
 
-float stepSize = 0.5;
+
+vec4 smokeColor = vec4(0.33, 0.34, 0.33, 1.0);
+float stepSize = 0.4;
+float maxDistance = 100.0;
+
+int getVoxelIndex(vec3 pos)
+{
+    vec4 localPoint = toVoxelLocal * vec4(pos, 1.0);
+    if (localPoint.x <= 0 || localPoint.y <= 0 || localPoint.z <= 0)
+    {
+        return -1;
+    }
+    if (localPoint.x >= resolution.x || localPoint.y >= resolution.y || localPoint.z >= resolution.z)
+    {
+        return -1;
+    }
+    int index1D = int(int(localPoint.x) + (int(localPoint.y) * resolution.x) + (int(localPoint.z) * resolution.x * resolution.y));
+    if (index1D < (resolution.x * resolution.y * resolution.z)) // useless doublecheck
+    {
+        return index1D;
+    }
+    return -1;
+}
 
 float calcFogFactor() {
     float fogFactor = 0.0;
     float cameraToPixelDist = length(worldPos - u_CameraWorldPos);
-    //vec3 rayDir = vec3(normalize(worldPos - u_CameraWorldPos));
     vec3 rayDir = vec3(normalize(worldPos));
 
-    float maxDistance = 100.0;
     for (int i = 0; i * stepSize < maxDistance; i++)
     {
         vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * stepSize);
-        vec4 localPoint = toVoxelLocal * vec4(worldPointToCheck, 1.0);
-        if (localPoint.x <= 0 || localPoint.y <= 0 || localPoint.z <= 0)
-        {
-            continue;
-        }
-        if (localPoint.x >= resolution.x || localPoint.y >= resolution.y || localPoint.z >= resolution.z)
-        {
-            continue;
-        }
-        int index1D = int(int(localPoint.x) + (int(localPoint.y) * resolution.x) + (int(localPoint.z) * resolution.x * resolution.y));
+        int index1D = getVoxelIndex(worldPointToCheck);
 
-        if (index1D < (resolution.x * resolution.y * resolution.z))
+        if (index1D != -1)
         {
             float texelData = texelFetch(voxelBuffer, index1D).r;
             if (texelData < 0.00)
