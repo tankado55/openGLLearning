@@ -41,7 +41,7 @@ float LinearizeDepth(float depth)
     return (2.0 * near * far) / (far + near - z * (far - near));
 }
 
-float stepSize = 0.05;
+float stepSize = 0.5;
 
 float calcFogFactor() {
     float fogFactor = 0.0;
@@ -67,6 +67,10 @@ float calcFogFactor() {
         if (index1D < (resolution.x * resolution.y * resolution.z))
         {
             float texelData = texelFetch(voxelBuffer, index1D).r;
+            if (texelData < 0.00)
+            {
+                return 0.00;
+            }
             if (texelData >= 0.99)
             {
                 return 1.00;
