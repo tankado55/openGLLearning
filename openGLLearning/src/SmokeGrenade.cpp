@@ -2,12 +2,12 @@
 #include "InputManager.h"
 
 SmokeGrenade::SmokeGrenade() :
-	m_ExpandTime(2.0),
+	m_ExpandTime(1.5),
 	m_Timer(0.0),
 	m_PrevLeftButtonState(false),
 	m_LeftButtonState(false),
 	m_IsDetoned(false),
-	m_Ellipsoid(glm::vec3(3.0, 2.0, 3.0)),
+	m_Ellipsoid(glm::vec3(2.1, 1.5, 2.1)),
 	m_MaxDistance(m_Ellipsoid.x),
 	m_DetonationPos(0.0,0.0,0.0)
 {
@@ -16,10 +16,11 @@ SmokeGrenade::SmokeGrenade() :
 
 void SmokeGrenade::Update(const double& deltaTime)
 {
-	if (m_IsDetoned)
+	//if (m_IsDetoned)
 		m_Timer += deltaTime;
 	if (m_Timer > m_ExpandTime)
 	{
+		//m_Timer = m_ExpandTime;
 		m_IsDetoned = false;
 	}
 
@@ -47,9 +48,17 @@ void SmokeGrenade::Draw(Shader& shader) //TODO: refactor
 {
 	//if (m_Timer == 0.0) return;
 	shader.Bind();
-	float currentMaxDistance;
-	currentMaxDistance = m_MaxDistance / m_ExpandTime * m_Timer;
-	glm::vec3 currentElli(std::min(m_Ellipsoid.x, currentMaxDistance), std::min(m_Ellipsoid.y, currentMaxDistance), std::min(m_Ellipsoid.z, currentMaxDistance));
+	float x;
+	x = m_Timer / m_ExpandTime;
+	if (x >= 0 and x <= 0.5)
+	{
+		x = 2 * (x * x);
+	}
+	else
+	{
+		x = 1 - (1 / (5 * (2 * x - 0.8) + 1));
+	}
+	glm::vec3 currentElli(m_Ellipsoid.x * x, m_Ellipsoid.y * x, m_Ellipsoid.z * x);
 	shader.SetUniformVec3f("u_Ellipsoid", currentElli);
 	shader.SetUniformVec3f("explosionPos", m_DetonationPos);
 }

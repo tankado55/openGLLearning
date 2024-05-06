@@ -334,7 +334,7 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
 
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
             m_VoxelGrid->ClearStatus();
-            m_VoxelGrid->Flood(intersectInPlane, 5.0);
+            m_VoxelGrid->Flood(intersectInPlane, 7.0);
             m_Smoke->Detonate(intersectInPlane);
         }
     }
