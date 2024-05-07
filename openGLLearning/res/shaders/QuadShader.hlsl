@@ -80,6 +80,11 @@ float shadowDensity = shadowDensityDefault * lightStepSize;
 
 float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
 
+float getDensity(vec3 pos)
+{
+    return 1.0;
+}
+
 vec4 calcFogColor()
 {
     vec3 col = smokeColor;
@@ -110,7 +115,7 @@ vec4 calcFogColor()
 
             if (texelData >= 0.99) // there is smoke
             {
-                float sampledDensity = 1.0;
+                float sampledDensity = getDensity(worldPointToCheck);
                 accumDensity += sampledDensity * densityModificator;
                 thickness += stepSize * sampledDensity;
                 alpha = exp(-thickness * accumDensity * extinctionCoefficient);
@@ -139,7 +144,7 @@ vec4 calcFogColor()
                             }
                             if (texelData >= 0.99) // there is smoke
                             {
-                                float sampledDensity = 1.0;
+                                float sampledDensity = getDensity(worldPointToCheck);
                                 tau += sampledDensity * shadowDensity;
                             }
                         }
