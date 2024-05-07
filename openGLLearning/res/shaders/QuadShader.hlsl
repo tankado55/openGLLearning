@@ -39,13 +39,16 @@ uniform vec3 u_Ellipsoid;
 uniform vec3 explosionPos;
 
 uniform DirectionalLight u_DirLight;
+uniform float u_AbsorptionCoefficient;
+uniform float u_ScatteringCoefficient;
+uniform vec3 u_ExtinctionColor;
 
 in vec4 worldPos;
 out vec4 color;
 
 vec3 smokeColor = vec3(0.33, 0.34, 0.33);
 float maxDistance = 100.0;
-float toLightMaxDistance = 10.0f;
+float toLightMaxDistance = 5.0f;
 
 int getVoxelIndex(vec3 pos)
 {
@@ -67,16 +70,22 @@ int getVoxelIndex(vec3 pos)
 }
 
 
-float densityDefaultSample = 0.1;
-float stepSize = 0.1;
-float extinctionCoefficient = 1.0;
+float densityDefaultSample = 1.0;
+float stepSize = 0.05;
+float densityModificator = densityDefaultSample * stepSize; // TODO: change name
 
-vec4 calcFogFactor()
+float shadowDensityDefault = 1.0;
+float lightStepSize = 0.25;
+float shadowDensity = shadowDensityDefault * lightStepSize;
+
+float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
+
+vec4 calcFogColor()
 {
     vec3 col = smokeColor;
+    float alpha = 1.0f;
     vec3 rayDir = vec3(normalize(worldPos));
 
-    float alpha = 1.0f;
     float accumDensity = 0.0f;
     float thickness = 0.0;
     for (int i = 0; i * stepSize < maxDistance; i++)
@@ -94,49 +103,49 @@ vec4 calcFogFactor()
         if (index1D != -1) // check if the index is valid
         {
             float texelData = texelFetch(voxelBuffer, index1D).r;
-            if (texelData < 0.00)
+            if (texelData < 0.00) // there is a scene object
             {
                 break;
             }
 
-            //sample the point and get a density based on trilinear and noise
-            //accumDensity += getDensity(samplePos) * _VolumeDensity;
-            if (texelData >= 0.99)
+            if (texelData >= 0.99) // there is smoke
             {
-                float sampledDensity = densityDefaultSample;
-                accumDensity += sampledDensity;
-                thickness += stepSize * sampledDensity; // I assume that in all the stepzice there are the same density
+                float sampledDensity = 1.0;
+                accumDensity += sampledDensity * densityModificator;
+                thickness += stepSize * sampledDensity;
                 alpha = exp(-thickness * accumDensity * extinctionCoefficient);
 
-                float lightAlpha = 0.0f;
-                float accumDensityToLight = 0.0f;
-                float thicknessToLight = 0.0;
-                for (int j = 0; j * stepSize < toLightMaxDistance; j++)
+                // To the light
+                if (sampledDensity > 0.001)
                 {
-                    vec3 worldPointToCheckToLight = vec3(worldPointToCheck) - (u_DirLight.direction * j * stepSize);
-                    vec3 distanceVectorFromExplosion = vec3(worldPointToCheckToLight - explosionPos);
-                    float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
-                    if (distanceFromExplosion > 1.0) {
-                        break;
-                    }
-                    int index1D = getVoxelIndex(worldPointToCheckToLight);
-                    if (index1D != -1) // check if the index is valid
+                    float tau = 0.0f;
+                    float accumDensityToLight = 0.0f;
+                    float thicknessToLight = 0.0;
+                    for (int j = 0; j * lightStepSize < toLightMaxDistance; j++)
                     {
-                        float texelData = texelFetch(voxelBuffer, index1D).r;
-                        if (texelData < 0.00)
-                        {
+                        vec3 worldPointToCheckToLight = vec3(worldPointToCheck) - (u_DirLight.direction * j * lightStepSize);
+                        vec3 distanceVectorFromExplosion = vec3(worldPointToCheckToLight - explosionPos);
+                        float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
+                        if (distanceFromExplosion > 1.0) {
                             break;
                         }
-                        if (texelData >= 0.99)
+                        int index1D = getVoxelIndex(worldPointToCheckToLight);
+                        if (index1D != -1) // check if the index is valid
                         {
-                            float sampledDensity = densityDefaultSample;
-                            accumDensityToLight += sampledDensity;
-                            thicknessToLight += stepSize * sampledDensity;
+                            float texelData = texelFetch(voxelBuffer, index1D).r;
+                            if (texelData < 0.00) // wall
+                            {
+                                break;
+                            }
+                            if (texelData >= 0.99) // there is smoke
+                            {
+                                float sampledDensity = 1.0;
+                                tau += sampledDensity * shadowDensity;
+                            }
                         }
                     }
-                    lightAlpha = exp(-thicknessToLight * accumDensityToLight * extinctionCoefficient);
-                    //col += smokeColor * alpha * lightAlpha;
-                    alpha = alpha * lightAlpha;
+                    vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
+                    col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * densityModificator; // TODO: reintroduce param p
                 }
             }
         }
@@ -158,7 +167,7 @@ void main()
     //
     //}
 
-    vec4 fogFactor = calcFogFactor();
+    vec4 fogFactor = calcFogColor();
     if (fogFactor.w <= 0.1)
     {
         discard;
