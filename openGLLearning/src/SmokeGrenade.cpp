@@ -7,7 +7,7 @@ SmokeGrenade::SmokeGrenade() :
 	m_PrevLeftButtonState(false),
 	m_LeftButtonState(false),
 	m_IsDetoned(false),
-	m_Ellipsoid(glm::vec3(2.1, 1.5, 2.1)),
+	m_Ellipsoid(glm::vec3(2.1, 1.8, 2.1)),
 	m_MaxDistance(m_Ellipsoid.x),
 	m_DetonationPos(0.0,0.0,0.0)
 {

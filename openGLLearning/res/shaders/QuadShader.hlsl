@@ -24,6 +24,11 @@ void main()
 #shader fragment
 #version 330 core
 
+struct DirectionalLight {
+    vec3 direction;
+    vec3 color;
+};
+
 
 uniform vec4 u_CameraWorldPos;
 uniform samplerBuffer voxelBuffer;
@@ -33,13 +38,14 @@ uniform vec3 resolution;
 uniform vec3 u_Ellipsoid;
 uniform vec3 explosionPos;
 
+uniform DirectionalLight u_DirLight;
+
 in vec4 worldPos;
 out vec4 color;
 
-
-
 vec3 smokeColor = vec3(0.33, 0.34, 0.33);
 float maxDistance = 100.0;
+float toLightMaxDistance = 10.0f;
 
 int getVoxelIndex(vec3 pos)
 {
@@ -62,11 +68,12 @@ int getVoxelIndex(vec3 pos)
 
 
 float densityDefaultSample = 0.1;
-float stepSize = 0.2;
+float stepSize = 0.1;
 float extinctionCoefficient = 1.0;
 
-float calcFogFactor()
+vec4 calcFogFactor()
 {
+    vec3 col = smokeColor;
     vec3 rayDir = vec3(normalize(worldPos));
 
     float alpha = 1.0f;
@@ -98,12 +105,43 @@ float calcFogFactor()
             {
                 float sampledDensity = densityDefaultSample;
                 accumDensity += sampledDensity;
-                thickness += stepSize * sampledDensity;
+                thickness += stepSize * sampledDensity; // I assume that in all the stepzice there are the same density
                 alpha = exp(-thickness * accumDensity * extinctionCoefficient);
+
+                float lightAlpha = 0.0f;
+                float accumDensityToLight = 0.0f;
+                float thicknessToLight = 0.0;
+                for (int j = 0; j * stepSize < toLightMaxDistance; j++)
+                {
+                    vec3 worldPointToCheckToLight = vec3(worldPointToCheck) - (u_DirLight.direction * j * stepSize);
+                    vec3 distanceVectorFromExplosion = vec3(worldPointToCheckToLight - explosionPos);
+                    float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
+                    if (distanceFromExplosion > 1.0) {
+                        break;
+                    }
+                    int index1D = getVoxelIndex(worldPointToCheckToLight);
+                    if (index1D != -1) // check if the index is valid
+                    {
+                        float texelData = texelFetch(voxelBuffer, index1D).r;
+                        if (texelData < 0.00)
+                        {
+                            break;
+                        }
+                        if (texelData >= 0.99)
+                        {
+                            float sampledDensity = densityDefaultSample;
+                            accumDensityToLight += sampledDensity;
+                            thicknessToLight += stepSize * sampledDensity;
+                        }
+                    }
+                    lightAlpha = exp(-thicknessToLight * accumDensityToLight * extinctionCoefficient);
+                    //col += smokeColor * alpha * lightAlpha;
+                    alpha = alpha * lightAlpha;
+                }
             }
         }
     }
-    return accumDensity;
+    return vec4(col, 1.0 - alpha);
 
 }
 
@@ -120,13 +158,13 @@ void main()
     //
     //}
 
-    float fogFactor = calcFogFactor();
-    if (fogFactor >= densityDefaultSample)
+    vec4 fogFactor = calcFogFactor();
+    if (fogFactor.w <= 0.1)
     {
-        color = vec4(smokeColor, fogFactor);
+        discard;
     }
     else
     {
-        discard;
+        color = fogFactor;
     }
 };

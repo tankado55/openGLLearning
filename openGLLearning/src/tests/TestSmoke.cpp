@@ -301,6 +301,8 @@ void Test::TestSmoke::OnRenderer()
         m_VoxelGrid->BindBufferToTexture(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("toVoxelLocal", m_VoxelGrid->GetToVoxelLocal());
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
+        m_QuadShader->SetUniform3f("u_DirLight.direction", 0.0,-1.0,0.0);
+        m_QuadShader->SetUniform3f("u_DirLight.color", 1.0,1.0,1.0);
         m_Quad->Draw(*m_QuadShader);
     }
     glEnable(GL_DEPTH_TEST);
