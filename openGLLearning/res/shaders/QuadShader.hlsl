@@ -48,7 +48,7 @@ in vec4 worldPos;
 out vec4 color;
 
 vec3 smokeColor = vec3(0.33, 0.34, 0.33);
-float maxDistance = 100.0;
+float maxDistance = 50.0;
 float toLightMaxDistance = 5.0f;
 
 vec3 hash33(vec3 p3) {
@@ -110,7 +110,7 @@ int getVoxelIndex(vec3 pos)
 
 
 float densityDefaultSample = 1.0;
-float stepSize = 0.05;
+float stepSize = 0.25;
 float densityModificator = densityDefaultSample * stepSize; // TODO: change name
 
 float shadowDensityDefault = 1.0;
@@ -125,8 +125,8 @@ float getDensity(vec3 pos)
     vec2 uv = vec2(pos.x, pos.z) / vec2(u_Ellipsoid.x, u_Ellipsoid.z);
     vec3 p = vec3(uv, iTime * 0.1);
     float col = worley(p * 2.0 - 1.0, 4.0);
-    return 1.0;
-    //return col;
+    //return 1.0;
+    return col;
 }
 
 vec4 calcFogColor()
@@ -140,12 +140,7 @@ vec4 calcFogColor()
     for (int i = 0; i * stepSize < maxDistance; i++)
     {
         vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * stepSize);
-        // check ellipsoid
-        vec3 distanceVectorFromExplosion = vec3(worldPointToCheck - explosionPos);
-        float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
-        if (distanceFromExplosion > 1.0) {
-            continue;
-        }
+        
 
         int index1D = getVoxelIndex(worldPointToCheck);
 
@@ -155,6 +150,13 @@ vec4 calcFogColor()
             if (texelData < 0.00) // there is a scene object
             {
                 break;
+            }
+
+            // check ellipsoid
+            vec3 distanceVectorFromExplosion = vec3(worldPointToCheck - explosionPos);
+            float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
+            if (distanceFromExplosion > 1.0) {
+                continue;
             }
 
             if (texelData >= 0.99) // there is smoke
