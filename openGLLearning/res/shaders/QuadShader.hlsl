@@ -34,6 +34,7 @@ uniform vec4 u_CameraWorldPos;
 uniform samplerBuffer voxelBuffer;
 uniform mat4 toVoxelLocal;
 uniform vec3 resolution;
+uniform float iTime;
 
 uniform vec3 u_Ellipsoid;
 uniform vec3 explosionPos;
@@ -49,6 +50,44 @@ out vec4 color;
 vec3 smokeColor = vec3(0.33, 0.34, 0.33);
 float maxDistance = 100.0;
 float toLightMaxDistance = 5.0f;
+
+vec3 hash33(vec3 p3) {
+    vec3 p = fract(p3 * vec3(.1031, .11369, .13787));
+    p += dot(p, p.yxz + 19.19);
+    return -1.0 + 2.0 * fract(vec3((p.x + p.y) * p.z, (p.x + p.z) * p.y, (p.y + p.z) * p.x));
+}
+
+float worley(vec3 p, float scale) {
+
+    vec3 id = floor(p * scale);
+    vec3 fd = fract(p * scale);
+
+    float n = 0.;
+
+    float minimalDist = 1.;
+
+
+    for (float x = -1.; x <= 1.; x++) {
+        for (float y = -1.; y <= 1.; y++) {
+            for (float z = -1.; z <= 1.; z++) {
+
+                vec3 coord = vec3(x, y, z);
+                vec3 rId = hash33(mod(id + coord, scale)) * 0.5 + 0.5;
+
+                vec3 r = coord + rId - fd;
+
+                float d = dot(r, r);
+
+                if (d < minimalDist) {
+                    minimalDist = d;
+                }
+
+            }//z
+        }//y
+    }//x
+
+    return 1.0 - minimalDist;
+}
 
 int getVoxelIndex(vec3 pos)
 {
@@ -82,7 +121,12 @@ float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
 
 float getDensity(vec3 pos)
 {
+    //vec3 realResolution = u_Ellipsoid * 0.5;
+    vec2 uv = vec2(pos.x, pos.z) / vec2(u_Ellipsoid.x, u_Ellipsoid.z);
+    vec3 p = vec3(uv, iTime * 0.1);
+    float col = worley(p * 2.0 - 1.0, 4.0);
     return 1.0;
+    //return col;
 }
 
 vec4 calcFogColor()

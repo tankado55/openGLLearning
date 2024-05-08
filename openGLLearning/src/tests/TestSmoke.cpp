@@ -306,6 +306,7 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniform1f("u_AbsorptionCoefficient", 0.5);
         m_QuadShader->SetUniform1f("u_ScatteringCoefficient", 0.5);
         m_QuadShader->SetUniformVec3f("u_ExtinctionColor", glm::vec3(1.0,1.0,1.0));
+        m_QuadShader->SetUniform1f("iTime", glfwGetTime());
         m_Quad->Draw(*m_QuadShader);
     }
     glEnable(GL_DEPTH_TEST);
