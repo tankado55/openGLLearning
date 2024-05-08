@@ -193,7 +193,7 @@ void Test::TestSmoke::OnRenderer()
     { // intersection cube
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, intersectInPlane);
-        //model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+        model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
         m_WhiteShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_WhiteShader->SetUniformMat4f("u_View", m_View);
         m_WhiteShader->SetUniformMat4f("u_Projection", m_Proj);

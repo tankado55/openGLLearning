@@ -110,8 +110,8 @@ int getVoxelIndex(vec3 pos)
 
 
 float densityDefaultSample = 1.0;
-float stepSize = 0.25;
-float densityModificator = densityDefaultSample * stepSize; // TODO: change name
+float stepSize = 0.05;
+float volumeDensity = densityDefaultSample * stepSize;
 
 float shadowDensityDefault = 1.0;
 float lightStepSize = 0.25;
@@ -119,13 +119,55 @@ float shadowDensity = shadowDensityDefault * lightStepSize;
 
 float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
 
+float getTrilinearVoxel(vec3 pos)
+{
+    float v = 0;
+    pos.y -= u_Ellipsoid.y;
+
+    if (abs(dot(pos, vec3(1, 0, 0))) <= u_Ellipsoid.x &&
+        abs(dot(pos, vec3(0, 1, 0))) <= u_Ellipsoid.y &&
+        abs(dot(pos, vec3(0, 0, 1))) <= u_Ellipsoid.z)
+    {
+        pos.y += u_Ellipsoid.y;
+        vec3 seedPos = pos;
+        seedPos.xz += u_Ellipsoid.xz;
+        seedPos /= u_Ellipsoid * 2;
+        seedPos *= resolution;
+        seedPos -= 0.5f;
+
+        vec3 vi = floor(seedPos);
+
+        float weight1 = 0.0f;
+        float weight2 = 0.0f;
+        float weight3 = 0.0f;
+        float value = 0.0f;
+
+        for (int i = 0; i < 2; ++i) {
+            weight1 = 1 - min(abs(seedPos.x - (vi.x + i)), resolution.x);
+            for (int j = 0; j < 2; ++j) {
+                weight2 = 1 - min(abs(seedPos.y - (vi.y + j)), resolution.y);
+                for (int k = 0; k < 2; ++k) {
+                    weight3 = 1 - min(abs(seedPos.z - (vi.z + k)), resolution.z);
+                    value += weight1 * weight2 * weight3 * texelFetch(voxelBuffer, getVoxelIndex(vi + vec3(i, j, k))).r;
+                }
+            }
+        }
+
+        v = value;
+    }
+
+    return v;
+}
+
 float getDensity(vec3 pos)
 {
+    float v = 0;
+    v = getTrilinearVoxel(pos);
+
     //vec3 realResolution = u_Ellipsoid * 0.5;
     vec2 uv = vec2(pos.x, pos.z) / vec2(u_Ellipsoid.x, u_Ellipsoid.z);
     vec3 p = vec3(uv, iTime * 0.1);
     float col = worley(p * 2.0 - 1.0, 4.0);
-    //return 1.0;
     return col;
 }
 
@@ -162,7 +204,7 @@ vec4 calcFogColor()
             if (texelData >= 0.99) // there is smoke
             {
                 float sampledDensity = getDensity(worldPointToCheck);
-                accumDensity += sampledDensity * densityModificator;
+                accumDensity += sampledDensity * volumeDensity;
                 thickness += stepSize * sampledDensity;
                 alpha = exp(-thickness * accumDensity * extinctionCoefficient);
 
@@ -196,7 +238,7 @@ vec4 calcFogColor()
                         }
                     }
                     vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
-                    col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * densityModificator; // TODO: reintroduce param p
+                    col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity; // TODO: reintroduce param p
                 }
             }
         }
