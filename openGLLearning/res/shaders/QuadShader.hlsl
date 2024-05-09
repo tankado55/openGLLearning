@@ -37,12 +37,14 @@ uniform vec3 resolution;
 uniform float iTime;
 
 uniform vec3 u_Ellipsoid;
+uniform vec3 u_Radius;
 uniform vec3 explosionPos;
 
 uniform DirectionalLight u_DirLight;
 uniform float u_AbsorptionCoefficient;
 uniform float u_ScatteringCoefficient;
 uniform vec3 u_ExtinctionColor;
+uniform float _DensityFalloff;
 
 in vec4 worldPos;
 out vec4 color;
@@ -110,7 +112,7 @@ int getVoxelIndex(vec3 pos)
 
 
 float densityDefaultSample = 1.0;
-float stepSize = 0.05;
+float stepSize = 0.09;
 float volumeDensity = densityDefaultSample * stepSize;
 
 float shadowDensityDefault = 1.0;
@@ -162,13 +164,32 @@ float getTrilinearVoxel(vec3 pos)
 float getDensity(vec3 pos)
 {
     float v = 0;
+    float n = 0.0f;
+    float falloff = 0.0f;
+    float heightMod = 0.0f;
+
+    vec3 vp = pos - explosionPos;
+    vec3 radius = u_Radius - 0.1f;
+
     v = getTrilinearVoxel(pos);
 
-    //vec3 realResolution = u_Ellipsoid * 0.5;
-    vec2 uv = vec2(pos.x, pos.z) / vec2(u_Ellipsoid.x, u_Ellipsoid.z);
-    vec3 p = vec3(uv, iTime * 0.1);
-    float col = worley(p * 2.0 - 1.0, 4.0);
-    return col;
+    vec2 uv = vec2(pos.x, pos.z) / vec2(u_Ellipsoid.x, u_Ellipsoid.z); //my
+    vec3 p = vec3(uv, iTime * 0.1); //my
+    n = worley(p * 2.0 - 1.0, 4.0);
+
+    float dist = min(1.0f, length(vp / radius));
+    //float voxelDist = min(1.0f, 1 - (v / 16.0f));
+    //dist = max(dist, voxelDist);
+
+    dist = smoothstep(_DensityFalloff, 1.0f, dist);
+
+    //falloff = min(1.0f, dist + (n * 0.25));
+    falloff = min(1.0f, dist + (n * 0.15));
+    
+    //return v * (1 - falloff);
+    //return v;
+    //return n;
+    return 1 - falloff;
 }
 
 vec4 calcFogColor()

@@ -297,7 +297,7 @@ void Test::TestSmoke::OnRenderer()
         m_Smoke->Draw(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("u_Projection", m_Proj);
         m_QuadShader->SetUniformMat4f("u_View", m_View);
-        m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);
+        m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z + 0.25, 1.0);
         m_VoxelGrid->BindBufferToTexture(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("toVoxelLocal", m_VoxelGrid->GetToVoxelLocal());
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
@@ -307,6 +307,7 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniform1f("u_ScatteringCoefficient", 0.5);
         m_QuadShader->SetUniformVec3f("u_ExtinctionColor", glm::vec3(1.0,1.0,1.0));
         m_QuadShader->SetUniform1f("iTime", glfwGetTime());
+        m_QuadShader->SetUniform1f("_DensityFalloff", 1.0 - 0.25);
         m_Quad->Draw(*m_QuadShader);
     }
     glEnable(GL_DEPTH_TEST);
@@ -326,7 +327,7 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
 {
     GLFWwindow* window = InputManager::GetInstance()->GetWindow();
 
-    int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+    int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
     if (state == GLFW_PRESS)
     {
         m_PrevLeftButtonState = m_LeftButtonState;

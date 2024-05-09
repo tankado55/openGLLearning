@@ -12,7 +12,7 @@ private:
 	bool m_IsDetoned;
 	glm::vec3 m_Ellipsoid;
 	float m_MaxDistance;
-	glm::vec3 m_DetonationPos;
+	glm::vec3 m_DetonationWorldPos;
 
 public:
 	SmokeGrenade();

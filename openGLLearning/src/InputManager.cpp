@@ -1,6 +1,7 @@
 #include "InputManager.h"
 
 #include <iostream>
+#include "imgui.h"
 
 InputManager* InputManager::m_Singleton = nullptr;
 
@@ -29,18 +30,7 @@ void InputManager::ProcessCamera(float xOff, float yOff)
     m_Camera->ProcessMouseInput(xOff, yOff);
 }
 
-void InputManager::Start(Camera* camera)
-{
-    m_Camera = camera;
 
-    if (m_Window == nullptr)
-    {
-        std::cout << "InputManager: window in null!" << std::endl;
-    }
-    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetCursorPosCallback(m_Window, mouse_callback);
-    
-}
 
 
 void InputManager::SetWindow(GLFWwindow*& window)
@@ -52,6 +42,7 @@ void InputManager::mouse_callback(GLFWwindow* window, double xposIn, double ypos
 {
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
+    ImGuiIO& io = ImGui::GetIO();
     InputManager* im = InputManager::GetInstance();
 
     if (im->GetFirstMouse())
@@ -67,6 +58,36 @@ void InputManager::mouse_callback(GLFWwindow* window, double xposIn, double ypos
     im->SetLastX(xpos);
     im->SetLastY(ypos);
 
-    im->ProcessCamera(xOffset, yOffset);
+    io.AddMousePosEvent(xpos, ypos);
+    if (io.MouseDown[0] && !io.WantCaptureMouse)
+    {
+        im->ProcessCamera(xOffset, yOffset);
+    }
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    bool down;
+    if (action == GLFW_PRESS)
+        down = true;
+    else
+        down = false;
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.AddMouseButtonEvent(button, down);
+}
+
+void InputManager::Start(Camera* camera)
+{
+    m_Camera = camera;
+
+    if (m_Window == nullptr)
+    {
+        std::cout << "InputManager: window in null!" << std::endl;
+    }
+    glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    glfwSetCursorPosCallback(m_Window, mouse_callback);
+    glfwSetMouseButtonCallback(m_Window, mouse_button_callback);
+
 }
 
