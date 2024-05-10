@@ -52,7 +52,7 @@ in vec4 worldPos;
 out vec4 color;
 
 float stepSize = 0.05;
-float maxDistance = 150;
+float maxDistance = 10;
 
 float toLightMaxDistance = 5.0f;
 
@@ -191,7 +191,7 @@ float getDensity(vec3 pos)
 
     dist = smoothstep(_DensityFalloff, 1.0f, dist);
 
-    falloff = min(1.0f, dist);
+    falloff = min(1.0f, dist + n);
     //falloff = min(1.0f, dist + n);
     
     return clamp(clamp(v, 0.0,1.0) * (1 - falloff), 0.0, 1.0);
