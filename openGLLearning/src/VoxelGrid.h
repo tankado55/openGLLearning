@@ -30,4 +30,5 @@ public:
 	void ClearStatus();
 	glm::mat4 GetToVoxelLocal();
 	glm::vec3 GetResolution() const { return resolution; }
+	glm::vec3 GetBounds() const;
 };

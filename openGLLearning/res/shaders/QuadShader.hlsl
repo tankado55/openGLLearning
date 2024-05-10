@@ -45,13 +45,25 @@ uniform float u_AbsorptionCoefficient;
 uniform float u_ScatteringCoefficient;
 uniform vec3 u_ExtinctionColor;
 uniform float _DensityFalloff;
+uniform vec3 u_SmokeColor;
+uniform vec3 u_VoxelSpaceBounds;
 
 in vec4 worldPos;
 out vec4 color;
 
-vec3 smokeColor = vec3(0.33, 0.34, 0.33);
-float maxDistance = 50.0;
+float stepSize = 0.05;
+float maxDistance = 150;
+
 float toLightMaxDistance = 5.0f;
+
+float densityDefaultSample = 4.0;
+float volumeDensity = densityDefaultSample * stepSize;
+
+float shadowDensityDefault = 2.5;
+float lightStepSize = 0.25;
+float shadowDensity = shadowDensityDefault * lightStepSize;
+
+float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
 
 vec3 hash33(vec3 p3) {
     vec3 p = fract(p3 * vec3(.1031, .11369, .13787));
@@ -111,29 +123,25 @@ int getVoxelIndex(vec3 pos)
 }
 
 
-float densityDefaultSample = 1.0;
-float stepSize = 0.09;
-float volumeDensity = densityDefaultSample * stepSize;
+int to1D(vec3 pos) {
+    return int(pos.x + pos.y * resolution.x + pos.z * resolution.x * resolution.y);
+}
 
-float shadowDensityDefault = 1.0;
-float lightStepSize = 0.25;
-float shadowDensity = shadowDensityDefault * lightStepSize;
 
-float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
 
 float getTrilinearVoxel(vec3 pos)
 {
     float v = 0;
-    pos.y -= u_Ellipsoid.y;
+    pos.y -= u_VoxelSpaceBounds.y;
 
-    if (abs(dot(pos, vec3(1, 0, 0))) <= u_Ellipsoid.x &&
-        abs(dot(pos, vec3(0, 1, 0))) <= u_Ellipsoid.y &&
-        abs(dot(pos, vec3(0, 0, 1))) <= u_Ellipsoid.z)
+    if (abs(dot(pos, vec3(1, 0, 0))) <= u_VoxelSpaceBounds.x &&
+        abs(dot(pos, vec3(0, 1, 0))) <= u_VoxelSpaceBounds.y &&
+        abs(dot(pos, vec3(0, 0, 1))) <= u_VoxelSpaceBounds.z)
     {
-        pos.y += u_Ellipsoid.y;
+        pos.y += u_VoxelSpaceBounds.y;
         vec3 seedPos = pos;
-        seedPos.xz += u_Ellipsoid.xz;
-        seedPos /= u_Ellipsoid * 2;
+        seedPos.xz += u_VoxelSpaceBounds.xz;
+        seedPos /= u_VoxelSpaceBounds * 2;
         seedPos *= resolution;
         seedPos -= 0.5f;
 
@@ -150,7 +158,7 @@ float getTrilinearVoxel(vec3 pos)
                 weight2 = 1 - min(abs(seedPos.y - (vi.y + j)), resolution.y);
                 for (int k = 0; k < 2; ++k) {
                     weight3 = 1 - min(abs(seedPos.z - (vi.z + k)), resolution.z);
-                    value += weight1 * weight2 * weight3 * texelFetch(voxelBuffer, getVoxelIndex(vi + vec3(i, j, k))).r;
+                    value += weight1 * weight2 * weight3 * texelFetch(voxelBuffer, to1D(vi + vec3(i, j, k))).r;
                 }
             }
         }
@@ -178,23 +186,20 @@ float getDensity(vec3 pos)
     n = worley(p * 2.0 - 1.0, 4.0);
 
     float dist = min(1.0f, length(vp / radius));
-    //float voxelDist = min(1.0f, 1 - (v / 16.0f));
-    //dist = max(dist, voxelDist);
+    float voxelDist = min(1.0f, 1 - (v / 16.0f));
+    dist = max(dist, voxelDist);
 
     dist = smoothstep(_DensityFalloff, 1.0f, dist);
 
-    //falloff = min(1.0f, dist + (n * 0.25));
-    falloff = min(1.0f, dist + (n * 0.15));
+    falloff = min(1.0f, dist);
+    //falloff = min(1.0f, dist + n);
     
-    //return v * (1 - falloff);
-    //return v;
-    //return n;
-    return 1 - falloff;
+    return clamp(clamp(v, 0.0,1.0) * (1 - falloff), 0.0, 1.0);
 }
 
 vec4 calcFogColor()
 {
-    vec3 col = smokeColor;
+    vec3 col = u_SmokeColor;
     float alpha = 1.0f;
     vec3 rayDir = vec3(normalize(worldPos));
 
@@ -224,6 +229,9 @@ vec4 calcFogColor()
 
             if (texelData >= 0.99) // there is smoke
             {
+                //float cos_theta = dot(rayDir, float3(0, 1, 0));
+                //float p = phase(_G, cos_theta);
+
                 float sampledDensity = getDensity(worldPointToCheck);
                 accumDensity += sampledDensity * volumeDensity;
                 thickness += stepSize * sampledDensity;
@@ -259,7 +267,7 @@ vec4 calcFogColor()
                         }
                     }
                     vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
-                    col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity; // TODO: reintroduce param p
+                    col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity * sampledDensity; // TODO: reintroduce param p
                 }
             }
         }
@@ -282,7 +290,7 @@ void main()
     //}
 
     vec4 fogFactor = calcFogColor();
-    if (fogFactor.w <= 0.1)
+    if (fogFactor.w <= 0)
     {
         discard;
     }

@@ -13,6 +13,7 @@ private:
 	glm::vec3 m_Ellipsoid;
 	float m_MaxDistance;
 	glm::vec3 m_DetonationWorldPos;
+	glm::vec3 m_Color;
 
 public:
 	SmokeGrenade();
@@ -20,4 +21,5 @@ public:
 	void Draw(Shader& shader);
 	float GetTimer() const { return m_Timer; };
 	void Detonate(glm::vec3 pos);
+	glm::vec3 GetColor(){ return m_Color; }
 };

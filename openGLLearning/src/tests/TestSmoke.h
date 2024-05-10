@@ -45,6 +45,8 @@ namespace Test {
 		std::unique_ptr<Texture> m_ObstacleTexture;
 		std::unique_ptr<SmokeGrenade> m_Smoke;
 		std::unique_ptr<Quad> m_Quad;
+		glm::vec3 m_SmokeColor;
+
 
 
 		std::unique_ptr<Camera> m_Camera;

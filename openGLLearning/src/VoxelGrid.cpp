@@ -151,13 +151,13 @@ std::vector<int> VoxelGrid::GetNeighbors(int i)
 	float z = int(i / ((int)resolution.x * (int)resolution.y));
 
 	// Define 26 possible directions in 3D space
-	//int dx[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //27
-	//int dy[] = { -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
-	//int dz[] = { -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+	int dx[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //27
+	int dy[] = { -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+	int dz[] = { -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
 
-	int dx[] = { -1,  0,  0,  0,  0,  0, 1}; //27
-	int dy[] = {  0, -1,  0,  0,  0,  1, 0};
-	int dz[] = {  0,  0, -1,  0,  1,  0, 0};
+	//int dx[] = { -1,  0,  0,  0,  0,  0, 1};
+	//int dy[] = {  0, -1,  0,  0,  0,  1, 0};
+	//int dz[] = {  0,  0, -1,  0,  1,  0, 0};
 
 	for (int i = 0; i < 27; i++) {
 		int newX = x + dx[i];
@@ -237,6 +237,12 @@ glm::mat4 VoxelGrid::GetToVoxelLocal()
 	toLocal = glm::scale(toLocal, glm::vec3(1.0 / voxelSize));
 	glm::mat4 result = glm::inverse(modelMatrix) * toLocal;
 	//result = glm::translate(result, glm::vec3(voxelSize, voxelSize, -voxelSize));
+	return result;
+}
+
+glm::vec3 VoxelGrid::GetBounds() const
+{
+	glm::vec3 result = resolution * glm::vec3(voxelSize) / glm::vec3(2.0);
 	return result;
 }
 
