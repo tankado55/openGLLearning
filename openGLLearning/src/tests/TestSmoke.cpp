@@ -11,6 +11,8 @@
 #include <cmath>
 #include <algorithm>
 
+void renderQuad();
+
 
 glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm::vec3 planePoint, glm::vec3 planeNormal) {
     float denominator = glm::dot(planeNormal, rayDirection);
@@ -51,6 +53,23 @@ Test::TestSmoke::TestSmoke() :
     
     m_QuadShader = std::make_unique<Shader>("res/shaders/QuadShader.hlsl");
     m_Quad = std::make_unique<Quad>();
+
+    m_NoiseComputeShader = std::make_unique<ComputeShader>("res/shaders/noise.hlsl");
+    m_Noise3DTex = std::make_unique<Texture3D>(128, 128, 128);
+
+
+    // Compute
+    m_NoiseComputeShader->Bind();
+    m_NoiseComputeShader->SetUniform1i("_Octaves", 6);
+    m_NoiseComputeShader->SetUniform1i("_CellSize", 32);
+    m_NoiseComputeShader->SetUniform1i("_AxisCellCount", 4);
+    m_NoiseComputeShader->SetUniform1f("_Amplitude", 0.62);
+    m_NoiseComputeShader->SetUniform1f("_Warp", 0.76);
+    m_NoiseComputeShader->SetUniform1f("_Add", 0);
+    m_NoiseComputeShader->SetUniform1i("_Seed", 0);
+    glDispatchCompute((unsigned int)128 / 8, (unsigned int)128 / 8, (unsigned int)128 / 8);
+    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
 
     // Obstacle1
     m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
@@ -155,6 +174,7 @@ Test::TestSmoke::TestSmoke() :
     m_Smoke = std::make_unique<SmokeGrenade>();
 
     //glEnable(GL_CULL_FACE);
+    m_NoiseDebugShader = std::make_unique<Shader>("res/shaders/noiseDebugShader.hlsl");
 }
 
 Test::TestSmoke::~TestSmoke()
@@ -292,13 +312,15 @@ void Test::TestSmoke::OnRenderer()
     //glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
     {
+        m_Noise3DTex->Bind();
         m_QuadShader->Bind();
+        m_QuadShader->SetUniform1i("_NoiseTex", 0);
         double time = Timem::deltaTime;
         m_Smoke->Update(time);
         m_Smoke->Draw(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("u_Projection", m_Proj);
         m_QuadShader->SetUniformMat4f("u_View", m_View);
-        m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z + 0.25, 1.0);
+        m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);
         m_VoxelGrid->BindBufferToTexture(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("toVoxelLocal", m_VoxelGrid->GetToVoxelLocal());
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
@@ -311,11 +333,19 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniform1f("_DensityFalloff", 1.0 - 0.25);
         m_QuadShader->SetUniformVec3f("u_SmokeColor", m_SmokeColor);
         m_QuadShader->SetUniformVec3f("u_VoxelSpaceBounds", m_VoxelGrid->GetBounds());
+        m_QuadShader->SetUniform1f("_SmokeSize", 4.0);
+        m_QuadShader->SetUniformVec3f("_AnimationDirection", glm::vec3(0.0, -0.1, 0.0));
         m_Quad->Draw(*m_QuadShader);
     }
     glEnable(GL_DEPTH_TEST);
     //glDepthMask(GL_TRUE);
     
+    //debug shader
+    //m_Noise3DTex->Bind();
+    //m_NoiseDebugShader->Bind();
+    //m_NoiseDebugShader->SetUniform1i("_NoiseTex", 0);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //renderQuad();
     
 }
 
@@ -353,4 +383,35 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
         m_PrevLeftButtonState = m_LeftButtonState;
         m_LeftButtonState = false;
     }
+}
+
+// renderQuad() renders a 1x1 XY quad in NDC
+// -----------------------------------------
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad()
+{
+    if (quadVAO == 0)
+    {
+        float quadVertices[] = {
+            // positions        // texture Coords
+            -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+             1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+        };
+        // setup plane VAO
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
 }

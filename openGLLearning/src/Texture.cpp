@@ -23,6 +23,7 @@ Texture::Texture(const std::string& path)
 		stbi_image_free(m_LocalBuffer);
 }
 
+
 Texture::~Texture()
 {
 	GLCall(glDeleteTextures(1, &m_RendererID));

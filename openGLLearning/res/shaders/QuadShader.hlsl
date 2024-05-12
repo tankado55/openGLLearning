@@ -1,5 +1,5 @@
 #shader vertex
-#version 330 core
+#version 420 core
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec2 uv;
@@ -22,13 +22,15 @@ void main()
 
 
 #shader fragment
-#version 330 core
+#version 420 core
 
 struct DirectionalLight {
     vec3 direction;
     vec3 color;
 };
 
+layout(rgba32f, binding = 0) uniform image3D _NoiseTex;
+//uniform sampler3D _NoiseTex;
 
 uniform vec4 u_CameraWorldPos;
 uniform samplerBuffer voxelBuffer;
@@ -48,11 +50,14 @@ uniform float _DensityFalloff;
 uniform vec3 u_SmokeColor;
 uniform vec3 u_VoxelSpaceBounds;
 
+uniform float _SmokeSize;
+uniform vec3 _AnimationDirection;
+
 in vec4 worldPos;
 out vec4 color;
 
 float stepSize = 0.05;
-float maxDistance = 10;
+float maxDistance = 50;
 
 float toLightMaxDistance = 5.0f;
 
@@ -169,6 +174,16 @@ float getTrilinearVoxel(vec3 pos)
     return v;
 }
 
+float getNoise(vec3 pos) {
+    vec3 pos2 = pos + vec3(50.0);
+    vec3 uvw = pos2 / _SmokeSize;
+    uvw = uvw * 128.0;
+    uvw += _AnimationDirection * (iTime) * 200.0;
+    uvw = ivec3(uvw) % ivec3(128);
+    float result = imageLoad(_NoiseTex, ivec3(uvw)).r;
+    return result;
+}
+
 float getDensity(vec3 pos)
 {
     float v = 0;
@@ -181,9 +196,7 @@ float getDensity(vec3 pos)
 
     v = getTrilinearVoxel(pos);
 
-    vec2 uv = vec2(pos.x, pos.z) / vec2(u_Ellipsoid.x, u_Ellipsoid.z); //my
-    vec3 p = vec3(uv, iTime * 0.1); //my
-    n = worley(p * 2.0 - 1.0, 4.0);
+    n = getNoise(pos);
 
     float dist = min(1.0f, length(vp / radius));
     float voxelDist = min(1.0f, 1 - (v / 16.0f));
@@ -192,7 +205,6 @@ float getDensity(vec3 pos)
     dist = smoothstep(_DensityFalloff, 1.0f, dist);
 
     falloff = min(1.0f, dist + n);
-    //falloff = min(1.0f, dist + n);
     
     return clamp(clamp(v, 0.0,1.0) * (1 - falloff), 0.0, 1.0);
 }
@@ -208,6 +220,7 @@ vec4 calcFogColor()
     for (int i = 0; i * stepSize < maxDistance; i++)
     {
         vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * stepSize);
+        worldPointToCheck = worldPointToCheck + vec3(0.25,0.25, 0.25);
         
 
         int index1D = getVoxelIndex(worldPointToCheck);

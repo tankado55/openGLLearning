@@ -9,6 +9,8 @@
 #include "VoxelGrid.h"
 #include "SmokeGrenade.h"
 #include "Quad.h"
+#include "Texture3D.h"
+#include "ComputeShader.h"
 
 #include <memory>
 
@@ -46,6 +48,9 @@ namespace Test {
 		std::unique_ptr<SmokeGrenade> m_Smoke;
 		std::unique_ptr<Quad> m_Quad;
 		glm::vec3 m_SmokeColor;
+		std::unique_ptr<ComputeShader> m_NoiseComputeShader;
+		std::unique_ptr<Texture3D> m_Noise3DTex;
+		std::unique_ptr<Shader> m_NoiseDebugShader;
 
 
 

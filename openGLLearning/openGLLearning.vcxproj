@@ -159,7 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ComputeShader.cpp" />
+    <ClCompile Include="src\ComputeShader.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\InputManager.cpp" />
@@ -179,6 +179,7 @@
     <ClCompile Include="src\tests\TestSmoke.cpp" />
     <ClCompile Include="src\tests\TestTexture2D.cpp" />
     <ClCompile Include="src\Texture.cpp" />
+    <ClCompile Include="src\Texture3D.cpp" />
     <ClCompile Include="src\TimeUpdater.cpp" />
     <ClCompile Include="src\Utils.cpp" />
     <ClCompile Include="src\vendor\glm\detail\glm.cpp" />
@@ -195,7 +196,7 @@
     <ClCompile Include="src\VoxelGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ComputeShader.h" />
+    <ClInclude Include="src\ComputeShader.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\InputManager.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="src\tests\TestSmoke.h" />
     <ClInclude Include="src\tests\TestTexture2D.h" />
     <ClInclude Include="src\Texture.h" />
+    <ClInclude Include="src\Texture3D.h" />
     <ClInclude Include="src\TimeUpdater.h" />
     <ClInclude Include="src\Utils.h" />
     <ClInclude Include="src\vendor\boost_1_84_0\boost\align.hpp" />
