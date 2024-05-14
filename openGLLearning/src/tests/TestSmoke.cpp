@@ -45,7 +45,9 @@ Test::TestSmoke::TestSmoke() :
     m_YCount(10),
     m_ZCount(30),
     m_Distance(0.5f),
-    m_SmokeColor(glm::vec3(0.05,0.05,0.05))
+    m_SmokeColor(glm::vec3(0.05, 0.05, 0.05)),
+    m_StepSize(0.05),
+    m_LigthStepSize(0.25)
 {
     m_Plane = std::make_unique<Model>("res/models/plane/plane.obj");
     m_PrototypeTexture = std::make_unique<Texture>("res/textures/tex_3.png");
@@ -331,10 +333,13 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniformVec3f("u_ExtinctionColor", glm::vec3(1.0,1.0,1.0));
         m_QuadShader->SetUniform1f("iTime", glfwGetTime());
         m_QuadShader->SetUniform1f("_DensityFalloff", 1.0 - 0.25);
-        m_QuadShader->SetUniformVec3f("u_SmokeColor", m_SmokeColor);
         m_QuadShader->SetUniformVec3f("u_VoxelSpaceBounds", m_VoxelGrid->GetBounds());
         m_QuadShader->SetUniform1f("_SmokeSize", 4.0);
         m_QuadShader->SetUniformVec3f("_AnimationDirection", glm::vec3(0.0, -0.1, 0.0));
+        // smoke parameters
+        m_QuadShader->SetUniformVec3f("u_SmokeColor", m_SmokeColor);
+        m_QuadShader->SetUniform1f("u_StepSize", m_StepSize);
+        m_QuadShader->SetUniform1f("u_LigthStepSize", m_LigthStepSize);
         m_Quad->Draw(*m_QuadShader);
     }
     glEnable(GL_DEPTH_TEST);
@@ -352,7 +357,8 @@ void Test::TestSmoke::OnRenderer()
 void Test::TestSmoke::OnImGuiRenderer()
 {
     ImGui::SliderFloat3("Smoke Color", &m_SmokeColor.x, 0.0, 1.0);
-    ImGui::SliderFloat3("Translation B", &m_TextureGridMode.x, -10.0f, 10.0f);
+    ImGui::SliderFloat("StepSize", &m_StepSize, 0.01f, 0.5f);
+    ImGui::SliderFloat("LigthStepSize", &m_LigthStepSize, 0.01f, 0.5f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
@@ -374,7 +380,7 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
 
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
             m_VoxelGrid->ClearStatus();
-            m_VoxelGrid->Flood(intersectInPlane, 8.0);
+            m_VoxelGrid->Flood(intersectInPlane,8.0);
             m_Smoke->Detonate(intersectInPlane);
         }
     }

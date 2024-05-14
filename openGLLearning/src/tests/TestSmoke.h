@@ -47,10 +47,13 @@ namespace Test {
 		std::unique_ptr<Texture> m_ObstacleTexture;
 		std::unique_ptr<SmokeGrenade> m_Smoke;
 		std::unique_ptr<Quad> m_Quad;
-		glm::vec3 m_SmokeColor;
 		std::unique_ptr<ComputeShader> m_NoiseComputeShader;
 		std::unique_ptr<Texture3D> m_Noise3DTex;
 		std::unique_ptr<Shader> m_NoiseDebugShader;
+		// smoke parameters
+		glm::vec3 m_SmokeColor;
+		float m_StepSize;
+		float m_LigthStepSize;
 
 
 

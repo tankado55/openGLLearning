@@ -30,7 +30,6 @@ struct DirectionalLight {
 };
 
 layout(rgba32f, binding = 0) uniform image3D _NoiseTex;
-//uniform sampler3D _NoiseTex;
 
 uniform vec4 u_CameraWorldPos;
 uniform samplerBuffer voxelBuffer;
@@ -47,26 +46,28 @@ uniform float u_AbsorptionCoefficient;
 uniform float u_ScatteringCoefficient;
 uniform vec3 u_ExtinctionColor;
 uniform float _DensityFalloff;
-uniform vec3 u_SmokeColor;
 uniform vec3 u_VoxelSpaceBounds;
 
 uniform float _SmokeSize;
 uniform vec3 _AnimationDirection;
+// Smoke parameters
+uniform vec3 u_SmokeColor;
+uniform float u_StepSize;
+uniform float u_LigthStepSize;
 
 in vec4 worldPos;
 out vec4 color;
 
-float stepSize = 0.05;
 float maxDistance = 50;
+const float MAX_DISTANCE = 200;
 
 float toLightMaxDistance = 5.0f;
 
-float densityDefaultSample = 4.0;
-float volumeDensity = densityDefaultSample * stepSize;
+float densityDefaultSample = 4.0; //4.0
+float volumeDensity = densityDefaultSample * u_StepSize;
 
-float shadowDensityDefault = 2.5;
-float lightStepSize = 0.25;
-float shadowDensity = shadowDensityDefault * lightStepSize;
+float shadowDensityDefault = 2.5; //2.5
+float shadowDensity = shadowDensityDefault * u_LigthStepSize;
 
 float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
 
@@ -127,10 +128,40 @@ int getVoxelIndex(vec3 pos)
     return -1;
 }
 
-
 int to1D(vec3 pos) {
     return int(pos.x + pos.y * resolution.x + pos.z * resolution.x * resolution.y);
 }
+
+int getVoxelValue(vec3 pos) {
+    pos.y -= u_VoxelSpaceBounds.y;
+
+    if (abs(dot(pos, vec3(1, 0, 0))) <= u_VoxelSpaceBounds.x &&
+        abs(dot(pos, vec3(0, 1, 0))) <= u_VoxelSpaceBounds.y &&
+        abs(dot(pos, vec3(0, 0, 1))) <= u_VoxelSpaceBounds.z)
+    {
+        pos.y += u_VoxelSpaceBounds.y;
+        vec3 seedPos = pos;
+        seedPos.xz += u_VoxelSpaceBounds.xz;
+        seedPos /= u_VoxelSpaceBounds * 2;
+        seedPos *= resolution;
+
+        float v = texelFetch(voxelBuffer, to1D(seedPos)).r;
+        if (v > 0.9)
+        {
+            v += 0.1;
+            return int(v);
+        }
+        else if (v < -0.9)
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+
+
 
 
 
@@ -217,9 +248,26 @@ vec4 calcFogColor()
 
     float accumDensity = 0.0f;
     float thickness = 0.0;
-    for (int i = 0; i * stepSize < maxDistance; i++)
+
+    float distanceTraveled = 0;
+    //vec3 worldPointToCheck = vec3(u_CameraWorldPos) + distanceTraveled * rayDir;
+    //int vv = getVoxelValue(worldPointToCheck);
+    //while (vv <= 0 && distanceTraveled < MAX_DISTANCE) {
+    //    distanceTraveled += 0.4;
+    //    worldPointToCheck = vec3(u_CameraWorldPos) + distanceTraveled * rayDir;
+    //    vv = getVoxelValue(worldPointToCheck);
+    //}
+    //
+    //if (vv <= 0) // no smoke found
+    //{
+    //    return vec4(col, 1.0 - alpha);
+    //}
+    //distanceTraveled -= 0.4f;
+    //worldPointToCheck = vec3(u_CameraWorldPos) + distanceTraveled * rayDir;
+
+    for (int i = 0; i * u_StepSize < maxDistance; i++)
     {
-        vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * stepSize);
+        vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * u_StepSize);
         worldPointToCheck = worldPointToCheck + vec3(0.25,0.25, 0.25);
         
 
@@ -228,7 +276,7 @@ vec4 calcFogColor()
         if (index1D != -1) // check if the index is valid
         {
             float texelData = texelFetch(voxelBuffer, index1D).r;
-            if (texelData < 0.00) // there is a scene object
+            if (texelData < 0.0) // there is a scene object
             {
                 break;
             }
@@ -236,9 +284,9 @@ vec4 calcFogColor()
             // check ellipsoid
             vec3 distanceVectorFromExplosion = vec3(worldPointToCheck - explosionPos);
             float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
-            if (distanceFromExplosion > 1.0) {
-                continue;
-            }
+            //if (distanceFromExplosion > 1.1) {
+            //    continue;
+            //}
 
             if (texelData >= 0.99) // there is smoke
             {
@@ -247,36 +295,35 @@ vec4 calcFogColor()
 
                 float sampledDensity = getDensity(worldPointToCheck);
                 accumDensity += sampledDensity * volumeDensity;
-                thickness += stepSize * sampledDensity;
+                thickness += u_StepSize * sampledDensity;
                 alpha = exp(-thickness * accumDensity * extinctionCoefficient);
 
                 // To the light
-                if (sampledDensity > 0.001)
+                if (sampledDensity >= 0.0)
                 {
                     float tau = 0.0f;
                     float accumDensityToLight = 0.0f;
-                    float thicknessToLight = 0.0;
-                    for (int j = 0; j * lightStepSize < toLightMaxDistance; j++)
+                    for (int j = 0; j * u_LigthStepSize < toLightMaxDistance; j++)
                     {
-                        vec3 worldPointToCheckToLight = vec3(worldPointToCheck) - (u_DirLight.direction * j * lightStepSize);
+                        vec3 worldPointToCheckToLight = vec3(worldPointToCheck) - (u_DirLight.direction * j * u_LigthStepSize);
                         vec3 distanceVectorFromExplosion = vec3(worldPointToCheckToLight - explosionPos);
                         float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
-                        if (distanceFromExplosion > 1.0) {
+                        if (distanceFromExplosion > 1.1) {
                             break;
                         }
                         int index1D = getVoxelIndex(worldPointToCheckToLight);
                         if (index1D != -1) // check if the index is valid
                         {
                             float texelData = texelFetch(voxelBuffer, index1D).r;
-                            if (texelData < 0.00) // wall
+                            if (texelData < -0.9) // wall
                             {
                                 break;
                             }
-                            if (texelData >= 0.99) // there is smoke
-                            {
+                            //if (texelData >= 0.99) // there is smoke
+                            //{
                                 float sampledDensity = getDensity(worldPointToCheck);
                                 tau += sampledDensity * shadowDensity;
-                            }
+                            //}
                         }
                     }
                     vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
@@ -303,7 +350,7 @@ void main()
     //}
 
     vec4 fogFactor = calcFogColor();
-    if (fogFactor.w <= 0)
+    if (fogFactor.w <= 0.00001)
     {
         discard;
     }
