@@ -24,13 +24,7 @@
 
 #include "InputManager.h"
 
-#include "tests/TestClearColor.h"
-#include "tests/TestTexture2D.h"
-#include "tests/TestFirst3D.h"
-#include "tests/TestLight.h"
-#include "tests/TestModels.h"
-#include "tests/TestBatch.h"
-#include "tests/TestMorph.h"
+
 #include "tests/TestSmoke.h"
 #include "TimeUpdater.h"
 
@@ -97,13 +91,6 @@ int main(void)
         Test::TestMenu* testMenu = new Test::TestMenu(currentTest);
         currentTest = testMenu;
 
-        testMenu->RegisterTest<Test::TestClearColor>("Clear Color");
-        testMenu->RegisterTest<Test::TestTexture2D>("2D Texture");
-        testMenu->RegisterTest<Test::TestFirst3D>("3D First");
-        testMenu->RegisterTest<Test::TestLight>("Light Test");
-        testMenu->RegisterTest<Test::TestModels>("Models Test");
-        testMenu->RegisterTest<Test::TestBatch>("Batch Test");
-        testMenu->RegisterTest<Test::TestMorph>("Morph Test");
         testMenu->RegisterTest<Test::TestSmoke>("Smoke Test");
 
         float deltaTime = 0.0f;	// Time between current frame and last frame

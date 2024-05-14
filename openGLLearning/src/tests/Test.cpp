@@ -18,5 +18,6 @@ namespace Test {
 				m_CurrentTest = test.second();
 			}
 		}
+		m_CurrentTest = m_Tests[0].second();
 	}
 }
