@@ -58,10 +58,10 @@ uniform float u_LigthStepSize;
 in vec4 worldPos;
 out vec4 color;
 
-float maxDistance = 50;
+float maxDistance = 10;
 const float MAX_DISTANCE = 200;
 
-float toLightMaxDistance = 5.0f;
+float toLightMaxDistance = 50.0f;
 
 float densityDefaultSample = 4.0; //4.0
 float volumeDensity = densityDefaultSample * u_StepSize;
@@ -145,7 +145,7 @@ int getVoxelValue(vec3 pos) {
         seedPos /= u_VoxelSpaceBounds * 2;
         seedPos *= resolution;
 
-        float v = texelFetch(voxelBuffer, to1D(seedPos)).r;
+        float v = texelFetch(voxelBuffer, getVoxelIndex(pos)).r;
         if (v > 0.9)
         {
             v += 0.1;
@@ -249,34 +249,33 @@ vec4 calcFogColor()
     float accumDensity = 0.0f;
     float thickness = 0.0;
 
-    float distanceTraveled = 0;
-    //vec3 worldPointToCheck = vec3(u_CameraWorldPos) + distanceTraveled * rayDir;
-    //int vv = getVoxelValue(worldPointToCheck);
-    //while (vv <= 0 && distanceTraveled < MAX_DISTANCE) {
-    //    distanceTraveled += 0.4;
-    //    worldPointToCheck = vec3(u_CameraWorldPos) + distanceTraveled * rayDir;
-    //    vv = getVoxelValue(worldPointToCheck);
-    //}
-    //
-    //if (vv <= 0) // no smoke found
-    //{
-    //    return vec4(col, 1.0 - alpha);
-    //}
-    //distanceTraveled -= 0.4f;
-    //worldPointToCheck = vec3(u_CameraWorldPos) + distanceTraveled * rayDir;
+    float distanceTraveled = 0.0;
+    vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
+    int vv = getVoxelValue(worldPointToCheck);
+    while (vv <= 0 && distanceTraveled < MAX_DISTANCE) {
+        distanceTraveled += 0.4;
+        worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
+        vv = getVoxelValue(worldPointToCheck);
+    }
+    
+    if (vv <= 0) // no smoke found
+    {
+        return vec4(vec3(1.0,0.0,0.0), 1.0 - 0.5);
+    }
+
+    distanceTraveled -= 0.4f;
+    worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
 
     for (int i = 0; i * u_StepSize < maxDistance; i++)
     {
-        vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (rayDir * i * u_StepSize);
-        worldPointToCheck = worldPointToCheck + vec3(0.25,0.25, 0.25);
-        
+        worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir) + (rayDir * i * u_StepSize) ;
+        //worldPointToCheck = worldPointToCheck + vec3(0.25,0.25, 0.25);
 
-        int index1D = getVoxelIndex(worldPointToCheck);
 
-        if (index1D != -1) // check if the index is valid
-        {
-            float texelData = texelFetch(voxelBuffer, index1D).r;
-            if (texelData < 0.0) // there is a scene object
+        //if (index1D != -1) // check if the index is valid
+        //{
+            float texelData = getVoxelValue(worldPointToCheck);
+            if (texelData == -1) // there is a scene object
             {
                 break;
             }
@@ -288,8 +287,8 @@ vec4 calcFogColor()
             //    continue;
             //}
 
-            if (texelData >= 0.99) // there is smoke
-            {
+            //if (texelData >= 0.99) // there is smoke
+            //{
                 //float cos_theta = dot(rayDir, float3(0, 1, 0));
                 //float p = phase(_G, cos_theta);
 
@@ -329,8 +328,8 @@ vec4 calcFogColor()
                     vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
                     col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity * sampledDensity; // TODO: reintroduce param p
                 }
-            }
-        }
+            //}
+        //}
     }
     return vec4(col, 1.0 - alpha);
 
