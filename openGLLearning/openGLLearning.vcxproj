@@ -161,6 +161,8 @@
   <ItemGroup>
     <ClCompile Include="src\ComputeShader.cpp" />
     <ClCompile Include="src\Camera.cpp" />
+    <ClCompile Include="src\depthMapFB.cpp" />
+    <ClCompile Include="src\depthTexture.cpp" />
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\InputManager.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -191,6 +193,8 @@
   <ItemGroup>
     <ClInclude Include="src\ComputeShader.h" />
     <ClInclude Include="src\Camera.h" />
+    <ClInclude Include="src\depthMapFB.h" />
+    <ClInclude Include="src\depthTexture.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\InputManager.h" />
     <ClInclude Include="src\Mesh.h" />

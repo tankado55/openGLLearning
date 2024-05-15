@@ -11,6 +11,9 @@
 #include <cmath>
 #include <algorithm>
 
+const unsigned int SCR_WIDTH = 960;
+const unsigned int SCR_HEIGHT = 540;
+
 void renderQuad();
 
 
@@ -59,6 +62,12 @@ Test::TestSmoke::TestSmoke() :
     m_NoiseComputeShader = std::make_unique<ComputeShader>("res/shaders/noise.hlsl");
     m_Noise3DTex = std::make_unique<Texture3D>(128, 128, 128);
 
+    m_DepthShader = std::make_unique<Shader>("res/shaders/simpleDepthShader.hlsl");
+    m_DebugDepthQuadShader = std::make_unique<Shader>("res/shaders/debugDepthQuad.hlsl");
+    m_DepthFB = std::make_unique<DepthMapFB>();
+    m_depthMap = std::make_unique<DepthTexture>();
+    m_DepthFB->attachTexture(*m_depthMap);
+
 
     // Compute
     m_NoiseComputeShader->Bind();
@@ -72,6 +81,7 @@ Test::TestSmoke::TestSmoke() :
     glDispatchCompute((unsigned int)128 / 8, (unsigned int)128 / 8, (unsigned int)128 / 8);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
+    
 
     // Obstacle1
     m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
@@ -202,6 +212,21 @@ void Test::TestSmoke::OnRenderer()
     glm::vec3 cameraPosition = m_Camera->GetPos();
 
     glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
+
+    //Depth
+    m_DepthShader->Bind();
+    m_DepthShader->SetUniformMat4f("u_Proj", m_Proj);
+    m_DepthShader->SetUniformMat4f("u_View", m_View);
+    m_DepthFB->bind();
+    m_DepthFB->clear();
+    // draw obstacles depth
+    m_DepthShader->SetUniformMat4f("u_Model", m_Obstacle->GetModelMatrix());
+    m_Obstacle->Draw(*m_DepthShader);
+    m_DepthShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
+    m_Obstacle2->Draw(*m_DepthShader);
+    m_DepthFB->unBind();
+    // reset viewport
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
     { // Plane
         glm::mat4 model = glm::mat4(1.0f);
@@ -350,6 +375,15 @@ void Test::TestSmoke::OnRenderer()
     //m_Noise3DTex->Bind();
     //m_NoiseDebugShader->Bind();
     //m_NoiseDebugShader->SetUniform1i("_NoiseTex", 0);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //renderQuad();
+
+    //debug depth
+    //m_depthMap->Bind();
+    //m_DebugDepthQuadShader->Bind();
+    //m_DebugDepthQuadShader->SetUniform1f("near_plane", 0.1f);
+    //m_DebugDepthQuadShader->SetUniform1f("far_plane", 50.0f);
+    //m_DebugDepthQuadShader->SetUniform1i("depthMap", 0);
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //renderQuad();
     

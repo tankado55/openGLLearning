@@ -99,6 +99,12 @@
     <ClCompile Include="src\Texture3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\depthMapFB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\depthTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1644,6 +1650,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Texture3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\depthMapFB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\depthTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

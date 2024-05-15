@@ -11,6 +11,8 @@
 #include "Quad.h"
 #include "Texture3D.h"
 #include "ComputeShader.h"
+#include "depthTexture.h"
+#include "depthMapFB.h"
 
 #include <memory>
 
@@ -50,6 +52,10 @@ namespace Test {
 		std::unique_ptr<ComputeShader> m_NoiseComputeShader;
 		std::unique_ptr<Texture3D> m_Noise3DTex;
 		std::unique_ptr<Shader> m_NoiseDebugShader;
+		std::unique_ptr<Shader> m_DepthShader;
+		std::unique_ptr<Shader> m_DebugDepthQuadShader;
+		std::unique_ptr<DepthMapFB> m_DepthFB;
+		std::unique_ptr<DepthTexture> m_depthMap;
 		// smoke parameters
 		glm::vec3 m_SmokeColor;
 		float m_StepSize;
