@@ -140,12 +140,17 @@ int getVoxelValue(vec3 pos) {
         abs(dot(pos, vec3(0, 0, 1))) <= u_VoxelSpaceBounds.z)
     {
         pos.y += u_VoxelSpaceBounds.y;
-        vec3 seedPos = pos;
-        seedPos.xz += u_VoxelSpaceBounds.xz;
-        seedPos /= u_VoxelSpaceBounds * 2;
-        seedPos *= resolution;
+        //vec3 seedPos = pos;
+        //seedPos.xz += u_VoxelSpaceBounds.xz;
+        //seedPos /= u_VoxelSpaceBounds * 2;
+        //seedPos *= resolution;
 
-        float v = texelFetch(voxelBuffer, getVoxelIndex(pos)).r;
+        int index = getVoxelIndex(pos);
+        if (index == -1)
+        {
+            return -1;
+        }
+        float v = texelFetch(voxelBuffer, index).r;
         if (v > 0.9)
         {
             v += 0.1;
@@ -258,9 +263,9 @@ vec4 calcFogColor()
         vv = getVoxelValue(worldPointToCheck);
     }
     
-    if (vv <= 0) // no smoke found
+    if (vv <= 0) // no smoke found debug
     {
-        return vec4(vec3(1.0,0.0,0.0), 1.0 - 0.5);
+        return vec4(vec3(1.0,0.0,0.0), 0.0);
     }
 
     distanceTraveled -= 0.4f;
@@ -274,7 +279,7 @@ vec4 calcFogColor()
 
         //if (index1D != -1) // check if the index is valid
         //{
-            float texelData = getVoxelValue(worldPointToCheck);
+            int texelData = getVoxelValue(worldPointToCheck);
             if (texelData == -1) // there is a scene object
             {
                 break;
@@ -337,17 +342,6 @@ vec4 calcFogColor()
 
 void main()
 {
-    //float depth = LinearizeDepth(gl_FragDepth) / far;
-    //color = vec4(vec2(depth), 1.0, 1.0);
-    //if (gl_FragCoord.x > 480)
-    //{
-    //    color = vec4(0.0, 1.0, 0.0, 1.0);
-    //}
-    //else {
-    //    discard;
-    //
-    //}
-
     vec4 fogFactor = calcFogColor();
     if (fogFactor.w <= 0.00001)
     {

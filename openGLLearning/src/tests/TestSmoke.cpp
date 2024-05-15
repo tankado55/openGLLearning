@@ -205,6 +205,7 @@ void Test::TestSmoke::OnRenderer()
 
     { // Plane
         glm::mat4 model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(1.5, 0.0, 1.5));
         m_PlaneShader->Bind();
         m_PlaneShader->SetUniformMat4f("u_View", m_View);
         m_PlaneShader->SetUniformMat4f("u_Projection", m_Proj);
@@ -359,6 +360,7 @@ void Test::TestSmoke::OnImGuiRenderer()
     ImGui::SliderFloat3("Smoke Color", &m_SmokeColor.x, 0.0, 1.0);
     ImGui::SliderFloat("StepSize", &m_StepSize, 0.01f, 0.5f);
     ImGui::SliderFloat("LigthStepSize", &m_LigthStepSize, 0.01f, 0.5f);
+    ImGui::SliderFloat3("Smoke Size", (float*)m_Smoke->GetEllipsoidPtr(), 1.0f, 5.0f);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
@@ -380,7 +382,7 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
 
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
             m_VoxelGrid->ClearStatus();
-            m_VoxelGrid->Flood(intersectInPlane,8.0);
+            m_VoxelGrid->Flood(intersectInPlane,9.0);
             m_Smoke->Detonate(intersectInPlane);
         }
     }

@@ -10,10 +10,10 @@ private:
 	bool m_PrevLeftButtonState;
 	bool m_LeftButtonState;
 	bool m_IsDetoned;
-	glm::vec3 m_Ellipsoid;
 	float m_MaxDistance;
 	glm::vec3 m_DetonationWorldPos;
 	glm::vec3 m_Color;
+	glm::vec3 m_Ellipsoid;
 
 public:
 	SmokeGrenade();
@@ -22,4 +22,5 @@ public:
 	float GetTimer() const { return m_Timer; };
 	void Detonate(glm::vec3 pos);
 	glm::vec3 GetColor(){ return m_Color; }
+	glm::vec3* GetEllipsoidPtr() { return &m_Ellipsoid; }
 };

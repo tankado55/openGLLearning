@@ -55,8 +55,8 @@ bool CheckAABBCollision(const glm::vec3& minA, const glm::vec3& maxA, const glm:
 
 void VoxelGrid::Bake(const std::vector<Model*>& objects)
 {
-	// 1.0f obstacle
-	// 2.0f smoke
+	// -1.0f obstacle
+	// >1.0f smoke
 	for (int i = 0; i < objects.size(); i++)
 	{
 		Model* model = objects[i];
@@ -80,12 +80,6 @@ void VoxelGrid::Bake(const std::vector<Model*>& objects)
 			if (CheckAABBCollision(aabbModel.min, aabbModel.max, aabbVoxel.min, aabbVoxel.max))
 			{
 				bakedStatus[j] = -1.0f;	
-			}
-			if (j == 0) {
-				bakedStatus[j] = 1.0f;
-			}
-			if (j == voxelCount-1) {
-				bakedStatus[j] = 1.0f;
 			}
 		}
 	}
@@ -234,6 +228,7 @@ void VoxelGrid::ClearStatus()
 glm::mat4 VoxelGrid::GetToVoxelLocal()
 {
 	glm::mat4 toLocal = glm::mat4(1.0);
+	toLocal = glm::translate(toLocal, glm::vec3(0.5,0.5,0.5));
 	toLocal = glm::scale(toLocal, glm::vec3(1.0 / voxelSize));
 	glm::mat4 result = glm::inverse(modelMatrix) * toLocal;
 	//result = glm::translate(result, glm::vec3(voxelSize, voxelSize, -voxelSize));
