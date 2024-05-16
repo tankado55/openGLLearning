@@ -11,9 +11,6 @@
 #include <cmath>
 #include <algorithm>
 
-const unsigned int SCR_WIDTH = 960;
-const unsigned int SCR_HEIGHT = 540;
-
 void renderQuad();
 
 
@@ -340,9 +337,11 @@ void Test::TestSmoke::OnRenderer()
     //glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);
     {
-        m_Noise3DTex->Bind();
         m_QuadShader->Bind();
+        m_Noise3DTex->Bind();
         m_QuadShader->SetUniform1i("_NoiseTex", 0);
+        m_depthMap->Bind(1);
+        m_QuadShader->SetUniform1i("_DepthMap", 1);
         double time = Timem::deltaTime;
         m_Smoke->Update(time);
         m_Smoke->Draw(*m_QuadShader);
@@ -351,6 +350,7 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);
         m_VoxelGrid->BindBufferToTexture(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("toVoxelLocal", m_VoxelGrid->GetToVoxelLocal());
+        m_QuadShader->SetUniformMat4f("_CameraInvViewProjection", glm::inverse(m_View));
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
         m_QuadShader->SetUniform3f("u_DirLight.direction", 0.0,-1.0,0.0);
         m_QuadShader->SetUniform3f("u_DirLight.color", 0.38,0.38,0.38);
@@ -366,6 +366,8 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniformVec3f("u_SmokeColor", m_SmokeColor);
         m_QuadShader->SetUniform1f("u_StepSize", m_StepSize);
         m_QuadShader->SetUniform1f("u_LigthStepSize", m_LigthStepSize);
+        m_QuadShader->SetUniform1f("near_plane", 0.1f);
+        m_QuadShader->SetUniform1f("far_plane", 500.0f);
         m_Quad->Draw(*m_QuadShader);
     }
     glEnable(GL_DEPTH_TEST);
@@ -382,7 +384,7 @@ void Test::TestSmoke::OnRenderer()
     //m_depthMap->Bind();
     //m_DebugDepthQuadShader->Bind();
     //m_DebugDepthQuadShader->SetUniform1f("near_plane", 0.1f);
-    //m_DebugDepthQuadShader->SetUniform1f("far_plane", 50.0f);
+    //m_DebugDepthQuadShader->SetUniform1f("far_plane", 100.0f);
     //m_DebugDepthQuadShader->SetUniform1i("depthMap", 0);
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //renderQuad();

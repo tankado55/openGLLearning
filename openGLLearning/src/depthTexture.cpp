@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 #include "Renderer.h"
 
-const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+const unsigned int SHADOW_WIDTH = SCR_WIDTH, SHADOW_HEIGHT = SCR_HEIGHT;
 
 DepthTexture::DepthTexture()
 {

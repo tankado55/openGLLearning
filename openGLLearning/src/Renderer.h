@@ -5,6 +5,9 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 
+const unsigned int SCR_WIDTH = 960;
+const unsigned int SCR_HEIGHT = 540;
+
 #define ASSERT(x) if (!(x)) __debugbreak();
 #define GLCall(x) GLClearError();\
     x;\

@@ -8,6 +8,7 @@ uniform mat4 u_Projection;
 uniform mat4 u_View;
 
 out vec4 worldPos;
+out vec2 uvCoord;
 
 
 void main()
@@ -17,6 +18,7 @@ void main()
    vec4 eye_coords = inverse(u_Projection) * gl_Position;
    vec4 world_coords = inverse(u_View) * eye_coords;
    worldPos = world_coords;
+   uvCoord = uv;
    gl_Position = u_Projection * u_View * world_coords;
 };
 
@@ -31,6 +33,7 @@ struct DirectionalLight {
 
 layout(rgba32f, binding = 0) uniform image3D _NoiseTex;
 
+uniform sampler2D _DepthMap;
 uniform vec4 u_CameraWorldPos;
 uniform samplerBuffer voxelBuffer;
 uniform mat4 toVoxelLocal;
@@ -54,8 +57,13 @@ uniform vec3 _AnimationDirection;
 uniform vec3 u_SmokeColor;
 uniform float u_StepSize;
 uniform float u_LigthStepSize;
+uniform mat4 _CameraInvViewProjection;
+
+uniform float near_plane;
+uniform float far_plane;
 
 in vec4 worldPos;
+in vec2 uvCoord;
 out vec4 color;
 
 float maxDistance = 10;
@@ -245,6 +253,17 @@ float getDensity(vec3 pos)
     return clamp(clamp(v, 0.0,1.0) * (1 - falloff), 0.0, 1.0);
 }
 
+vec3 ComputeWorldSpacePosition(vec2 positionNDC, float deviceDepth) {
+    vec4 positionCS = vec4(positionNDC * 2.0 - 1.0, deviceDepth, 1.0);
+    vec4 hpositionWS = _CameraInvViewProjection * positionCS;
+    return hpositionWS.xyz / hpositionWS.w;
+}
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // Back to NDC 
+    return (2.0 * near_plane * far_plane) / (far_plane + near_plane - z * (far_plane - near_plane));
+}
+
 vec4 calcFogColor()
 {
     vec3 col = u_SmokeColor;
@@ -275,6 +294,13 @@ vec4 calcFogColor()
     {
         worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir) + (rayDir * i * u_StepSize) ;
         //worldPointToCheck = worldPointToCheck + vec3(0.25,0.25, 0.25);
+        float depth = texture(_DepthMap, uvCoord).r;
+        depth = LinearizeDepth(depth);
+        vec3 sceneObstacle = ComputeWorldSpacePosition(uvCoord, depth);
+        if (length(vec3(worldPointToCheck) - vec3(u_CameraWorldPos)) > length(sceneObstacle - vec3(u_CameraWorldPos)))
+        {
+            break;
+        }
 
 
         //if (index1D != -1) // check if the index is valid
