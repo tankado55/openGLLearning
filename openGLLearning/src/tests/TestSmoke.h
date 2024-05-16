@@ -41,6 +41,7 @@ namespace Test {
 		std::unique_ptr<Model> m_Soldier;
 		std::unique_ptr<Shader> m_WhiteShader;
 		std::unique_ptr<Shader> m_PlaneShader;
+		std::unique_ptr<Shader> m_ObstacleShader;
 		std::unique_ptr<VoxelGrid> m_VoxelGrid;
 		std::unique_ptr<Model> m_Plane;
 		std::unique_ptr<Model> m_Obstacle;
@@ -58,6 +59,7 @@ namespace Test {
 		std::unique_ptr<DepthTexture> m_depthMap;
 		// smoke parameters
 		glm::vec3 m_SmokeColor;
+		glm::vec3 m_DirLightCol;
 		float m_StepSize;
 		float m_LigthStepSize;
 

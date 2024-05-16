@@ -9,17 +9,23 @@ uniform mat4 u_View;
 
 out vec4 worldPos;
 out vec2 uvCoord;
+out mat4 projMatrix;
+out mat4 viewMatrix;
 
 
 void main()
 {
    gl_Position = vec4(aPos.x, aPos.y, 1.0, 1.0);
 
-   vec4 eye_coords = inverse(u_Projection) * gl_Position;
-   vec4 world_coords = inverse(u_View) * eye_coords;
+   vec4 world_coords = inverse(u_Projection) * gl_Position;
+   //eye_coords = eye_coords.xyzw / world_coords.w;
+   world_coords = inverse(u_View) * world_coords;
    worldPos = world_coords;
-   uvCoord = uv;
    gl_Position = u_Projection * u_View * world_coords;
+   
+   uvCoord = uv;
+   viewMatrix = u_View;
+   projMatrix = u_Projection;
 };
 
 
@@ -64,12 +70,14 @@ uniform float far_plane;
 
 in vec4 worldPos;
 in vec2 uvCoord;
+in mat4 projMatrix;
+in mat4 viewMatrix;
 out vec4 color;
 
-float maxDistance = 10;
+float maxDistance = 7.5;
 const float MAX_DISTANCE = 200;
 
-float toLightMaxDistance = 50.0f;
+float toLightMaxDistance = 4.0f;
 
 float densityDefaultSample = 4.0; //4.0
 float volumeDensity = densityDefaultSample * u_StepSize;
@@ -78,6 +86,8 @@ float shadowDensityDefault = 2.5; //2.5
 float shadowDensity = shadowDensityDefault * u_LigthStepSize;
 
 float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
+
+vec3 ComputeWorldSpacePosition(vec2 positionNDC, float deviceDepth);
 
 vec3 hash33(vec3 p3) {
     vec3 p = fract(p3 * vec3(.1031, .11369, .13787));
@@ -269,6 +279,8 @@ vec4 calcFogColor()
     vec3 col = u_SmokeColor;
     float alpha = 1.0f;
     vec3 rayDir = vec3(normalize(worldPos));
+    //vec3 rayDir = _CameraInvViewProjection * vec4(uvCoord * 2 - 1, 0.0f, 1.0f).xyz;
+    //rayDir = _CameraToWorld * float4(rayDir, 0.0f).xyz;
 
     float accumDensity = 0.0f;
     float thickness = 0.0;
@@ -284,7 +296,7 @@ vec4 calcFogColor()
     
     if (vv <= 0) // no smoke found debug
     {
-        return vec4(vec3(1.0,0.0,0.0), 0.0);
+        return vec4(vec3(1.0,0.0,0.0), 0.2);
     }
 
     distanceTraveled -= 0.4f;
@@ -292,11 +304,13 @@ vec4 calcFogColor()
 
     for (int i = 0; i * u_StepSize < maxDistance; i++)
     {
-        worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir) + (rayDir * i * u_StepSize) ;
+        worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir) + (rayDir * i * u_StepSize);
         //worldPointToCheck = worldPointToCheck + vec3(0.25,0.25, 0.25);
         float depth = texture(_DepthMap, uvCoord).r;
         depth = LinearizeDepth(depth);
         vec3 sceneObstacle = ComputeWorldSpacePosition(uvCoord, depth);
+        //sceneObstacle = vec3(projMatrix * vec4(sceneObstacle, 1.0));
+
         if (length(vec3(worldPointToCheck) - vec3(u_CameraWorldPos)) > length(sceneObstacle - vec3(u_CameraWorldPos)))
         {
             break;
@@ -306,10 +320,10 @@ vec4 calcFogColor()
         //if (index1D != -1) // check if the index is valid
         //{
             int texelData = getVoxelValue(worldPointToCheck);
-            if (texelData == -1) // there is a scene object
-            {
-                break;
-            }
+            //if (texelData == -1) // there is a scene object
+            //{
+            //    break;
+           //}
 
             // check ellipsoid
             vec3 distanceVectorFromExplosion = vec3(worldPointToCheck - explosionPos);

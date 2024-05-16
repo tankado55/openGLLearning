@@ -37,7 +37,7 @@ glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm:
 
 
 Test::TestSmoke::TestSmoke() :
-    m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 500.0f)),
+    m_Proj(glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 0.1f, 500.0f)),
     m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.0))),
     m_TranslationA(glm::vec3(0, 0, 0)),
     m_TextureGridMode(glm::vec3(1.2f, 1.0f, 2.0f)),
@@ -46,6 +46,7 @@ Test::TestSmoke::TestSmoke() :
     m_ZCount(30),
     m_Distance(0.5f),
     m_SmokeColor(glm::vec3(0.05, 0.05, 0.05)),
+    m_DirLightCol(glm::vec3(0.38, 0.38, 0.38)),
     m_StepSize(0.05),
     m_LigthStepSize(0.25)
 {
@@ -84,13 +85,13 @@ Test::TestSmoke::TestSmoke() :
     m_Obstacle = std::make_unique<Model>("res/models/cube/cube.obj");
     m_ObstacleTexture = std::make_unique<Texture>("res/textures/tex_6.png");
     m_Obstacle->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
-    m_Obstacle->modelMatrix = glm::translate(m_Obstacle->modelMatrix, glm::vec3(0.0, 0.5, 0.0));
+    m_Obstacle->modelMatrix = glm::translate(m_Obstacle->modelMatrix, glm::vec3(5.0, 0.5, 3.0));
     m_Obstacle->modelMatrix = glm::scale(m_Obstacle->modelMatrix, glm::vec3(5.99, 2.99, 0.99));
     // Obstacle2
     m_Obstacle2 = std::make_unique<Model>("res/models/cube/cube.obj");
     m_Obstacle2->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
-    m_Obstacle2->modelMatrix = glm::translate(m_Obstacle2->modelMatrix, glm::vec3(0.0, 0.5, 3.0));
-    m_Obstacle2->modelMatrix = glm::scale(m_Obstacle2->modelMatrix, glm::vec3(5.99, 0.99, 0.99));
+    m_Obstacle2->modelMatrix = glm::translate(m_Obstacle2->modelMatrix, glm::vec3(5.0, 0.5, 6.0));
+    m_Obstacle2->modelMatrix = glm::scale(m_Obstacle2->modelMatrix, glm::vec3(5.99, 2.99, 0.99));
 
     std::vector<Model*> sceneModels;
     sceneModels.push_back(m_Obstacle.get());
@@ -169,6 +170,7 @@ Test::TestSmoke::TestSmoke() :
     m_VoxelDebugShader->SetUniform1i("u_YCount", m_VoxelGrid->resolution.y);
     m_VoxelDebugShader->SetUniform1i("u_ZCount", m_VoxelGrid->resolution.z);
     m_PlaneShader = std::make_unique<Shader>("res/shaders/BasicPlaneShader.hlsl");
+    m_ObstacleShader = std::make_unique<Shader>("res/shaders/ObstacleShader.hlsl");
     m_SmokeShader->Bind();
 
     m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->resolution.x);
@@ -284,13 +286,13 @@ void Test::TestSmoke::OnRenderer()
     }
 
     { // obstacles
-        m_PlaneShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
-        m_PlaneShader->SetUniformMat4f("u_View", m_View);
-        m_PlaneShader->SetUniformMat4f("u_Projection", m_Proj);
-        m_PlaneShader->SetUniformMat4f("u_Model", m_Obstacle->GetModelMatrix());
-        m_Obstacle->Draw(*m_PlaneShader);
-        m_PlaneShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
-        m_Obstacle2->Draw(*m_PlaneShader);
+        m_ObstacleShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_ObstacleShader->SetUniformMat4f("u_View", m_View);
+        m_ObstacleShader->SetUniformMat4f("u_Projection", m_Proj);
+        m_ObstacleShader->SetUniformMat4f("u_Model", m_Obstacle->GetModelMatrix());
+        m_Obstacle->Draw(*m_ObstacleShader);
+        m_ObstacleShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
+        m_Obstacle2->Draw(*m_ObstacleShader);
         
     }
     
@@ -350,10 +352,10 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);
         m_VoxelGrid->BindBufferToTexture(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("toVoxelLocal", m_VoxelGrid->GetToVoxelLocal());
-        m_QuadShader->SetUniformMat4f("_CameraInvViewProjection", glm::inverse(m_View));
+        m_QuadShader->SetUniformMat4f("_CameraInvViewProjection", glm::inverse(m_View)); // solo view in origine
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
         m_QuadShader->SetUniform3f("u_DirLight.direction", 0.0,-1.0,0.0);
-        m_QuadShader->SetUniform3f("u_DirLight.color", 0.38,0.38,0.38);
+        m_QuadShader->SetUniformVec3f("u_DirLight.color", m_DirLightCol); //0.38,0.38,0.38
         m_QuadShader->SetUniform1f("u_AbsorptionCoefficient", 0.5);
         m_QuadShader->SetUniform1f("u_ScatteringCoefficient", 2.6);
         m_QuadShader->SetUniformVec3f("u_ExtinctionColor", glm::vec3(1.0,1.0,1.0));
@@ -394,6 +396,7 @@ void Test::TestSmoke::OnRenderer()
 void Test::TestSmoke::OnImGuiRenderer()
 {
     ImGui::SliderFloat3("Smoke Color", &m_SmokeColor.x, 0.0, 1.0);
+    ImGui::SliderFloat3("Light Color", &m_DirLightCol.x, 0.0, 1.0);
     ImGui::SliderFloat("StepSize", &m_StepSize, 0.01f, 0.5f);
     ImGui::SliderFloat("LigthStepSize", &m_LigthStepSize, 0.01f, 0.5f);
     ImGui::SliderFloat3("Smoke Size", (float*)m_Smoke->GetEllipsoidPtr(), 1.0f, 5.0f);
