@@ -94,10 +94,16 @@ Test::TestSmoke::TestSmoke() :
     m_Obstacle2->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
     m_Obstacle2->modelMatrix = glm::translate(m_Obstacle2->modelMatrix, glm::vec3(5.0, 0.5, 6.0));
     m_Obstacle2->modelMatrix = glm::scale(m_Obstacle2->modelMatrix, glm::vec3(5.99, 2.99, 0.99));
+    // Obstacle3
+    m_Obstacle3 = std::make_unique<Model>("res/models/cube/cube.obj");
+    m_Obstacle3->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+    m_Obstacle3->modelMatrix = glm::translate(m_Obstacle3->modelMatrix, glm::vec3(0.0, 0.0, 0.0));
+    m_Obstacle3->modelMatrix = glm::scale(m_Obstacle3->modelMatrix, glm::vec3(1.00, 2.99, 1.00));
 
     std::vector<Model*> sceneModels;
     sceneModels.push_back(m_Obstacle.get());
     sceneModels.push_back(m_Obstacle2.get());
+    sceneModels.push_back(m_Obstacle3.get());
 
     float positions[] = {
         // pos, norma, uv
@@ -225,6 +231,8 @@ void Test::TestSmoke::OnRenderer()
     m_Obstacle->Draw(*m_DepthShader);
     m_DepthShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
     m_Obstacle2->Draw(*m_DepthShader);
+    m_DepthShader->SetUniformMat4f("u_Model", m_Obstacle3->GetModelMatrix());
+    m_Obstacle3->Draw(*m_DepthShader);
     // unnecessary plane depth
     //m_DepthShader->SetUniformMat4f("u_Model", glm::scale(glm::mat4(1.0f), glm::vec3(1.5, 0.0, 1.5)));
     //m_Plane->Draw(*m_DepthShader);
@@ -298,6 +306,8 @@ void Test::TestSmoke::OnRenderer()
         m_Obstacle->Draw(*m_ObstacleShader);
         m_ObstacleShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
         m_Obstacle2->Draw(*m_ObstacleShader);
+        m_ObstacleShader->SetUniformMat4f("u_Model", m_Obstacle3->GetModelMatrix());
+        m_Obstacle3->Draw(*m_ObstacleShader);
         
     }
     
