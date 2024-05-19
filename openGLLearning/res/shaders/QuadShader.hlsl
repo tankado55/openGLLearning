@@ -285,10 +285,6 @@ vec4 calcFogColor()
     rayDir2 = vec3(inverse(viewMatrix) * vec4(rayDir2, 0.0f));
     rayDir2 = normalize(rayDir2);
     rayDir = rayDir2;
-    //rayDir = vec3(inverse(projMatrix) * vec4(rayDir, 1.0f));
-    //rayDir = normalize(rayDir);
-    //vec3 rayDir = _CameraInvViewProjection * vec4(uvCoord * 2 - 1, 0.0f, 1.0f).xyz;
-    //rayDir = _CameraToWorld * float4(rayDir, 0.0f).xyz;
 
     float accumDensity = 0.0f;
     float thickness = 0.0;
@@ -296,7 +292,7 @@ vec4 calcFogColor()
     float distanceTraveled = 0.0;
     vec3 worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
     int vv = getVoxelValue(worldPointToCheck);
-    while (vv <= 0 && distanceTraveled < MAX_DISTANCE) {
+    while (vv <= 0.1 && distanceTraveled < MAX_DISTANCE) {
         distanceTraveled += 0.4;
         worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
         vv = getVoxelValue(worldPointToCheck);
@@ -313,69 +309,26 @@ vec4 calcFogColor()
     
 
     float depth = texture(_DepthMap, uvCoord).r;
-    //depth = LinearizeDepth(depth);
-    //vec3 sceneWorldPos = ComputeWorldSpacePosition(uvCoord, depth);
-    //float sceneIntersectDistance = -((vec3(u_CameraWorldPos) - sceneWorldPos) / rayDir).x;
-    //float sceneIntersectDistance = length(sceneWorldPos - vec3(u_CameraWorldPos));
-
-    vec4 screenPos = vec4(uvCoord.x, uvCoord.y, depth, 1.0) * 2.0 - 1.0;
-    vec4 worldPosition = inverse(projMatrix * viewMatrix) * screenPos;
+    vec4 screenPosNDC = vec4(uvCoord.x, uvCoord.y, depth, 1.0) * 2.0 - 1.0;
+    vec4 worldPosition = inverse(projMatrix * viewMatrix) * screenPosNDC;
     worldPosition = worldPosition / worldPosition.w;
     float sceneIntersectDistance = -((u_CameraWorldPos - worldPosition) / vec4(rayDir,1.0)).x;
-
-    //vec4 better = (vec4(uvCoord.x, uvCoord.y, 0.0, 0.0) + viewPosition);
-    
-    
 
     for (int i = 0; i * u_StepSize < maxDistance && distanceTraveled < sceneIntersectDistance; i++)
     {
         worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir) + (rayDir * i * u_StepSize);
-        //worldPointToCheck = worldPointToCheck + vec3(0.25,0.25, 0.25);
-        //vec3 sceneObstacle = ComputeWorldSpacePosition(uvCoord, depth);
-        //sceneObstacle = vec3(projMatrix * vec4(sceneObstacle, 1.0));
-
-        //if (distanceTraveled > length(sceneObstacle - vec3(u_CameraWorldPos)))
-        //if (-((vec3(u_CameraWorldPos) - sceneObstacle) / rayDir).x < 0.21)
-        //{
-        //    return vec4(0.0, 1.0, 0.0, 0.5);
-        //}
-        //if (distanceTraveled < -((vec3(u_CameraWorldPos) - sceneObstacle) / rayDir).x)
-        //float z = projMatrix * vec4(worldPointToCheck, 1.0)
-        //if (length(vec3(worldPointToCheck) - vec3(u_CameraWorldPos)) > length(sceneObstacle - vec3(u_CameraWorldPos)) )//&&
-            //abs(length(vec3(worldPointToCheck) - vec3(u_CameraWorldPos)) - length(sceneObstacle - vec3(u_CameraWorldPos))) > 2.8)
-
-        //if (sceneObstacle.z > 1.0)
-        //if (distanceTraveled > depth * 500.0)
-        //vec3 pixelInNearPlane = ComputeWorldSpacePosition(uvCoord, 0.2);
-
-        
-
-        //original test
-
-
-        //if (distanceTraveled > sceneIntersectDistance);
-        //{
-        //   //return vec4(sceneObstacle.z-0.5, sceneObstacle.z-0.5, sceneObstacle.z-0.5, 0.5);
-        //    int a = 0;
-        //    continue;
-        //}
 
         distanceTraveled += u_StepSize;
 
         //if (index1D != -1) // check if the index is valid
         //{
             //int texelData = getVoxelValue(worldPointToCheck);
-            //if (texelData == -1) // there is a scene object
-            //{
-            //    break;
-            //}
+         
 
             // check ellipsoid
             vec3 distanceVectorFromExplosion = vec3(worldPointToCheck - explosionPos);
             float distanceFromExplosion = length(distanceVectorFromExplosion / u_Ellipsoid);
-            //if (distanceFromExplosion > 1.1) {
-            //    continue;
-            //}
+            
 
             //if (texelData >= 0.99) // there is smoke
             //{
@@ -388,7 +341,7 @@ vec4 calcFogColor()
                 alpha = exp(-thickness * accumDensity * extinctionCoefficient);
 
                 // To the light
-                if (sampledDensity >= 0.0)
+                if (sampledDensity >= 0.1)
                 {
                     float tau = 0.0f;
                     float accumDensityToLight = 0.0f;
@@ -404,10 +357,7 @@ vec4 calcFogColor()
                         if (index1D != -1) // check if the index is valid
                         {
                             float texelData = texelFetch(voxelBuffer, index1D).r;
-                            if (texelData < -0.9) // wall
-                            {
-                                break;
-                            }
+                            
                             //if (texelData >= 0.99) // there is smoke
                             //{
                                 float sampledDensity = getDensity(worldPointToCheck);
@@ -428,7 +378,7 @@ vec4 calcFogColor()
 void main()
 {
     vec4 fogFactor = calcFogColor();
-    if (fogFactor.w <= 0.00001)
+    if (fogFactor.w <= 0.01)
     {
         discard;
     }

@@ -4,7 +4,6 @@ layout(location = 0) in vec3 aPos;
 
 uniform mat4 u_Proj;
 uniform mat4 u_View;
-uniform mat4 u_Ortho;
 uniform mat4 u_Model;
 
 void main()

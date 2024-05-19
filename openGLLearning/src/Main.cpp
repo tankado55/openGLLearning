@@ -47,7 +47,7 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Smoke Grenade Test Chamber", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -118,7 +118,7 @@ int main(void)
             {
                 currentTest->OnUpdate(deltaTime, window);
                 currentTest->OnRenderer();
-                ImGui::Begin("Test");
+                ImGui::Begin("Settings");
                 if (currentTest != testMenu && ImGui::Button("<-"))
                 {
                     delete currentTest;

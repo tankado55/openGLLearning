@@ -40,7 +40,6 @@ glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm:
 
 Test::TestSmoke::TestSmoke() :
     m_Proj(glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 0.1f, 500.0f)),
-    m_Ortho(glm::ortho(-float(SCR_WIDTH) / 2, float(SCR_WIDTH) / 2, -float(SCR_HEIGHT), float(SCR_HEIGHT), 0.1f, 500.0f)),
     m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, 0.0))),
     m_TranslationA(glm::vec3(0, 0, 0)),
     m_TextureGridMode(glm::vec3(1.2f, 1.0f, 2.0f)),
@@ -218,7 +217,6 @@ void Test::TestSmoke::OnRenderer()
     //Depth
     m_DepthShader->Bind();
     m_DepthShader->SetUniformMat4f("u_Proj", m_Proj);
-    m_DepthShader->SetUniformMat4f("u_Ortho", m_Ortho);
     m_DepthShader->SetUniformMat4f("u_View", m_View);
     m_DepthFB->bind();
     m_DepthFB->clear();
@@ -228,8 +226,8 @@ void Test::TestSmoke::OnRenderer()
     m_DepthShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
     m_Obstacle2->Draw(*m_DepthShader);
     // unnecessary plane depth
-    m_DepthShader->SetUniformMat4f("u_Model", glm::scale(glm::mat4(1.0f), glm::vec3(1.5, 0.0, 1.5)));
-    m_Plane->Draw(*m_DepthShader);
+    //m_DepthShader->SetUniformMat4f("u_Model", glm::scale(glm::mat4(1.0f), glm::vec3(1.5, 0.0, 1.5)));
+    //m_Plane->Draw(*m_DepthShader);
     m_DepthFB->unBind();
     // reset viewport
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
