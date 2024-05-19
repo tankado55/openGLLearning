@@ -19,6 +19,7 @@ glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm:
 
     if (denominator == 0) {
         // Ray is parallel to the plane
+
         return { 0, 0, 0 };
     }
 
@@ -27,6 +28,7 @@ glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm:
         (planePoint.z - rayOrigin.z) * planeNormal.z) / denominator;
 
     glm::vec3 intersectionPoint;
+    intersectionPoint.x = rayOrigin.x + t * rayDirection.x;
     intersectionPoint.x = rayOrigin.x + t * rayDirection.x;
     intersectionPoint.y = rayOrigin.y + t * rayDirection.y;
     intersectionPoint.z = rayOrigin.z + t * rayDirection.z;
@@ -38,7 +40,8 @@ glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm:
 
 Test::TestSmoke::TestSmoke() :
     m_Proj(glm::perspective(glm::radians(45.0f), float(SCR_WIDTH) / float(SCR_HEIGHT), 0.1f, 500.0f)),
-    m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0.0))),
+    m_Ortho(glm::ortho(-float(SCR_WIDTH) / 2, float(SCR_WIDTH) / 2, -float(SCR_HEIGHT), float(SCR_HEIGHT), 0.1f, 500.0f)),
+    m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, 0.0))),
     m_TranslationA(glm::vec3(0, 0, 0)),
     m_TextureGridMode(glm::vec3(1.2f, 1.0f, 2.0f)),
     m_XCount(30),
@@ -215,6 +218,7 @@ void Test::TestSmoke::OnRenderer()
     //Depth
     m_DepthShader->Bind();
     m_DepthShader->SetUniformMat4f("u_Proj", m_Proj);
+    m_DepthShader->SetUniformMat4f("u_Ortho", m_Ortho);
     m_DepthShader->SetUniformMat4f("u_View", m_View);
     m_DepthFB->bind();
     m_DepthFB->clear();
@@ -223,6 +227,9 @@ void Test::TestSmoke::OnRenderer()
     m_Obstacle->Draw(*m_DepthShader);
     m_DepthShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
     m_Obstacle2->Draw(*m_DepthShader);
+    // unnecessary plane depth
+    m_DepthShader->SetUniformMat4f("u_Model", glm::scale(glm::mat4(1.0f), glm::vec3(1.5, 0.0, 1.5)));
+    m_Plane->Draw(*m_DepthShader);
     m_DepthFB->unBind();
     // reset viewport
     glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -340,7 +347,7 @@ void Test::TestSmoke::OnRenderer()
     glDisable(GL_DEPTH_TEST);
     {
         m_QuadShader->Bind();
-        m_Noise3DTex->Bind();
+        m_Noise3DTex->Bind(0);
         m_QuadShader->SetUniform1i("_NoiseTex", 0);
         m_depthMap->Bind(1);
         m_QuadShader->SetUniform1i("_DepthMap", 1);
@@ -352,7 +359,8 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);
         m_VoxelGrid->BindBufferToTexture(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("toVoxelLocal", m_VoxelGrid->GetToVoxelLocal());
-        m_QuadShader->SetUniformMat4f("_CameraInvViewProjection", glm::inverse(m_View)); // solo view in origine
+        m_QuadShader->SetUniformMat4f("_CameraInvViewProjection", glm::inverse(m_View) * glm::inverse(m_Proj)); // solo view in origine
+        m_QuadShader->SetUniformMat4f("_CameraInvProjection", glm::inverse(m_Proj));
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
         m_QuadShader->SetUniform3f("u_DirLight.direction", 0.0,-1.0,0.0);
         m_QuadShader->SetUniformVec3f("u_DirLight.color", m_DirLightCol); //0.38,0.38,0.38
@@ -383,10 +391,10 @@ void Test::TestSmoke::OnRenderer()
     //renderQuad();
 
     //debug depth
-    //m_depthMap->Bind();
+    //m_depthMap->Bind(0);
     //m_DebugDepthQuadShader->Bind();
     //m_DebugDepthQuadShader->SetUniform1f("near_plane", 0.1f);
-    //m_DebugDepthQuadShader->SetUniform1f("far_plane", 100.0f);
+    //m_DebugDepthQuadShader->SetUniform1f("far_plane", 500.0f);
     //m_DebugDepthQuadShader->SetUniform1i("depthMap", 0);
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //renderQuad();

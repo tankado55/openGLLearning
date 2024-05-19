@@ -15,13 +15,12 @@ out mat4 viewMatrix;
 
 void main()
 {
-   gl_Position = vec4(aPos.x, aPos.y, 1.0, 1.0);
+   gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
 
    vec4 world_coords = inverse(u_Projection) * gl_Position;
-   //eye_coords = eye_coords.xyzw / world_coords.w;
    world_coords = inverse(u_View) * world_coords;
+   //world_coords = world_coords.xyzw / world_coords.w;
    worldPos = world_coords;
-   gl_Position = u_Projection * u_View * world_coords;
    
    uvCoord = uv;
    viewMatrix = u_View;
@@ -64,6 +63,7 @@ uniform vec3 u_SmokeColor;
 uniform float u_StepSize;
 uniform float u_LigthStepSize;
 uniform mat4 _CameraInvViewProjection;
+uniform mat4 _CameraInvProjection;
 
 uniform float near_plane;
 uniform float far_plane;
@@ -274,11 +274,19 @@ float LinearizeDepth(float depth)
     return (2.0 * near_plane * far_plane) / (far_plane + near_plane - z * (far_plane - near_plane));
 }
 
+
+
 vec4 calcFogColor()
 {
     vec3 col = u_SmokeColor;
     float alpha = 1.0f;
     vec3 rayDir = vec3(normalize(worldPos));
+    vec3 rayDir2 = vec3(inverse(projMatrix) * vec4(uvCoord * 2 - 1, 0.0f, 1.0f));
+    rayDir2 = vec3(inverse(viewMatrix) * vec4(rayDir2, 0.0f));
+    rayDir2 = normalize(rayDir2);
+    rayDir = rayDir2;
+    //rayDir = vec3(inverse(projMatrix) * vec4(rayDir, 1.0f));
+    //rayDir = normalize(rayDir);
     //vec3 rayDir = _CameraInvViewProjection * vec4(uvCoord * 2 - 1, 0.0f, 1.0f).xyz;
     //rayDir = _CameraToWorld * float4(rayDir, 0.0f).xyz;
 
@@ -301,29 +309,66 @@ vec4 calcFogColor()
 
     distanceTraveled -= 0.4f;
     worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
+    
+    
 
-    for (int i = 0; i * u_StepSize < maxDistance; i++)
+    float depth = texture(_DepthMap, uvCoord).r;
+    //depth = LinearizeDepth(depth);
+    //vec3 sceneWorldPos = ComputeWorldSpacePosition(uvCoord, depth);
+    //float sceneIntersectDistance = -((vec3(u_CameraWorldPos) - sceneWorldPos) / rayDir).x;
+    //float sceneIntersectDistance = length(sceneWorldPos - vec3(u_CameraWorldPos));
+
+    vec4 screenPos = vec4(uvCoord.x, uvCoord.y, depth, 1.0) * 2.0 - 1.0;
+    vec4 worldPosition = inverse(projMatrix * viewMatrix) * screenPos;
+    worldPosition = worldPosition / worldPosition.w;
+    float sceneIntersectDistance = -((u_CameraWorldPos - worldPosition) / vec4(rayDir,1.0)).x;
+
+    //vec4 better = (vec4(uvCoord.x, uvCoord.y, 0.0, 0.0) + viewPosition);
+    
+    
+
+    for (int i = 0; i * u_StepSize < maxDistance && distanceTraveled < sceneIntersectDistance; i++)
     {
         worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir) + (rayDir * i * u_StepSize);
         //worldPointToCheck = worldPointToCheck + vec3(0.25,0.25, 0.25);
-        float depth = texture(_DepthMap, uvCoord).r;
-        depth = LinearizeDepth(depth);
-        vec3 sceneObstacle = ComputeWorldSpacePosition(uvCoord, depth);
+        //vec3 sceneObstacle = ComputeWorldSpacePosition(uvCoord, depth);
         //sceneObstacle = vec3(projMatrix * vec4(sceneObstacle, 1.0));
 
-        if (length(vec3(worldPointToCheck) - vec3(u_CameraWorldPos)) > length(sceneObstacle - vec3(u_CameraWorldPos)))
-        {
-            break;
-        }
+        //if (distanceTraveled > length(sceneObstacle - vec3(u_CameraWorldPos)))
+        //if (-((vec3(u_CameraWorldPos) - sceneObstacle) / rayDir).x < 0.21)
+        //{
+        //    return vec4(0.0, 1.0, 0.0, 0.5);
+        //}
+        //if (distanceTraveled < -((vec3(u_CameraWorldPos) - sceneObstacle) / rayDir).x)
+        //float z = projMatrix * vec4(worldPointToCheck, 1.0)
+        //if (length(vec3(worldPointToCheck) - vec3(u_CameraWorldPos)) > length(sceneObstacle - vec3(u_CameraWorldPos)) )//&&
+            //abs(length(vec3(worldPointToCheck) - vec3(u_CameraWorldPos)) - length(sceneObstacle - vec3(u_CameraWorldPos))) > 2.8)
 
+        //if (sceneObstacle.z > 1.0)
+        //if (distanceTraveled > depth * 500.0)
+        //vec3 pixelInNearPlane = ComputeWorldSpacePosition(uvCoord, 0.2);
+
+        
+
+        //original test
+
+
+        //if (distanceTraveled > sceneIntersectDistance);
+        //{
+        //   //return vec4(sceneObstacle.z-0.5, sceneObstacle.z-0.5, sceneObstacle.z-0.5, 0.5);
+        //    int a = 0;
+        //    continue;
+        //}
+
+        distanceTraveled += u_StepSize;
 
         //if (index1D != -1) // check if the index is valid
         //{
-            int texelData = getVoxelValue(worldPointToCheck);
+            //int texelData = getVoxelValue(worldPointToCheck);
             //if (texelData == -1) // there is a scene object
             //{
             //    break;
-           //}
+            //}
 
             // check ellipsoid
             vec3 distanceVectorFromExplosion = vec3(worldPointToCheck - explosionPos);
