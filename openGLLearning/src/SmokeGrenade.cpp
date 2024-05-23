@@ -2,7 +2,7 @@
 #include "InputManager.h"
 
 SmokeGrenade::SmokeGrenade() :
-	m_ExpandTime(1.5),
+	m_ExpandTime(1.2),
 	m_Timer(0.0),
 	m_PrevLeftButtonState(false),
 	m_LeftButtonState(false),

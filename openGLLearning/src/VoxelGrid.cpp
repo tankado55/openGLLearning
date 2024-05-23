@@ -17,38 +17,6 @@ VoxelGrid::VoxelGrid() :
 {
 }
 
-static Eigen::MatrixXd glmToEigen(const glm::mat4& glmMatrix) {
-	Eigen::MatrixXd eigenMatrix(4, 4);
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			eigenMatrix(i, j) = glmMatrix[i][j];
-		}
-	}
-	return eigenMatrix;
-}
-
-static glm::mat3 eigenToGlm(const Eigen::MatrixXd& eigenMatrix) {
-	glm::mat3 glmMatrix;
-	for (int i = 0; i < 3; ++i) {
-		for (int j = 0; j < 3; ++j) {
-			glmMatrix[i][j] = eigenMatrix(i, j);
-		}
-	}
-	return glmMatrix;
-}
-
-static void transformToWorldSpace(Eigen::MatrixXd& V, const Eigen::Matrix4d& M) {
-	// Add homogeneous coordinate to vertices
-	Eigen::MatrixXd V_homogeneous(V.rows(), 4);
-	V_homogeneous << V, Eigen::MatrixXd::Ones(V.rows(), 1);
-
-	// Transform vertices to world space
-	V_homogeneous = (M * V_homogeneous.transpose()).transpose();
-
-	// Update vertices
-	V = V_homogeneous.leftCols<3>(); // Discard the last column (homogeneous coordinates)
-}
-
 bool CheckAABBCollision(const glm::vec3& minA, const glm::vec3& maxA, const glm::vec3& minB, const glm::vec3& maxB) {
 	return glm::all(glm::lessThanEqual(minA, maxB)) && glm::all(glm::lessThanEqual(minB, maxA));
 }

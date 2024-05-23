@@ -22,6 +22,8 @@ public:
     std::string getPath() const { return path; };
     glm::mat4 GetModelMatrix() const { return modelMatrix; }
     AABB GetAABB() const;
+    void translate(glm::vec3 translVector);
+    void scale(glm::vec3 scaleVector);
 
 private:
     // model data

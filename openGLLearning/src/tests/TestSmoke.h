@@ -47,6 +47,10 @@ namespace Test {
 		std::unique_ptr<Model> m_Obstacle;
 		std::unique_ptr<Model> m_Obstacle2;
 		std::unique_ptr<Model> m_Obstacle3;
+		std::unique_ptr<Model> m_Obs3Left;
+		std::unique_ptr<Model> m_Obs3Right;
+		std::unique_ptr<Model> m_Obs3Up;
+		std::unique_ptr<Model> m_Obs3Down;
 		std::unique_ptr<Texture> m_PrototypeTexture;
 		std::unique_ptr<Texture> m_ObstacleTexture;
 		std::unique_ptr<SmokeGrenade> m_Smoke;

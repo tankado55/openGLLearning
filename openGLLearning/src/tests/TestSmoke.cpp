@@ -97,8 +97,25 @@ Test::TestSmoke::TestSmoke() :
     // Obstacle3
     m_Obstacle3 = std::make_unique<Model>("res/models/cube/cube.obj");
     m_Obstacle3->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
-    m_Obstacle3->modelMatrix = glm::translate(m_Obstacle3->modelMatrix, glm::vec3(0.0, 0.0, 0.0));
-    m_Obstacle3->modelMatrix = glm::scale(m_Obstacle3->modelMatrix, glm::vec3(1.00, 2.99, 1.00));
+    glm::vec3 transl3(-5.5, 0.0, -7.0);
+    m_Obstacle3->translate(transl3);
+    m_Obstacle3->modelMatrix = glm::scale(m_Obstacle3->modelMatrix, glm::vec3(0.99, 2.99, 0.99));
+    m_Obs3Left = std::make_unique<Model>("res/models/cube/cube.obj");
+    m_Obs3Right = std::make_unique<Model>("res/models/cube/cube.obj");
+    m_Obs3Up = std::make_unique<Model>("res/models/cube/cube.obj");
+    m_Obs3Down = std::make_unique<Model>("res/models/cube/cube.obj");
+    m_Obs3Left->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+    m_Obs3Right->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+    m_Obs3Up->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+    m_Obs3Down->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
+    m_Obs3Left->translate(transl3 + glm::vec3(-3.0, 0.0, 0.0));
+    m_Obs3Left->scale(glm::vec3(1.0, 4.0, 7.0));
+    m_Obs3Right->translate(transl3 + glm::vec3(3.0, 0.0, 0.0));
+    m_Obs3Right->scale(glm::vec3(1.0, 4.0, 7.0));
+    m_Obs3Up->translate(transl3 + glm::vec3(0.0, 0.0, -3.0));
+    m_Obs3Up->scale(glm::vec3(5.0, 4.0, 1.0));
+    m_Obs3Down->translate(transl3 + glm::vec3(0.0, 0.0, 3.0));
+    m_Obs3Down->scale(glm::vec3(5.0, 4.0, 1.0));
 
     std::vector<Model*> sceneModels;
     sceneModels.push_back(m_Obstacle.get());
@@ -308,6 +325,15 @@ void Test::TestSmoke::OnRenderer()
         m_Obstacle2->Draw(*m_ObstacleShader);
         m_ObstacleShader->SetUniformMat4f("u_Model", m_Obstacle3->GetModelMatrix());
         m_Obstacle3->Draw(*m_ObstacleShader);
+
+        m_ObstacleShader->SetUniformMat4f("u_Model", m_Obs3Left->GetModelMatrix());
+        m_Obs3Left->Draw(*m_ObstacleShader);
+        m_ObstacleShader->SetUniformMat4f("u_Model", m_Obs3Right->GetModelMatrix());
+        m_Obs3Right->Draw(*m_ObstacleShader);
+        m_ObstacleShader->SetUniformMat4f("u_Model", m_Obs3Up->GetModelMatrix());
+        m_Obs3Up->Draw(*m_ObstacleShader);
+        m_ObstacleShader->SetUniformMat4f("u_Model", m_Obs3Down->GetModelMatrix());
+        m_Obs3Down->Draw(*m_ObstacleShader);
         
     }
     
@@ -333,23 +359,23 @@ void Test::TestSmoke::OnRenderer()
     //    );
     //}
 
-    //{ //voxel debugging
-    //    m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
-    //    glm::mat4 model = glm::mat4(1.0);
-    //    model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize));
-    //    model = model * m_VoxelGrid->modelMatrix;
-    //    m_VoxelDebugShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
-    //    m_VoxelDebugShader->SetUniformMat4f("u_Model", model);
-    //    m_VoxelDebugShader->SetUniformMat4f("u_View", m_View);
-    //    m_VoxelDebugShader->SetUniformMat4f("u_Projection", m_Proj);
-    //
-    //    renderer.DrawInstanced(
-    //        *m_VAO,
-    //        *m_IndexBuffer,
-    //        *m_VoxelDebugShader,
-    //        m_VoxelGrid->voxelCount
-    //    );
-    //}
+    { //voxel debugging
+        m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
+        glm::mat4 model = glm::mat4(1.0);
+        model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize));
+        model = model * m_VoxelGrid->modelMatrix;
+        m_VoxelDebugShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_VoxelDebugShader->SetUniformMat4f("u_Model", model);
+        m_VoxelDebugShader->SetUniformMat4f("u_View", m_View);
+        m_VoxelDebugShader->SetUniformMat4f("u_Projection", m_Proj);
+    
+        renderer.DrawInstanced(
+            *m_VAO,
+            *m_IndexBuffer,
+            *m_VoxelDebugShader,
+            m_VoxelGrid->voxelCount
+        );
+    }
 
     //glDepthMask(GL_FALSE);
     glDisable(GL_DEPTH_TEST);

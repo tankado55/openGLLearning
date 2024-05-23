@@ -298,10 +298,10 @@ vec4 calcFogColor()
         vv = getVoxelValue(worldPointToCheck);
     }
     
-    if (vv <= 0) // no smoke found debug
-    {
-        return vec4(vec3(1.0,0.0,0.0), 0.2);
-    }
+    //if (vv <= 0) // no smoke found debug
+    //{
+    //    return vec4(vec3(1.0,0.0,0.0), 0.2);
+    //}
 
     distanceTraveled -= 0.4f;
     worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);

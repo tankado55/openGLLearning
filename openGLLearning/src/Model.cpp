@@ -90,6 +90,16 @@ AABB Model::GetAABB() const
     return aabb;
 }
 
+void Model::translate(glm::vec3 translVector)
+{
+    modelMatrix = glm::translate(modelMatrix, translVector);
+}
+
+void Model::scale(glm::vec3 scaleVector)
+{
+    modelMatrix = glm::scale(modelMatrix, scaleVector);
+}
+
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
     // process each mesh located at the current node
