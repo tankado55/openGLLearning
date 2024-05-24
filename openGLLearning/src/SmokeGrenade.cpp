@@ -60,7 +60,6 @@ void SmokeGrenade::Draw(Shader& shader) //TODO: refactor
 		x = 1 - (1 / (5 * (2 * x - 0.8) + 1));
 	}
 	glm::vec3 currentElli(m_Ellipsoid.x * x, m_Ellipsoid.y * x, m_Ellipsoid.z * x);
-	shader.SetUniformVec3f("u_Ellipsoid", currentElli);
 	shader.SetUniformVec3f("u_Radius", currentElli);
 	shader.SetUniformVec3f("explosionPos", m_DetonationWorldPos);
 }

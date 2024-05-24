@@ -39,7 +39,7 @@ namespace Test {
 		std::unique_ptr<Shader> m_QuadShader;
 		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Model> m_Soldier;
-		std::unique_ptr<Shader> m_WhiteShader;
+		std::unique_ptr<Shader> m_FlatColorShader;
 		std::unique_ptr<Shader> m_PlaneShader;
 		std::unique_ptr<Shader> m_ObstacleShader;
 		std::unique_ptr<VoxelGrid> m_VoxelGrid;
@@ -67,6 +67,7 @@ namespace Test {
 		glm::vec3 m_DirLightCol;
 		float m_StepSize;
 		float m_LigthStepSize;
+		bool m_DebugVoxels;
 
 
 

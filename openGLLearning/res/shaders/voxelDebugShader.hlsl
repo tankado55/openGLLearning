@@ -49,11 +49,11 @@ void main()
     {
         if (texelStatus > 1.1)
         {
-            color = vec4(0.0, 0.0, 1.0, 0.1);
+            color = vec4(0.0, 0.0, 1.0, 0.05);
         }
         else if (texelStatus == 1.00)
         {
-            color = vec4(1.0, 0.0, 0.0, 0.1);
+            color = vec4(1.0, 0.0, 0.0, 0.05);
         }
     }
 }

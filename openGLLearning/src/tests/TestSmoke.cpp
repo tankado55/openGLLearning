@@ -50,7 +50,8 @@ Test::TestSmoke::TestSmoke() :
     m_SmokeColor(glm::vec3(0.05, 0.05, 0.05)),
     m_DirLightCol(glm::vec3(0.38, 0.38, 0.38)),
     m_StepSize(0.05),
-    m_LigthStepSize(0.25)
+    m_LigthStepSize(0.25),
+    m_DebugVoxels(false)
 {
     m_Plane = std::make_unique<Model>("res/models/plane/plane.obj");
     m_PrototypeTexture = std::make_unique<Texture>("res/textures/tex_3.png");
@@ -99,7 +100,7 @@ Test::TestSmoke::TestSmoke() :
     m_Obstacle3->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
     glm::vec3 transl3(-5.5, 0.0, -7.0);
     m_Obstacle3->translate(transl3);
-    m_Obstacle3->modelMatrix = glm::scale(m_Obstacle3->modelMatrix, glm::vec3(0.99, 2.99, 0.99));
+    m_Obstacle3->modelMatrix = glm::scale(m_Obstacle3->modelMatrix, glm::vec3(0.99, 5.99, 0.99));
     m_Obs3Left = std::make_unique<Model>("res/models/cube/cube.obj");
     m_Obs3Right = std::make_unique<Model>("res/models/cube/cube.obj");
     m_Obs3Up = std::make_unique<Model>("res/models/cube/cube.obj");
@@ -109,18 +110,22 @@ Test::TestSmoke::TestSmoke() :
     m_Obs3Up->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
     m_Obs3Down->AddTexture(*m_ObstacleTexture, "texture_diffuse", 0);
     m_Obs3Left->translate(transl3 + glm::vec3(-3.0, 0.0, 0.0));
-    m_Obs3Left->scale(glm::vec3(1.0, 4.0, 7.0));
+    m_Obs3Left->scale(glm::vec3(0.99, 3.99, 6.99));
     m_Obs3Right->translate(transl3 + glm::vec3(3.0, 0.0, 0.0));
-    m_Obs3Right->scale(glm::vec3(1.0, 4.0, 7.0));
-    m_Obs3Up->translate(transl3 + glm::vec3(0.0, 0.0, -3.0));
-    m_Obs3Up->scale(glm::vec3(5.0, 4.0, 1.0));
-    m_Obs3Down->translate(transl3 + glm::vec3(0.0, 0.0, 3.0));
-    m_Obs3Down->scale(glm::vec3(5.0, 4.0, 1.0));
+    m_Obs3Right->scale(glm::vec3(0.99, 3.99, 6.99));
+    m_Obs3Up->translate(transl3 + glm::vec3(0.0, 0.0, -3.00));
+    m_Obs3Up->scale(glm::vec3(4.98, 3.99, 0.99));
+    m_Obs3Down->translate(transl3 + glm::vec3(0.0, 0.0, 3.00));
+    m_Obs3Down->scale(glm::vec3(4.98, 3.99, 0.99));
 
     std::vector<Model*> sceneModels;
     sceneModels.push_back(m_Obstacle.get());
     sceneModels.push_back(m_Obstacle2.get());
     sceneModels.push_back(m_Obstacle3.get());
+    sceneModels.push_back(m_Obs3Left.get());
+    sceneModels.push_back(m_Obs3Right.get());
+    sceneModels.push_back(m_Obs3Up.get());
+    sceneModels.push_back(m_Obs3Down.get());
 
     float positions[] = {
         // pos, norma, uv
@@ -203,7 +208,7 @@ Test::TestSmoke::TestSmoke() :
     m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->resolution.z);
     m_VoxelGrid->Bake(sceneModels);
 
-    m_WhiteShader = std::make_unique<Shader>("res/shaders/WhiteSingleShader.hlsl");
+    m_FlatColorShader = std::make_unique<Shader>("res/shaders/flatColorShader.hlsl");
 
     m_Camera = std::make_unique<Camera>();
     InputManager::GetInstance()->Start(m_Camera.get());
@@ -250,6 +255,15 @@ void Test::TestSmoke::OnRenderer()
     m_Obstacle2->Draw(*m_DepthShader);
     m_DepthShader->SetUniformMat4f("u_Model", m_Obstacle3->GetModelMatrix());
     m_Obstacle3->Draw(*m_DepthShader);
+
+    m_DepthShader->SetUniformMat4f("u_Model", m_Obs3Left->GetModelMatrix());
+    m_Obs3Left->Draw(*m_DepthShader);
+    m_DepthShader->SetUniformMat4f("u_Model", m_Obs3Right->GetModelMatrix());
+    m_Obs3Right->Draw(*m_DepthShader);
+    m_DepthShader->SetUniformMat4f("u_Model", m_Obs3Up->GetModelMatrix());
+    m_Obs3Up->Draw(*m_DepthShader);
+    m_DepthShader->SetUniformMat4f("u_Model", m_Obs3Down->GetModelMatrix());
+    m_Obs3Down->Draw(*m_DepthShader);
     // unnecessary plane depth
     //m_DepthShader->SetUniformMat4f("u_Model", glm::scale(glm::mat4(1.0f), glm::vec3(1.5, 0.0, 1.5)));
     //m_Plane->Draw(*m_DepthShader);
@@ -272,47 +286,13 @@ void Test::TestSmoke::OnRenderer()
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, intersectInPlane);
         model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
-        m_WhiteShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
-        m_WhiteShader->SetUniformMat4f("u_View", m_View);
-        m_WhiteShader->SetUniformMat4f("u_Projection", m_Proj);
-        m_WhiteShader->SetUniformMat4f("u_Model", model);
+        m_FlatColorShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
+        m_FlatColorShader->SetUniformMat4f("u_View", m_View);
+        m_FlatColorShader->SetUniformMat4f("u_Projection", m_Proj);
+        m_FlatColorShader->SetUniformMat4f("u_Model", model);
 
-        float fogFactor = 0.0;
-        float cameraToPixelDist = glm::length(intersectInPlane - m_Camera->GetPos());
-        if (cameraToPixelDist > 500) cameraToPixelDist = 500;
-        glm::vec3 rayDir = glm::vec3(glm::normalize(intersectInPlane - m_Camera->GetPos()));
-        float stepSize = 0.1;
-        for (int i = 0; i * stepSize < cameraToPixelDist; i++)
-        {
-            glm::vec3 worldPointToCheck = glm::vec3(m_Camera->GetPos()) + (rayDir * glm::vec3(i * stepSize));
-            glm::vec4 localOrigin = m_VoxelGrid->GetToVoxelLocal() * glm::vec4(worldPointToCheck, 1.0);
-            glm::vec3 resolution = m_VoxelGrid->GetResolution();
-            int index1D = int(int(localOrigin.x) + (int(localOrigin.y) * resolution.x) + (int(localOrigin.z) * resolution.x * resolution.y));
-
-            if (index1D < m_VoxelGrid->status.size())
-            {
-                float texelData = m_VoxelGrid->status[index1D];
-                if (texelData >= 0.99)
-                {
-                    fogFactor = 1.00;
-                    break;
-                }
-            }
-        }
-        m_WhiteShader->SetUniform1f("green", fogFactor);
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_WhiteShader);
-    }
-    
- 
-    { // cube in the origin
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, m_TranslationA);
-        m_WhiteShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
-        m_WhiteShader->SetUniformMat4f("u_View", m_View);
-        m_WhiteShader->SetUniformMat4f("u_Projection", m_Proj);
-        m_WhiteShader->SetUniformMat4f("u_Model", model);
-
-        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_WhiteShader);
+        m_FlatColorShader->SetUniform4f("color", 0.7,0.0,0.0,1.0);
+        renderer.Draw(*m_VAO, *m_IndexBuffer, *m_FlatColorShader);
     }
 
     { // obstacles
@@ -359,6 +339,7 @@ void Test::TestSmoke::OnRenderer()
     //    );
     //}
 
+    if (m_DebugVoxels)
     { //voxel debugging
         m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
         glm::mat4 model = glm::mat4(1.0);
@@ -442,6 +423,7 @@ void Test::TestSmoke::OnImGuiRenderer()
     ImGui::SliderFloat("StepSize", &m_StepSize, 0.01f, 0.5f);
     ImGui::SliderFloat("LigthStepSize", &m_LigthStepSize, 0.01f, 0.5f);
     ImGui::SliderFloat3("Smoke Size", (float*)m_Smoke->GetEllipsoidPtr(), 1.0f, 5.0f);
+    ImGui::Checkbox("Debug Voxels", &m_DebugVoxels);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
@@ -463,7 +445,7 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
 
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
             m_VoxelGrid->ClearStatus();
-            m_VoxelGrid->Flood(intersectInPlane,9.0);
+            m_VoxelGrid->Flood(intersectInPlane,10.0);
             m_Smoke->Detonate(intersectInPlane);
         }
     }
