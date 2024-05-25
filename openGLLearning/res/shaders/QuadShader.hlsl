@@ -61,8 +61,6 @@ uniform vec3 _AnimationDirection;
 uniform vec3 u_SmokeColor;
 uniform float u_StepSize;
 uniform float u_LigthStepSize;
-uniform mat4 _CameraInvViewProjection;
-uniform mat4 _CameraInvProjection;
 
 uniform float near_plane;
 uniform float far_plane;
@@ -86,7 +84,6 @@ float shadowDensity = shadowDensityDefault * u_LigthStepSize;
 
 float extinctionCoefficient = u_AbsorptionCoefficient + u_ScatteringCoefficient;
 
-vec3 ComputeWorldSpacePosition(vec2 positionNDC, float deviceDepth);
 
 vec3 hash33(vec3 p3) {
     vec3 p = fract(p3 * vec3(.1031, .11369, .13787));
@@ -262,11 +259,7 @@ float getDensity(vec3 pos)
     return clamp(clamp(v, 0.0,1.0) * (1.0f - falloff), 0.0, 1.0);
 }
 
-vec3 ComputeWorldSpacePosition(vec2 positionNDC, float deviceDepth) {
-    vec4 positionCS = vec4(positionNDC * 2.0 - 1.0, deviceDepth, 1.0);
-    vec4 hpositionWS = _CameraInvViewProjection * positionCS;
-    return hpositionWS.xyz / hpositionWS.w;
-}
+
 float LinearizeDepth(float depth)
 {
     float z = depth * 2.0 - 1.0; // Back to NDC 

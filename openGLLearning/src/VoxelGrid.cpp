@@ -113,15 +113,21 @@ std::vector<int> VoxelGrid::GetNeighbors(int i)
 	float z = int(i / ((int)resolution.x * (int)resolution.y));
 
 	// Define 26 possible directions in 3D space
-	//int dx[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //27
-	//int dy[] = { -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
-	//int dz[] = { -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+	int dx[] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 }; //26
+	int dy[] = { -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 1, 1, 1 };
+	int dz[] = { -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
+	int arrSize = 26;
 
-	int dx[] = { -1,  0,  0,  0,  0,  0, 1};
-	int dy[] = {  0, -1,  0,  0,  0,  1, 0};
-	int dz[] = {  0,  0, -1,  0,  1,  0, 0};
+	//int dx[] = { -1,  0,  0,  0,  0,  0, 1};
+	//int dy[] = {  0, -1,  0,  0,  0,  1, 0};
+	//int dz[] = {  0,  0, -1,  0,  1,  0, 0};
+	//int arrSize = 7;
+	
+	//int dx[] = { -1,  0,  0,  0,  0,  0, 1, 1, 0, 0, 1};
+	//int dy[] = {  0, -1,  0,  0,  0,  1, 0, 1, 1, 1, 1};
+	//int dz[] = {  0,  0, -1,  0,  1,  0, 0, 0, 1, 0, 1};
 
-	for (int i = 0; i < 27; i++) {
+	for (int i = 0; i < arrSize; i++) {
 		int newX = x + dx[i];
 		int newY = y + dy[i];
 		int newZ = z + dz[i];
@@ -135,8 +141,15 @@ std::vector<int> VoxelGrid::GetNeighbors(int i)
 	return neighbors;
 }
 
-void VoxelGrid::Flood(int i)
+void VoxelGrid::Flood(int i, glm::vec3 origin, glm::vec3 radius)
 {
+	glm::vec3 worldPos = IndexToWorld(i);
+	glm::vec3 distance = worldPos - origin;
+	if (length(distance / radius) - 0.1 > 1.0)
+	{
+		return;
+	}
+
 	if (!indexIsValid(i)) return;
 	if (status[i] == -1.0) return;
 
@@ -154,12 +167,12 @@ void VoxelGrid::Flood(int i)
 	{
 		if (status[neigh] < status[i] - 1.0)
 		{
-			Flood(neigh);
+			Flood(neigh, origin, radius);
 		}
 	}
 }
 
-void VoxelGrid::Flood(glm::vec3 origin, int gas)
+void VoxelGrid::Flood(glm::vec3 origin, glm::vec3 radius, int gas)
 {
 	// I need the index vc 
 	// from world to local
@@ -184,7 +197,8 @@ void VoxelGrid::Flood(glm::vec3 origin, int gas)
 	std::vector<int> neighbors = GetNeighbors(index1D);
 	for (auto neigh : neighbors)
 	{
-		Flood(neigh);
+		
+		Flood(neigh, origin, radius);
 	}
 }
 

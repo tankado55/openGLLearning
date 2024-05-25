@@ -374,8 +374,6 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);
         m_VoxelGrid->BindBufferToTexture(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("toVoxelLocal", m_VoxelGrid->GetToVoxelLocal());
-        m_QuadShader->SetUniformMat4f("_CameraInvViewProjection", glm::inverse(m_View) * glm::inverse(m_Proj)); // solo view in origine
-        m_QuadShader->SetUniformMat4f("_CameraInvProjection", glm::inverse(m_Proj));
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
         m_QuadShader->SetUniform3f("u_DirLight.direction", 0.0,-1.0,0.0);
         m_QuadShader->SetUniformVec3f("u_DirLight.color", m_DirLightCol); //0.38,0.38,0.38
@@ -422,7 +420,7 @@ void Test::TestSmoke::OnImGuiRenderer()
     ImGui::SliderFloat3("Light Color", &m_DirLightCol.x, 0.0, 1.0);
     ImGui::SliderFloat("StepSize", &m_StepSize, 0.01f, 0.5f);
     ImGui::SliderFloat("LigthStepSize", &m_LigthStepSize, 0.01f, 0.5f);
-    ImGui::SliderFloat3("Smoke Size", (float*)m_Smoke->GetEllipsoidPtr(), 1.0f, 5.0f);
+    ImGui::SliderFloat3("Smoke Size", (float*)m_Smoke->GetEllipsoidPtr(), 1.0f, 4.0f);
     ImGui::Checkbox("Debug Voxels", &m_DebugVoxels);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
@@ -445,7 +443,7 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
 
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
             m_VoxelGrid->ClearStatus();
-            m_VoxelGrid->Flood(intersectInPlane,10.0);
+            m_VoxelGrid->Flood(intersectInPlane, *m_Smoke->GetEllipsoidPtr(), 6.0);
             m_Smoke->Detonate(intersectInPlane);
         }
     }
