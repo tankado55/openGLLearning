@@ -213,7 +213,10 @@ float getTrilinearVoxel(vec3 pos)
                 weight2 = 1 - min(abs(seedPos.y - (vi.y + j)), resolution.y);
                 for (int k = 0; k < 2; ++k) {
                     weight3 = 1 - min(abs(seedPos.z - (vi.z + k)), resolution.z);
-                    value += weight1 * weight2 * weight3 * texelFetch(voxelBuffer, to1D(vi + vec3(i, j, k))).r;
+                    float texelFetched = texelFetch(voxelBuffer, to1D(vi + vec3(i, j, k))).r;
+                    //texelFetched -= 1.0;
+                    texelFetched = max(0.0, texelFetched);
+                    value += weight1 * weight2 * weight3 * texelFetched;
                 }
             }
         }
@@ -249,8 +252,10 @@ float getDensity(vec3 pos)
     n = getNoise(pos);
 
     float dist = min(1.0f, length(vp / radius));
-    float voxelDist = min(1.0f, 1.0f - (v / 16.0f));
+    float voxelDist = min(1.0f, 1.0f - (v / 8.0f));
     dist = max(dist, voxelDist);
+    //test y0
+    dist = max(dist, 1.0 - pos.y);
 
     dist = smoothstep(_DensityFalloff, 1.0f, dist);
 
@@ -357,6 +362,28 @@ vec4 calcFogColor()
                 }
             //}
         //}
+    }
+    // Inbetween sample in the case of overshooting scene depth
+    if (distanceTraveled > sceneIntersectDistance) {
+        worldPointToCheck -= (distanceTraveled - sceneIntersectDistance) * rayDir;
+        thickness -= distanceTraveled - sceneIntersectDistance;
+
+        float v = getDensity(worldPointToCheck);
+        float sampleDensity = v;
+        accumDensity += volumeDensity * sampleDensity;
+        alpha = exp(-thickness * accumDensity * extinctionCoefficient);
+        if (v > 0.001f) {
+            float tau = 0.0f;
+            vec3 lightPos = worldPointToCheck;
+            for (int j = 0; j * u_LigthStepSize < toLightMaxDistance; j++) {
+                tau += v * shadowDensity;
+                lightPos -= u_LigthStepSize * vec3(0, -1, 0);
+                v = getDensity(lightPos);
+            }
+
+            vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
+            col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity * sampleDensity;
+        }
     }
  
     return vec4(col, 1.0 - alpha);
