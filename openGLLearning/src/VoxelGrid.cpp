@@ -213,7 +213,6 @@ glm::mat4 VoxelGrid::GetToVoxelLocal()
 	toLocal = glm::translate(toLocal, glm::vec3(0.5,0.5,0.5));
 	toLocal = glm::scale(toLocal, glm::vec3(1.0 / voxelSize));
 	glm::mat4 result = glm::inverse(modelMatrix) * toLocal;
-	//result = glm::translate(result, glm::vec3(voxelSize, voxelSize, -voxelSize));
 	return result;
 }
 

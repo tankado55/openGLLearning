@@ -196,16 +196,16 @@ Test::TestSmoke::TestSmoke() :
     m_SmokeShader = std::make_unique<Shader>("res/shaders/SmokeShader.hlsl");
     m_VoxelDebugShader = std::make_unique<Shader>("res/shaders/voxelDebugShader.hlsl");
     m_VoxelDebugShader->Bind();
-    m_VoxelDebugShader->SetUniform1i("u_XCount", m_VoxelGrid->resolution.x);
-    m_VoxelDebugShader->SetUniform1i("u_YCount", m_VoxelGrid->resolution.y);
-    m_VoxelDebugShader->SetUniform1i("u_ZCount", m_VoxelGrid->resolution.z);
+    m_VoxelDebugShader->SetUniform1i("u_XCount", m_VoxelGrid->GetResolution().x);
+    m_VoxelDebugShader->SetUniform1i("u_YCount", m_VoxelGrid->GetResolution().y);
+    m_VoxelDebugShader->SetUniform1i("u_ZCount", m_VoxelGrid->GetResolution().z);
     m_PlaneShader = std::make_unique<Shader>("res/shaders/BasicPlaneShader.hlsl");
     m_ObstacleShader = std::make_unique<Shader>("res/shaders/ObstacleShader.hlsl");
     m_SmokeShader->Bind();
 
-    m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->resolution.x);
-    m_SmokeShader->SetUniform1i("u_YCount", m_VoxelGrid->resolution.y);
-    m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->resolution.z);
+    m_SmokeShader->SetUniform1i("u_XCount", m_VoxelGrid->GetResolution().x);
+    m_SmokeShader->SetUniform1i("u_YCount", m_VoxelGrid->GetResolution().y);
+    m_SmokeShader->SetUniform1i("u_ZCount", m_VoxelGrid->GetResolution().z);
     m_VoxelGrid->Bake(sceneModels);
 
     m_FlatColorShader = std::make_unique<Shader>("res/shaders/flatColorShader.hlsl");
@@ -343,7 +343,7 @@ void Test::TestSmoke::OnRenderer()
     { //voxel debugging
         m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
         glm::mat4 model = glm::mat4(1.0);
-        model = glm::scale(model, glm::vec3(m_VoxelGrid->voxelSize));
+        model = glm::scale(model, glm::vec3(m_VoxelGrid->GetVoxelSize()));
         model = model * m_VoxelGrid->modelMatrix;
         m_VoxelDebugShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_VoxelDebugShader->SetUniformMat4f("u_Model", model);
@@ -354,7 +354,7 @@ void Test::TestSmoke::OnRenderer()
             *m_VAO,
             *m_IndexBuffer,
             *m_VoxelDebugShader,
-            m_VoxelGrid->voxelCount
+            m_VoxelGrid->GetVoxelCount()
         );
     }
 
