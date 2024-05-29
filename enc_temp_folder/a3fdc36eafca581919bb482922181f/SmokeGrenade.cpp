@@ -24,6 +24,25 @@ void SmokeGrenade::Update(const double& deltaTime)
 		//m_Timer = m_ExpandTime;
 		m_IsDetoned = false;
 	}
+
+	GLFWwindow* window = InputManager::GetInstance()->GetWindow();
+
+	//int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+	//if (state == GLFW_PRESS) //TODO: refactoring
+	//{
+	//	m_PrevLeftButtonState = m_LeftButtonState;
+	//	m_LeftButtonState = true;
+	//	if (m_PrevLeftButtonState == false && m_LeftButtonState == true)
+	//	{
+	//		m_IsDetoned = true;
+	//		m_Timer = 0.0;
+	//	}
+	//}
+	//else
+	//{
+	//	m_PrevLeftButtonState = m_LeftButtonState;
+	//	m_LeftButtonState = false;
+	//}
 }
 
 void SmokeGrenade::Draw(Shader& shader) //TODO: refactor

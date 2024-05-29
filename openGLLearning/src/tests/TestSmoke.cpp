@@ -29,7 +29,6 @@ glm::vec3 rayPlaneIntersection(glm::vec3 rayOrigin, glm::vec3 rayDirection, glm:
 
     glm::vec3 intersectionPoint;
     intersectionPoint.x = rayOrigin.x + t * rayDirection.x;
-    intersectionPoint.x = rayOrigin.x + t * rayDirection.x;
     intersectionPoint.y = rayOrigin.y + t * rayDirection.y;
     intersectionPoint.z = rayOrigin.z + t * rayDirection.z;
 
@@ -341,7 +340,7 @@ void Test::TestSmoke::OnRenderer()
 
     if (m_DebugVoxels)
     { //voxel debugging
-        m_VoxelGrid->Draw(*m_VoxelDebugShader); // it only set the uniforms
+        m_VoxelGrid->BindBufferToTexture(*m_VoxelDebugShader); // it only set the uniforms
         glm::mat4 model = glm::mat4(1.0);
         model = glm::scale(model, glm::vec3(m_VoxelGrid->GetVoxelSize()));
         model = model * m_VoxelGrid->modelMatrix;
@@ -443,8 +442,8 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
 
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
             m_VoxelGrid->ClearStatus();
-            m_VoxelGrid->Flood(intersectInPlane, *m_Smoke->GetEllipsoidPtr(), 8.0);
             m_Smoke->Detonate(intersectInPlane);
+            m_VoxelGrid->Flood(intersectInPlane, *m_Smoke->GetEllipsoidPtr(), 8.0);
         }
     }
     else
