@@ -367,7 +367,7 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniform1i("_DepthMap", 1);
         double time = Timem::deltaTime;
         m_Smoke->Update(time);
-        m_Smoke->Draw(*m_QuadShader);
+        m_Smoke->SetUniforms(*m_QuadShader);
         m_QuadShader->SetUniformMat4f("u_Projection", m_Proj);
         m_QuadShader->SetUniformMat4f("u_View", m_View);
         m_QuadShader->SetUniform4f("u_CameraWorldPos", m_Camera->GetPos().x, m_Camera->GetPos().y, m_Camera->GetPos().z, 1.0);

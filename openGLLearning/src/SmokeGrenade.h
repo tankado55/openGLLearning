@@ -7,8 +7,6 @@ class SmokeGrenade
 private:
 	float m_ExpandTime;
 	float m_Timer;
-	bool m_PrevLeftButtonState;
-	bool m_LeftButtonState;
 	bool m_IsDetoned;
 	float m_MaxDistance;
 	glm::vec3 m_DetonationWorldPos;
@@ -18,7 +16,7 @@ private:
 public:
 	SmokeGrenade();
 	void Update(const double& deltaTime);
-	void Draw(Shader& shader);
+	void SetUniforms(Shader& shader);
 	float GetTimer() const { return m_Timer; };
 	void Detonate(glm::vec3 pos);
 	glm::vec3 GetColor(){ return m_Color; }

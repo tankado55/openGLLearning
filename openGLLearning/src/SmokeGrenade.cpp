@@ -4,8 +4,6 @@
 SmokeGrenade::SmokeGrenade() :
 	m_ExpandTime(1.2),
 	m_Timer(0.0),
-	m_PrevLeftButtonState(false),
-	m_LeftButtonState(false),
 	m_IsDetoned(false),
 	m_Ellipsoid(glm::vec3(2.5, 2.0, 2.5)),
 	m_MaxDistance(m_Ellipsoid.x),
@@ -26,7 +24,7 @@ void SmokeGrenade::Update(const double& deltaTime)
 	}
 }
 
-void SmokeGrenade::Draw(Shader& shader) //TODO: refactor
+void SmokeGrenade::SetUniforms(Shader& shader)
 {
 	//if (m_Timer == 0.0) return;
 	shader.Bind();
