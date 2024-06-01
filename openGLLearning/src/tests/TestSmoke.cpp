@@ -254,7 +254,6 @@ void Test::TestSmoke::OnRenderer()
     m_Obstacle2->Draw(*m_DepthShader);
     m_DepthShader->SetUniformMat4f("u_Model", m_Obstacle3->GetModelMatrix());
     m_Obstacle3->Draw(*m_DepthShader);
-
     m_DepthShader->SetUniformMat4f("u_Model", m_Obs3Left->GetModelMatrix());
     m_Obs3Left->Draw(*m_DepthShader);
     m_DepthShader->SetUniformMat4f("u_Model", m_Obs3Right->GetModelMatrix());
