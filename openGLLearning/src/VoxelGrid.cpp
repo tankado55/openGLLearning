@@ -165,7 +165,7 @@ void VoxelGrid::Flood(int i, glm::vec3 origin, glm::vec3 radius)
 
 	for (auto neigh : neighbors)
 	{
-		if (status[neigh] < status[i] - 1.0)
+		if (status[neigh] < status[i] - 1.1)
 		{
 			Flood(neigh, origin, radius);
 		}

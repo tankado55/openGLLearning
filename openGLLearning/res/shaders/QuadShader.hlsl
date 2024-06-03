@@ -249,19 +249,18 @@ float getDensity(vec3 pos)
 
     v = getTrilinearVoxel(pos);
 
-    n = getNoise(pos);
-
     float dist = min(1.0f, length(vp / radius));
-    float voxelDist = min(1.0f, 1.0f - (v / 8.0f));
+    float voxelDist = min(1.0f, 1.0f - (v / 9.0f));
     dist = max(dist, voxelDist);
-    //test y0
     dist = max(dist, 1.0 - pos.y);
 
     dist = smoothstep(_DensityFalloff, 1.0f, dist);
 
+    n = getNoise(pos);
     falloff = min(1.0f, dist + n);
     
     return clamp(clamp(v, 0.0,1.0) * (1.0f - falloff), 0.0, 1.0);
+    //return clamp((1.0f - falloff), 0.0, 1.0);
 }
 
 
