@@ -6,7 +6,6 @@ SmokeGrenade::SmokeGrenade() :
 	m_Timer(0.0),
 	m_IsDetoned(false),
 	m_Ellipsoid(glm::vec3(2.5, 2.0, 2.5)),
-	m_MaxDistance(m_Ellipsoid.x),
 	m_DetonationWorldPos(0.0,0.0,0.0),
 	m_Color(0.05,0.05,0.05)
 {

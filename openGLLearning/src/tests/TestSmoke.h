@@ -26,7 +26,6 @@ namespace Test {
 		void OnRenderer() override;
 		void OnImGuiRenderer() override;
 		void UpdateInputs(const double& deltaTime);
-		void mouse_button_callback(GLFWwindow* window, int button, int action, int mods); //TODO: refactor
 
 	private:
 
@@ -38,7 +37,6 @@ namespace Test {
 		std::unique_ptr<Shader> m_LightShader;
 		std::unique_ptr<Shader> m_QuadShader;
 		std::unique_ptr<Texture> m_Texture;
-		std::unique_ptr<Model> m_Soldier;
 		std::unique_ptr<Shader> m_FlatColorShader;
 		std::unique_ptr<Shader> m_PlaneShader;
 		std::unique_ptr<Shader> m_ObstacleShader;
@@ -68,6 +66,11 @@ namespace Test {
 		float m_StepSize;
 		float m_LigthStepSize;
 		bool m_DebugVoxels;
+		float m_VolumeDensity;
+		float m_ShadowDensity;
+		float m_AbsorptionCoefficient;
+		float m_ScatteringCoefficient;
+		float m_DensityFalloff;
 
 
 

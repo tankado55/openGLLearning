@@ -47,10 +47,16 @@ Test::TestSmoke::TestSmoke() :
     m_ZCount(30),
     m_Distance(0.5f),
     m_SmokeColor(glm::vec3(0.05, 0.05, 0.05)),
-    m_DirLightCol(glm::vec3(0.38, 0.38, 0.38)),
+    m_DirLightCol(glm::vec3(0.65, 0.6, 0.4)),
     m_StepSize(0.05),
     m_LigthStepSize(0.25),
-    m_DebugVoxels(false)
+    m_DebugVoxels(false),
+    m_VolumeDensity(4.0),
+    m_ShadowDensity(2.5),
+    m_AbsorptionCoefficient(0.5),
+    m_ScatteringCoefficient(2.6),
+    m_DensityFalloff(0.25)
+
 {
     m_Plane = std::make_unique<Model>("res/models/plane/plane.obj");
     m_PrototypeTexture = std::make_unique<Texture>("res/textures/tex_3.png");
@@ -297,6 +303,7 @@ void Test::TestSmoke::OnRenderer()
         m_ObstacleShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_ObstacleShader->SetUniformMat4f("u_View", m_View);
         m_ObstacleShader->SetUniformMat4f("u_Projection", m_Proj);
+        m_ObstacleShader->SetUniformVec3f("viewPos", m_Camera->GetPos());
         m_ObstacleShader->SetUniformMat4f("u_Model", m_Obstacle->GetModelMatrix());
         m_Obstacle->Draw(*m_ObstacleShader);
         m_ObstacleShader->SetUniformMat4f("u_Model", m_Obstacle2->GetModelMatrix());
@@ -375,11 +382,11 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniformVec3f("resolution", m_VoxelGrid->GetResolution());
         m_QuadShader->SetUniform3f("u_DirLight.direction", 0.0,-1.0,0.0);
         m_QuadShader->SetUniformVec3f("u_DirLight.color", m_DirLightCol); //0.38,0.38,0.38
-        m_QuadShader->SetUniform1f("u_AbsorptionCoefficient", 0.5);
-        m_QuadShader->SetUniform1f("u_ScatteringCoefficient", 2.6);
+        m_QuadShader->SetUniform1f("u_AbsorptionCoefficient", m_AbsorptionCoefficient);
+        m_QuadShader->SetUniform1f("u_ScatteringCoefficient", m_ScatteringCoefficient);
         m_QuadShader->SetUniformVec3f("u_ExtinctionColor", glm::vec3(1.0,1.0,1.0));
         m_QuadShader->SetUniform1f("iTime", glfwGetTime());
-        m_QuadShader->SetUniform1f("_DensityFalloff", 1.0 - 0.25);
+        m_QuadShader->SetUniform1f("_DensityFalloff", 1.0 - m_DensityFalloff);
         m_QuadShader->SetUniformVec3f("u_VoxelSpaceBounds", m_VoxelGrid->GetBounds());
         m_QuadShader->SetUniform1f("_SmokeSize", 4.0);
         m_QuadShader->SetUniformVec3f("_AnimationDirection", glm::vec3(0.0, -0.1, 0.0));
@@ -387,8 +394,8 @@ void Test::TestSmoke::OnRenderer()
         m_QuadShader->SetUniformVec3f("u_SmokeColor", m_SmokeColor);
         m_QuadShader->SetUniform1f("u_StepSize", m_StepSize);
         m_QuadShader->SetUniform1f("u_LigthStepSize", m_LigthStepSize);
-        m_QuadShader->SetUniform1f("near_plane", 0.1f);
-        m_QuadShader->SetUniform1f("far_plane", 500.0f);
+        m_QuadShader->SetUniform1f("u_VolumeDensity", m_VolumeDensity);
+        m_QuadShader->SetUniform1f("u_ShadowDensity", m_ShadowDensity);
         m_Quad->Draw(*m_QuadShader);
     }
     glEnable(GL_DEPTH_TEST);
@@ -419,6 +426,11 @@ void Test::TestSmoke::OnImGuiRenderer()
     ImGui::SliderFloat("StepSize", &m_StepSize, 0.01f, 0.5f);
     ImGui::SliderFloat("LigthStepSize", &m_LigthStepSize, 0.01f, 0.5f);
     ImGui::SliderFloat3("Smoke Size", (float*)m_Smoke->GetEllipsoidPtr(), 1.0f, 4.0f);
+    ImGui::SliderFloat("Volume Density", &m_VolumeDensity, 0.0f, 5.0f);
+    ImGui::SliderFloat("Shadow Density", &m_ShadowDensity, 0.0f, 5.0f);
+    ImGui::SliderFloat("Absorption Coefficient", &m_AbsorptionCoefficient, 0.0f, 5.0f);
+    ImGui::SliderFloat("Scattering Coefficient", &m_ScatteringCoefficient, 0.0f, 5.0f);
+    ImGui::SliderFloat("Density Fallof", &m_DensityFalloff, 0.0f, 1.0f);
     ImGui::Checkbox("Debug Voxels", &m_DebugVoxels);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
@@ -442,7 +454,7 @@ void Test::TestSmoke::UpdateInputs(const double& deltaTime)
             glm::vec3 intersectInPlane = rayPlaneIntersection(cameraPosition, cameraFront, pointOnPlane, planeNormal);
             m_VoxelGrid->ClearStatus();
             m_Smoke->Detonate(intersectInPlane);
-            m_VoxelGrid->Flood(intersectInPlane, *m_Smoke->GetEllipsoidPtr(), 9.0);
+            m_VoxelGrid->Flood(intersectInPlane, *m_Smoke->GetEllipsoidPtr(), 10.0);
         }
     }
     else

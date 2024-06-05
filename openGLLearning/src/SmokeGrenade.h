@@ -8,7 +8,6 @@ private:
 	float m_ExpandTime;
 	float m_Timer;
 	bool m_IsDetoned;
-	float m_MaxDistance;
 	glm::vec3 m_DetonationWorldPos;
 	glm::vec3 m_Color;
 	glm::vec3 m_Ellipsoid;
