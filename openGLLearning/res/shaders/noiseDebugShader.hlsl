@@ -23,7 +23,7 @@ uniform sampler3D _NoiseTex;
 
 void main()
 {
-    //vec3 texCol = texture(tex, vec3(TexCoords,0)).rgb;
+    vec3 texCol = texture(_NoiseTex, vec3(TexCoords,0)).rgb;
     float result = texture(_NoiseTex, vec3(0.8)).r;
     if (result < 0.5f)
     {
@@ -33,5 +33,6 @@ void main()
     {
         FragColor = vec4(vec3(0.0,1.0,0), 1.0);
     }
+    FragColor = vec4(texCol, 1.0);
     
 }
