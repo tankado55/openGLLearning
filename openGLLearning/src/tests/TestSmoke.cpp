@@ -289,7 +289,7 @@ void Test::TestSmoke::OnRenderer()
     { // intersection cube
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, intersectInPlane);
-        model = glm::scale(model, glm::vec3(0.5, 0.5, 0.5));
+        model = glm::scale(model, glm::vec3(0.25, 0.25, 0.25));
         m_FlatColorShader->Bind(); // it is done also in renderer.draw but it is necessary here to set the uniform
         m_FlatColorShader->SetUniformMat4f("u_View", m_View);
         m_FlatColorShader->SetUniformMat4f("u_Projection", m_Proj);
@@ -430,7 +430,7 @@ void Test::TestSmoke::OnImGuiRenderer()
     ImGui::SliderFloat("Shadow Density", &m_ShadowDensity, 0.0f, 5.0f);
     ImGui::SliderFloat("Absorption Coefficient", &m_AbsorptionCoefficient, 0.0f, 5.0f);
     ImGui::SliderFloat("Scattering Coefficient", &m_ScatteringCoefficient, 0.0f, 5.0f);
-    ImGui::SliderFloat("Density Fallof", &m_DensityFalloff, 0.0f, 1.0f);
+    ImGui::SliderFloat("Density Falloff", &m_DensityFalloff, 0.0f, 1.0f);
     ImGui::Checkbox("Debug Voxels", &m_DebugVoxels);
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
