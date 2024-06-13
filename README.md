@@ -1,2 +1,2 @@
-# openGLLearning
-OpenGL learning project
+# Smoke Grenade
+Smoke Grenade Opengl learning project
