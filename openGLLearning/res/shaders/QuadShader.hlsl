@@ -249,69 +249,74 @@ vec4 calcFogColor()
     //    return vec4(vec3(1.0,0.0,0.0), 0.0);
     //}
 
-    distanceTraveled -= 0.4f;
-    worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
-
-    float depth = texture(_DepthMap, uvCoord).r;
-    vec4 screenPosNDC = vec4(uvCoord.x, uvCoord.y, depth, 1.0) * 2.0 - 1.0;
-    vec4 worldPosition = inverse(projMatrix * viewMatrix) * screenPosNDC;
-    worldPosition = worldPosition / worldPosition.w;
-    float sceneIntersectDistance = -((u_CameraWorldPos - worldPosition) / vec4(rayDir,1.0)).x;
-
-    for (int i = 0; i * u_StepSize < maxDistance && distanceTraveled < sceneIntersectDistance; i++)
+    if (vv > 0)
     {
+        distanceTraveled -= 0.4f;
         worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
-        distanceTraveled += u_StepSize;
 
-        float sampledDensity = getDensity(worldPointToCheck);
-        accumDensity += sampledDensity * volumeDensity;
-        thickness += u_StepSize * sampledDensity;
-        alpha = exp(-thickness * accumDensity * extinctionCoefficient);
+        float depth = texture(_DepthMap, uvCoord).r;
+        vec4 screenPosNDC = vec4(uvCoord.x, uvCoord.y, depth, 1.0) * 2.0 - 1.0;
+        vec4 worldPosition = inverse(projMatrix * viewMatrix) * screenPosNDC;
+        worldPosition = worldPosition / worldPosition.w;
+        float sceneIntersectDistance = -((u_CameraWorldPos - worldPosition) / vec4(rayDir, 1.0)).x;
 
-        // To the light
-        if (sampledDensity >= 0.001)
+        for (int i = 0; i * u_StepSize < maxDistance && distanceTraveled < sceneIntersectDistance; i++)
         {
-            float tau = 0.0f;
-            float accumDensityToLight = 0.0f;
-            for (int j = 0; j * u_LigthStepSize < toLightMaxDistance; j++)
+            worldPointToCheck = vec3(u_CameraWorldPos) + (distanceTraveled * rayDir);
+            distanceTraveled += u_StepSize;
+
+            float sampledDensity = getDensity(worldPointToCheck);
+            accumDensity += sampledDensity * volumeDensity;
+            thickness += u_StepSize * sampledDensity;
+            alpha = exp(-thickness * accumDensity * extinctionCoefficient);
+
+            // To the light
+            if (sampledDensity >= 0.001)
             {
-                vec3 worldPointToCheckToLight = vec3(worldPointToCheck) - (u_DirLight.direction * j * u_LigthStepSize);
-                
-                int index1D = getVoxelIndex(worldPointToCheckToLight);
-                if (index1D != -1) // check if the index is valid
+                float tau = 0.0f;
+                float accumDensityToLight = 0.0f;
+                for (int j = 0; j * u_LigthStepSize < toLightMaxDistance; j++)
                 {
-                    float texelData = texelFetch(voxelBuffer, index1D).r;
-                            
-                    float sampledDensity = getDensity(worldPointToCheck);
-                    tau += sampledDensity * shadowDensity;
+                    vec3 worldPointToCheckToLight = vec3(worldPointToCheck) - (u_DirLight.direction * j * u_LigthStepSize);
+
+                    int index1D = getVoxelIndex(worldPointToCheckToLight);
+                    if (index1D != -1) // check if the index is valid
+                    {
+                        float texelData = texelFetch(voxelBuffer, index1D).r;
+
+                        float sampledDensity = getDensity(worldPointToCheck);
+                        tau += sampledDensity * shadowDensity;
+                    }
                 }
+                vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
+                col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity * sampledDensity;
             }
-            vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
-            col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity * sampledDensity;
+        }
+        // Inbetween sample in the case of overshooting scene depth
+        if (distanceTraveled > sceneIntersectDistance) {
+            worldPointToCheck -= (distanceTraveled - sceneIntersectDistance) * rayDir;
+            thickness -= distanceTraveled - sceneIntersectDistance;
+
+            float v = getDensity(worldPointToCheck);
+            float sampleDensity = v;
+            accumDensity += volumeDensity * sampleDensity;
+            alpha = exp(-thickness * accumDensity * extinctionCoefficient);
+            if (v > 0.001f) {
+                float tau = 0.0f;
+                vec3 lightPos = worldPointToCheck;
+                for (int j = 0; j * u_LigthStepSize < toLightMaxDistance; j++) {
+                    tau += v * shadowDensity;
+                    lightPos -= u_LigthStepSize * vec3(0, -1, 0);
+                    v = getDensity(lightPos);
+                }
+
+                vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
+                col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity * sampleDensity;
+            }
         }
     }
-    // Inbetween sample in the case of overshooting scene depth
-    if (distanceTraveled > sceneIntersectDistance) {
-        worldPointToCheck -= (distanceTraveled - sceneIntersectDistance) * rayDir;
-        thickness -= distanceTraveled - sceneIntersectDistance;
 
-        float v = getDensity(worldPointToCheck);
-        float sampleDensity = v;
-        accumDensity += volumeDensity * sampleDensity;
-        alpha = exp(-thickness * accumDensity * extinctionCoefficient);
-        if (v > 0.001f) {
-            float tau = 0.0f;
-            vec3 lightPos = worldPointToCheck;
-            for (int j = 0; j * u_LigthStepSize < toLightMaxDistance; j++) {
-                tau += v * shadowDensity;
-                lightPos -= u_LigthStepSize * vec3(0, -1, 0);
-                v = getDensity(lightPos);
-            }
-
-            vec3 lightAttenuation = exp(-(tau / u_ExtinctionColor) * extinctionCoefficient * shadowDensity);
-            col += u_DirLight.color * lightAttenuation * alpha * u_ScatteringCoefficient * volumeDensity * sampleDensity;
-        }
-    }
+    
     return vec4(col, 1.0 - alpha);
 }
 
